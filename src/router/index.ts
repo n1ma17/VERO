@@ -13,6 +13,36 @@ const router = createRouter({
       name: 'transactions',
       component: () => import('@/pages/TransactionsPage.vue'),
     },
+    {
+      path: '/deposits',
+      name: 'deposits',
+      component: () => import('@/pages/DepositsPage.vue'),
+    },
+    {
+      path: '/bills/:id?',
+      name: 'bills',
+      component: () => import('@/pages/BillsPage.vue'),
+    },
+    {
+      path: '/expenses',
+      name: 'expenses',
+      component: () => import('@/pages/ExpensesPage.vue'),
+    },
+    {
+      path: '/expenses/entry/:id?',
+      name: 'expense-entry',
+      component: () => import('@/pages/ExpenseEntryPage.vue'),
+    },
+    {
+      path: '/installments',
+      name: 'installments',
+      component: () => import('@/pages/InstallmentsPage.vue'),
+    },
+    {
+      path: '/installments/:id',
+      name: 'installment-detail',
+      component: () => import('@/pages/InstallmentDetailPage.vue'),
+    },
   ],
 })
 

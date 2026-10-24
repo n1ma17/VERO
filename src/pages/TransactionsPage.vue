@@ -1,13 +1,24 @@
 <script setup lang="ts">
 import PageHeader from '@/components/shared/PageHeader.vue'
-import TransactionForm from '@/components/Transactions/TransactionForm.vue'
-import TransactionList from '@/components/Transactions/TransactionList.vue'
+import LedgerChart from '@/components/Transactions/LedgerChart.vue'
+import LedgerCoverage from '@/components/Transactions/LedgerCoverage.vue'
+import LedgerMonthNavigator from '@/components/Transactions/LedgerMonthNavigator.vue'
+import LedgerSummaryCards from '@/components/Transactions/LedgerSummaryCards.vue'
+import LedgerTable from '@/components/Transactions/LedgerTable.vue'
 </script>
 
 <template>
-  <PageHeader title="Transactions" subtitle="Add and manage your income and expenses" />
+  <PageHeader
+    title="Transactions"
+    subtitle="Deposits, bills, expenses and remaining balance by Jalali month"
+  />
   <div class="space-y-6">
-    <TransactionForm />
-    <TransactionList />
+    <LedgerMonthNavigator />
+    <LedgerSummaryCards />
+    <div class="grid gap-6 lg:grid-cols-3">
+      <LedgerChart class="lg:col-span-2" />
+      <LedgerCoverage />
+    </div>
+    <LedgerTable />
   </div>
 </template>

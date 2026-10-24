@@ -1,30 +1,73 @@
 /*
- * Single source of truth for every color in the project.
- * The default Tailwind palette is disabled, so only the tokens below exist
- * (e.g. bg-primary, text-content-muted, border-border).
+ * Loan-app palette (reference UI). Default Tailwind palette is disabled.
+ * Use semantic tokens only: bg-background, bg-surface, bg-accent, text-content-on-surface, …
  */
 @theme {
   --color-*: initial;
 
-  --color-primary: #4f46e5;
-  --color-primary-hover: #4338ca;
-  --color-primary-soft: #eef2ff;
+  /* App shell — deep slate green */
+  --color-background: #41595B;
+  --color-background-elevated: #5d7572;
+  --color-border: #4a6360;
+  --color-border-subtle: #455e5b;
+
+  /* Cards & highlights */
+  --color-surface: #ffffff;
+  --color-surface-inactive: #334745;
+  --color-accent: #FAD0A8;
+  --color-accent-hover: #eec498;
+
+  /* Text on dark background */
+  --color-content: #ffffff;
+  --color-content-muted: #aeb9b7;
+
+  /* Text on white / peach surfaces */
+  --color-content-on-surface: #2d3436;
+  --color-content-on-surface-muted: #7a7a7a;
+
+  /* Interactive / chrome */
+  --color-primary: #607C7D;
+  --color-primary-hover: #4d6562;
+  --color-primary-soft: #607d7b;
   --color-on-primary: #ffffff;
 
-  --color-success: #16a34a;
-  --color-success-soft: #dcfce7;
+  /* Status (muted to match the UI) */
+  --color-success: #3a6b5c;
+  --color-success-soft: #dce8e4;
 
-  --color-danger: #dc2626;
-  --color-danger-hover: #b91c1c;
-  --color-danger-soft: #fee2e2;
+  --color-danger: #b85c50;
+  --color-danger-hover: #9e4e44;
+  --color-danger-soft: #f0e0dd;
+  /* Readable negative values on dark surfaces (dashboard hero) */
+  --color-danger-on-dark: #f19a8c;
 
-  --color-warning: #d97706;
-  --color-warning-soft: #fef3c7;
+  --color-warning: #c4925a;
+  --color-warning-soft: #f5e6d4;
 
-  --color-background: #f8fafc;
-  --color-surface: #ffffff;
-  --color-border: #e2e8f0;
+  /* Receipt printer device */
+  --color-printer: #22302f;
+  --color-printer-edge: #192423;
+  --color-printer-screen: #131c1b;
+  --color-printer-slot: #0b1110;
+  --color-printer-led: #8fd9b0;
 
-  --color-content: #0f172a;
-  --color-content-muted: #64748b;
+  /* Bank card (deposits page) */
+  --color-bank-card-from: #2a403e;
+  --color-bank-card-to: #1c2b29;
+  --color-bank-card-chip: #e8d4b8;
+  --color-bank-card-shine: #f5cba7;
+
+  /* Categorical chart palette (dashboard bill breakdown) */
+  --color-chart-1: #3a6b5c;
+  --color-chart-2: #f5cba7;
+  --color-chart-3: #b85c50;
+  --color-chart-4: #c4925a;
+  --color-chart-5: #8fb8b0;
+  --color-chart-6: #5f86a0;
+  --color-chart-7: #8a6f9e;
+  --color-chart-8: #9a9f4f;
+  --color-chart-9: #c47a8a;
+  --color-chart-10: #4a6fa5;
+  --color-chart-11: #a06840;
+  --color-chart-muted: #c9d1cf;
 }

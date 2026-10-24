@@ -81,6 +81,7 @@ src/
    const toneClasses = { success: 'bg-success-soft text-success', danger: 'bg-danger-soft text-danger' }
    ```
 5. Variants (primary/danger/...) are expressed as props on shared components (see `BaseButton.vue`), not as ad-hoc class combos repeated across files.
+6. Custom animations are defined as `--animate-*` + `@keyframes` inside `@theme` in `src/styles/main.css`, then used as Tailwind classes (`animate-receipt-feed`). Enter/leave effects use Vue `<Transition>` with Tailwind classes. No animation libraries unless the user asks.
 
 ---
 

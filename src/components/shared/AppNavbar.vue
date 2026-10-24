@@ -1,25 +1,21 @@
 <script setup lang="ts">
-const links = [
-  { to: '/', label: 'Dashboard' },
-  { to: '/transactions', label: 'Transactions' },
-]
+import { computed } from 'vue'
+import { currentJalaliDate, formatJalaliDate, JALALI_WEEKDAY_NAMES, jalaliWeekdayIndex } from '@/utils/jalali'
+
+const today = currentJalaliDate()
+const todayLabel = computed(
+  () =>
+    `${JALALI_WEEKDAY_NAMES[jalaliWeekdayIndex(today.year, today.month, today.day)]}, ${formatJalaliDate(today.year, today.month, today.day)}`,
+)
 </script>
 
 <template>
-  <header class="border-b border-border bg-surface">
-    <nav class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-      <RouterLink to="/" class="text-lg font-bold text-primary">Money Management</RouterLink>
-      <ul class="flex gap-2">
-        <li v-for="link in links" :key="link.to">
-          <RouterLink
-            :to="link.to"
-            class="rounded-lg px-3 py-2 text-sm font-medium text-content-muted transition hover:bg-primary-soft hover:text-primary"
-            exact-active-class="bg-primary-soft text-primary"
-          >
-            {{ link.label }}
-          </RouterLink>
-        </li>
-      </ul>
-    </nav>
+  <header class="border-b border-border-subtle bg-background-elevated">
+    <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+      <RouterLink to="/" class="text-base font-bold text-content sm:text-lg">
+        Money Management
+      </RouterLink>
+      <p class="text-xs text-content-muted sm:text-sm">{{ todayLabel }}</p>
+    </div>
   </header>
 </template>
