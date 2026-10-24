@@ -33,6 +33,7 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 
 ## Task log
 <!-- Newest first. Format: - YYYY-MM-DD — summary (files touched) -->
+- 2026-10-24 — Git remote `origin` → https://github.com/n1ma17/VERO.git; pushed `master` (commit c53b942).
 - 2026-10-24 — Bottom nav: horizontal `--nav-pad-x` on track so edge tabs clear rounded corners; active icon absolutely centered in raised circle (`main.css`).
 - 2026-10-24 — Bottom nav: scooped notch + gap under the raised circle (mask on the pill, not a ring on the circle); pill max-width 320px (`main.css`, `AppBottomNav` `data-index`).
 - 2026-10-24 — Replaced header page links with a fixed curved bottom nav (`AppBottomNav`, `AppNavIcon`, `appNav.ts`, `.app-bottom-nav*` in `main.css`). Header is title + Jalali date. Active tab: raised `danger` circle on the pill. Nested routes stay highlighted.
