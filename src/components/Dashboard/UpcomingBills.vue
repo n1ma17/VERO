@@ -27,7 +27,7 @@ function dueText(bill: UpcomingBill): string {
 
 <template>
   <section
-    class="flex animate-fade-up flex-col rounded-3xl bg-surface p-6 text-text shadow-lg [animation-delay:360ms] motion-reduce:animate-none"
+    class="flex min-w-0 animate-fade-up flex-col overflow-hidden rounded-3xl bg-surface p-4 text-text shadow-lg [animation-delay:360ms] motion-reduce:animate-none sm:p-6"
   >
     <div class="flex items-baseline justify-between">
       <h2 class="text-lg font-semibold">Upcoming bills</h2>
@@ -53,8 +53,8 @@ function dueText(bill: UpcomingBill): string {
             <p class="truncate font-medium group-hover:underline">{{ bill.title }}</p>
             <p class="truncate text-xs text-text-muted">{{ bill.dueLabel }}</p>
           </div>
-          <div class="text-right">
-            <p class="whitespace-nowrap font-mono text-sm font-semibold">{{ formatToman(bill.amount) }}</p>
+          <div class="shrink-0 max-w-[42%] text-right">
+            <p class="font-mono text-xs font-semibold leading-tight sm:text-sm">{{ formatToman(bill.amount) }}</p>
             <span
               class="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold"
               :class="dueClasses[dueTone(bill)]"

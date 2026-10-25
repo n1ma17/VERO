@@ -5,10 +5,10 @@ import AppToastHost from '@/components/shared/AppToastHost.vue'
 </script>
 
 <template>
-  <div class="min-h-screen">
+  <div class="min-h-screen min-w-0 overflow-x-clip">
     <AppToastHost />
     <AppNavbar />
-    <main class="mx-auto max-w-5xl px-4 py-8 pb-28">
+    <main class="mx-auto min-w-0 max-w-5xl px-4 py-8 pb-28">
       <RouterView />
     </main>
     <AppBottomNav />

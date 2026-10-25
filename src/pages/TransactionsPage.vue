@@ -12,11 +12,11 @@ import LedgerTable from '@/components/Transactions/LedgerTable.vue'
     title="Transactions"
     subtitle="Deposits, bills, expenses and remaining balance by Jalali month"
   />
-  <div class="space-y-6">
+  <div class="min-w-0 space-y-6">
     <ViewMonthNavigator context="ledger" />
     <LedgerSummaryCards />
-    <div class="grid gap-6 lg:grid-cols-3">
-      <LedgerChart class="lg:col-span-2" />
+    <div class="grid min-w-0 gap-6 lg:grid-cols-3">
+      <LedgerChart class="min-w-0 lg:col-span-2" />
       <LedgerCoverage />
     </div>
     <LedgerTable />

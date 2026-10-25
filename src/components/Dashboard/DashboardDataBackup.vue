@@ -82,7 +82,7 @@ async function confirmImport() {
 
 <template>
   <section
-    class="animate-fade-up rounded-3xl bg-surface p-6 text-text shadow-lg [animation-delay:540ms] motion-reduce:animate-none"
+    class="min-w-0 animate-fade-up overflow-hidden rounded-3xl bg-surface p-4 text-text shadow-lg [animation-delay:540ms] motion-reduce:animate-none sm:p-6"
   >
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div>

@@ -53,7 +53,7 @@ function balanceClass(value: number) {
 </script>
 
 <template>
-  <section class="rounded-3xl bg-surface p-6 text-text shadow-lg">
+  <section class="min-w-0 overflow-hidden rounded-3xl bg-surface p-4 text-text shadow-lg sm:p-6">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
         <h2 class="text-lg font-semibold">Statement</h2>

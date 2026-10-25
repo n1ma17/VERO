@@ -15,7 +15,7 @@ import PageHeader from '@/components/shared/PageHeader.vue'
       Add expense
     </RouterLink>
   </div>
-  <div class="space-y-8">
+  <div class="min-w-0 space-y-8">
     <ViewMonthNavigator context="expenses" />
     <ExpenseSummary />
     <ExpenseList />

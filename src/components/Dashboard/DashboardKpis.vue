@@ -43,9 +43,9 @@ const staggerClasses = [
 </script>
 
 <template>
-  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+  <div class="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-6">
     <article
-      class="animate-fade-up rounded-3xl bg-surface p-5 text-text shadow-lg motion-reduce:animate-none lg:col-span-2"
+      class="min-w-0 animate-fade-up rounded-3xl bg-surface p-4 text-text shadow-lg motion-reduce:animate-none sm:p-5 lg:col-span-2"
       :class="staggerClasses[0]"
     >
       <div class="flex items-center justify-between">
@@ -58,7 +58,7 @@ const staggerClasses = [
           </svg>
         </span>
       </div>
-      <p class="mt-3 whitespace-nowrap font-mono text-2xl font-bold text-success">
+      <p class="mt-3 font-mono text-xl font-bold leading-tight text-success sm:text-2xl">
         {{ formatTomanNumber(monthIncome) }}<span class="ml-1 font-sans text-xs font-medium">Toman</span>
       </p>
       <p class="mt-1 text-xs text-text-muted">
@@ -67,7 +67,7 @@ const staggerClasses = [
     </article>
 
     <article
-      class="animate-fade-up rounded-3xl bg-surface p-5 text-text shadow-lg motion-reduce:animate-none lg:col-span-2"
+      class="min-w-0 animate-fade-up rounded-3xl bg-surface p-4 text-text shadow-lg motion-reduce:animate-none sm:p-5 lg:col-span-2"
       :class="staggerClasses[1]"
     >
       <div class="flex items-center justify-between">
@@ -80,7 +80,7 @@ const staggerClasses = [
           </svg>
         </span>
       </div>
-      <p class="mt-3 whitespace-nowrap font-mono text-2xl font-bold text-danger">
+      <p class="mt-3 font-mono text-xl font-bold leading-tight text-danger sm:text-2xl">
         {{ formatTomanNumber(monthBills) }}<span class="ml-1 font-sans text-xs font-medium">Toman</span>
       </p>
       <p class="mt-1 text-xs text-text-muted">{{ monthBillCount }} bill(s) due this month</p>
@@ -88,7 +88,7 @@ const staggerClasses = [
 
     <RouterLink
       to="/expenses"
-      class="animate-fade-up rounded-3xl bg-surface p-5 text-text shadow-lg transition hover:-translate-y-0.5 motion-reduce:animate-none sm:col-span-2 lg:col-span-2"
+      class="min-w-0 animate-fade-up rounded-3xl bg-surface p-4 text-text shadow-lg transition hover:-translate-y-0.5 motion-reduce:animate-none sm:col-span-2 sm:p-5 lg:col-span-2"
       :class="staggerClasses[2]"
     >
       <div class="flex items-center justify-between">
@@ -103,14 +103,14 @@ const staggerClasses = [
           </svg>
         </span>
       </div>
-      <p class="mt-3 whitespace-nowrap font-mono text-2xl font-bold text-warning">
+      <p class="mt-3 font-mono text-xl font-bold leading-tight text-warning sm:text-2xl">
         {{ formatTomanNumber(monthExpenses) }}<span class="ml-1 font-sans text-xs font-medium">Toman</span>
       </p>
       <p class="mt-1 text-xs text-text-muted">{{ monthExpenseCount }} purchase(s) this month</p>
     </RouterLink>
 
     <article
-      class="flex animate-fade-up items-center gap-4 rounded-3xl bg-surface p-5 text-text shadow-lg motion-reduce:animate-none lg:col-span-3"
+      class="flex min-w-0 animate-fade-up items-center gap-4 rounded-3xl bg-surface p-4 text-text shadow-lg motion-reduce:animate-none sm:p-5 lg:col-span-3"
       :class="staggerClasses[3]"
     >
       <svg viewBox="0 0 56 56" class="size-14 shrink-0 -rotate-90" aria-hidden="true">
@@ -142,7 +142,7 @@ const staggerClasses = [
 
     <RouterLink
       to="/installments"
-      class="animate-fade-up rounded-3xl p-5 shadow-lg transition hover:-translate-y-0.5 motion-reduce:animate-none lg:col-span-3"
+      class="min-w-0 animate-fade-up rounded-3xl p-4 shadow-lg transition hover:-translate-y-0.5 motion-reduce:animate-none sm:p-5 lg:col-span-3"
       :class="[overdueCardClasses[hasOverdue ? 'alert' : 'clear'], staggerClasses[4]]"
     >
       <div class="flex items-center justify-between">
@@ -163,7 +163,7 @@ const staggerClasses = [
         </span>
       </div>
       <template v-if="hasOverdue">
-        <p class="mt-3 whitespace-nowrap font-mono text-2xl font-bold">
+        <p class="mt-3 font-mono text-xl font-bold leading-tight sm:text-2xl">
           {{ formatTomanNumber(overdueAmount) }}<span class="ml-1 font-sans text-xs font-medium">Toman</span>
         </p>
         <p class="mt-1 text-xs opacity-80">{{ overdueCount }} installment(s) past due — review now</p>

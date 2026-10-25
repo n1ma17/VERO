@@ -18,12 +18,12 @@ function share(amount: number) {
 </script>
 
 <template>
-  <section class="grid gap-6 rounded-3xl bg-surface p-6 text-text md:grid-cols-[14rem_1fr]">
+  <section class="min-w-0 grid gap-6 overflow-hidden rounded-3xl bg-surface p-4 text-text sm:p-6 md:grid-cols-[minmax(0,14rem)_minmax(0,1fr)]">
     <div class="md:border-r md:border-primary/20 md:pr-6">
       <p class="text-xs font-medium uppercase tracking-widest text-text-muted">
         Spent this month
       </p>
-      <p class="mt-2 whitespace-nowrap font-mono text-3xl font-bold text-warning">
+      <p class="mt-2 font-mono text-2xl font-bold leading-tight text-warning sm:text-3xl">
         {{ formatTomanNumber(monthTotal) }}<span class="ml-1 font-sans text-xs font-medium">Toman</span>
       </p>
       <p class="mt-1 text-sm text-text-muted">
@@ -32,12 +32,16 @@ function share(amount: number) {
     </div>
 
     <ul v-if="categoryTotals.length" class="space-y-3">
-      <li v-for="item in categoryTotals" :key="item.category" class="grid grid-cols-[8rem_1fr_10.5rem] items-center gap-3 text-sm">
-        <span class="flex items-center gap-2 truncate">
+      <li
+        v-for="item in categoryTotals"
+        :key="item.category"
+        class="grid gap-2 text-sm sm:grid-cols-[minmax(0,7rem)_minmax(0,1fr)_auto] sm:items-center sm:gap-3"
+      >
+        <span class="flex min-w-0 items-center gap-2">
           <span class="size-2.5 shrink-0 rounded-full" :class="expenseCategories[item.category].dot" />
-          {{ expenseCategories[item.category].label }}
+          <span class="truncate">{{ expenseCategories[item.category].label }}</span>
         </span>
-        <svg viewBox="0 0 100 6" preserveAspectRatio="none" class="h-2 w-full" aria-hidden="true">
+        <svg viewBox="0 0 100 6" preserveAspectRatio="none" class="h-2 w-full min-w-0" aria-hidden="true">
           <rect width="100" height="6" rx="3" class="fill-primary/15/10" />
           <rect
             :width="barWidth(item.amount)"
@@ -46,7 +50,7 @@ function share(amount: number) {
             :class="expenseCategories[item.category].fill"
           />
         </svg>
-        <span class="whitespace-nowrap text-right font-mono text-xs">
+        <span class="font-mono text-xs sm:text-right">
           {{ formatToman(item.amount) }}
           <span class="text-text-muted">· {{ share(item.amount) }}%</span>
         </span>

@@ -80,7 +80,7 @@ function selectMonth(year: number, month: number) {
 </script>
 
 <template>
-  <section class="rounded-3xl bg-surface p-6 text-text shadow-lg">
+  <section class="min-w-0 overflow-hidden rounded-3xl bg-surface p-4 text-text shadow-lg sm:p-6">
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
         <h2 class="text-lg font-semibold">Last 6 months</h2>
@@ -116,20 +116,20 @@ function selectMonth(year: number, month: number) {
       </div>
       <div>
         <dt class="text-xs text-text-muted">Deposits</dt>
-        <dd class="whitespace-nowrap font-mono text-xs text-success">{{ formatToman(activeGroup.point.income) }}</dd>
+        <dd class="font-mono text-xs leading-tight text-success">{{ formatToman(activeGroup.point.income) }}</dd>
       </div>
       <div>
         <dt class="text-xs text-text-muted">Bills</dt>
-        <dd class="whitespace-nowrap font-mono text-xs text-danger">{{ formatToman(activeGroup.point.bills) }}</dd>
+        <dd class="font-mono text-xs leading-tight text-danger">{{ formatToman(activeGroup.point.bills) }}</dd>
       </div>
       <div>
         <dt class="text-xs text-text-muted">Expenses</dt>
-        <dd class="whitespace-nowrap font-mono text-xs text-warning">{{ formatToman(activeGroup.point.expenses) }}</dd>
+        <dd class="font-mono text-xs leading-tight text-warning">{{ formatToman(activeGroup.point.expenses) }}</dd>
       </div>
       <div>
         <dt class="text-xs text-text-muted">Balance</dt>
         <dd
-          class="whitespace-nowrap font-mono text-xs font-semibold"
+          class="font-mono text-xs font-semibold leading-tight"
           :class="activeGroup.point.balance < 0 ? 'text-danger' : 'text-text'"
         >
           {{ formatToman(activeGroup.point.balance) }}

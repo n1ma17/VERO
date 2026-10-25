@@ -9,11 +9,11 @@ import UpcomingBills from '@/components/Dashboard/UpcomingBills.vue'
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="min-w-0 space-y-6">
     <DashboardHero />
     <DashboardKpis />
-    <div class="grid gap-6 lg:grid-cols-3">
-      <CashFlowChart class="lg:col-span-2" />
+    <div class="grid min-w-0 gap-6 lg:grid-cols-3">
+      <CashFlowChart class="min-w-0 lg:col-span-2" />
       <UpcomingBills />
     </div>
     <div class="grid min-w-0 gap-6 lg:grid-cols-2">

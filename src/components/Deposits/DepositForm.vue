@@ -107,7 +107,7 @@ function cancel() {
 </script>
 
 <template>
-  <section class="rounded-3xl bg-surface p-6 text-text shadow-lg">
+  <section class="min-w-0 overflow-hidden rounded-3xl bg-surface p-4 text-text shadow-lg sm:p-6">
     <h2 class="text-lg font-semibold">{{ isEditing ? 'Edit deposit' : 'Add deposit' }}</h2>
     <p class="mt-1 text-sm text-text-muted">
       Bank date is when the transfer arrived. Count toward month is which month it belongs to (e.g.

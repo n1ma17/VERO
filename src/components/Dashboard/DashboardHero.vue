@@ -77,7 +77,7 @@ const actions = [
 
 <template>
   <section
-    class="relative isolate animate-fade-up overflow-hidden rounded-[2rem] bg-primary p-6 text-background shadow-2xl motion-reduce:animate-none sm:p-8"
+    class="relative isolate animate-fade-up overflow-hidden rounded-[2rem] bg-primary p-4 text-background shadow-2xl motion-reduce:animate-none sm:p-6 md:p-8"
   >
     <div
       class="pointer-events-none absolute -right-24 -top-28 -z-10 size-80 rounded-full bg-accent/20 blur-3xl"
@@ -88,8 +88,8 @@ const actions = [
       aria-hidden="true"
     />
 
-    <div class="grid gap-8 lg:grid-cols-[1.25fr_1fr] lg:items-end">
-      <div>
+    <div class="grid min-w-0 gap-8 lg:grid-cols-[1.25fr_1fr] lg:items-end">
+      <div class="min-w-0">
         <p class="text-sm text-background/70">{{ todayLabel }}</p>
         <h1 class="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">{{ greeting }}</h1>
 
@@ -97,7 +97,7 @@ const actions = [
           Remaining balance
         </p>
         <p
-          class="mt-2 font-mono text-4xl font-bold tracking-tight sm:text-5xl"
+          class="mt-2 break-words font-mono text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl"
           :class="balanceClasses[balanceTone]"
         >
           {{ formatToman(balance) }}
@@ -121,7 +121,7 @@ const actions = [
             v-for="action in actions"
             :key="action.to"
             :to="action.to"
-            class="rounded-full px-5 py-2.5 text-sm font-semibold transition"
+            class="rounded-full px-4 py-2 text-sm font-semibold transition sm:px-5 sm:py-2.5"
             :class="actionClasses[action.tone]"
           >
             {{ action.label }}
@@ -129,7 +129,7 @@ const actions = [
         </div>
       </div>
 
-      <div class="rounded-3xl border border-background/10 bg-background/5 p-5 backdrop-blur-sm">
+      <div class="min-w-0 rounded-3xl border border-background/10 bg-background/5 p-4 backdrop-blur-sm sm:p-5">
         <div class="flex items-baseline justify-between">
           <p class="text-sm font-medium">Balance trend</p>
           <p class="text-xs text-background/70">Last 6 months</p>
@@ -137,7 +137,7 @@ const actions = [
 
         <svg
           :viewBox="`0 0 ${SPARK_WIDTH} ${SPARK_HEIGHT}`"
-          class="mt-3 h-28 w-full overflow-visible"
+          class="mt-3 h-28 w-full max-w-full"
           preserveAspectRatio="none"
           aria-hidden="true"
         >
@@ -160,8 +160,10 @@ const actions = [
             vector-effect="non-scaling-stroke"
           />
         </svg>
-        <div class="mt-2 flex justify-between text-[10px] uppercase tracking-wider text-background/70">
-          <span v-for="point in balanceTrend" :key="`${point.year}-${point.month}`">
+        <div
+          class="mt-2 grid grid-cols-6 gap-0.5 text-center text-[9px] uppercase tracking-wide text-background/70 sm:text-[10px] sm:tracking-wider"
+        >
+          <span v-for="point in balanceTrend" :key="`${point.year}-${point.month}`" class="truncate">
             {{ point.label }}
           </span>
         </div>

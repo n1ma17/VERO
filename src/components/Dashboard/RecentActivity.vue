@@ -48,7 +48,7 @@ function subtitle(item: ActivityItem) {
             <p class="text-xs text-text-muted">{{ subtitle(item) }}</p>
           </div>
           <p
-            class="whitespace-nowrap font-mono text-sm font-semibold"
+            class="shrink-0 max-w-[46%] text-end font-mono text-xs font-semibold leading-tight sm:text-sm"
             :class="item.kind === 'deposit' ? 'text-success' : 'text-warning'"
           >
             {{ item.kind === 'deposit' ? '+' : '−' }}{{ formatToman(item.amount) }}

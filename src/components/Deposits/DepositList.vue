@@ -29,7 +29,7 @@ function showsDifferentBankMonth(deposit: BankDeposit) {
 </script>
 
 <template>
-  <section class="rounded-3xl bg-surface p-6 text-text shadow-lg">
+  <section class="min-w-0 overflow-hidden rounded-3xl bg-surface p-4 text-text shadow-lg sm:p-6">
     <div class="flex items-baseline justify-between gap-4">
       <h2 class="text-lg font-semibold">Deposits</h2>
       <span class="text-sm text-text-muted">{{ monthLabel }}</span>
@@ -39,7 +39,7 @@ function showsDifferentBankMonth(deposit: BankDeposit) {
       <li
         v-for="deposit in depositsInViewMonth"
         :key="deposit.id"
-        class="flex items-center gap-3 rounded-2xl border px-4 py-3"
+        class="flex flex-col gap-3 rounded-2xl border px-4 py-3 sm:flex-row sm:items-center"
         :class="
           editingDepositId === deposit.id
             ? 'border-accent bg-accent/25'
