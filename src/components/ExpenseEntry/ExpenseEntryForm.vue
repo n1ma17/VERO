@@ -97,11 +97,11 @@ const dateLabel = computed(() => formatJalaliDate(form.year, form.month, form.da
 const amountLabel = computed(() => (form.amount && form.amount > 0 ? formatToman(form.amount) : '—'))
 
 const inputClasses =
-  'w-full rounded-2xl border border-border-subtle/50 bg-surface px-3 py-2.5 text-sm text-content-on-surface outline-none placeholder:text-content-on-surface-muted focus:border-primary focus:ring-2 focus:ring-accent/60 disabled:opacity-50'
+  'w-full rounded-2xl border border-primary/20 bg-surface px-3 py-2.5 text-sm text-text outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-accent/60 disabled:opacity-50'
 
 const chipClasses = {
   active: 'border-transparent ring-2 ring-primary ring-offset-1 ring-offset-surface',
-  idle: 'border-border-subtle/40 hover:border-accent',
+  idle: 'border-primary/20 hover:border-accent',
 } as const
 
 function submit() {
@@ -149,23 +149,23 @@ function deleteExpense() {
 <template>
   <article
     v-if="!expenseNotFound"
-    class="relative overflow-visible rounded-t-3xl bg-surface text-content-on-surface"
+    class="relative overflow-visible rounded-t-3xl bg-surface text-text"
   >
     <div class="h-2" :class="expenseCategories[form.category].strip" />
 
     <header class="px-6 pb-4 pt-6 text-center">
-      <p class="text-xs font-medium uppercase tracking-widest text-content-on-surface-muted">
+      <p class="text-xs font-medium uppercase tracking-widest text-text-muted">
         Purchase
       </p>
       <h2 class="mt-2 text-xl font-bold">{{ isEditing ? 'Edit expense' : 'New expense' }}</h2>
-      <p class="mt-1 text-xs text-content-on-surface-muted">{{ dateLabel }}</p>
+      <p class="mt-1 text-xs text-text-muted">{{ dateLabel }}</p>
     </header>
 
     <ReceiptDivider />
 
     <form class="space-y-4 px-6 py-5" @submit.prevent="submit">
       <div>
-        <label class="mb-1.5 block text-xs text-content-on-surface-muted">What did you buy?</label>
+        <label class="mb-1.5 block text-xs text-text-muted">What did you buy?</label>
         <input
           v-model="form.title"
           type="text"
@@ -178,7 +178,7 @@ function deleteExpense() {
       <TomanAmountInput v-model="form.amount" :disabled="isPrinterBusy" />
 
       <fieldset :disabled="isPrinterBusy">
-        <legend class="mb-1.5 text-xs text-content-on-surface-muted">Category</legend>
+        <legend class="mb-1.5 text-xs text-text-muted">Category</legend>
         <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
           <button
             v-for="category in EXPENSE_CATEGORY_ORDER"
@@ -209,8 +209,8 @@ function deleteExpense() {
       />
 
       <div>
-        <label class="mb-1.5 block text-xs text-content-on-surface-muted">
-          Note <span class="text-content-on-surface-muted/80">(optional)</span>
+        <label class="mb-1.5 block text-xs text-text-muted">
+          Note <span class="text-text-muted/80">(optional)</span>
         </label>
         <input
           v-model="form.note"
@@ -225,15 +225,15 @@ function deleteExpense() {
 
       <dl class="space-y-2 font-mono text-sm">
         <div class="flex justify-between gap-4">
-          <dt class="text-content-on-surface-muted">Category</dt>
+          <dt class="text-text-muted">Category</dt>
           <dd>{{ expenseCategories[form.category].label }}</dd>
         </div>
         <div class="flex justify-between gap-4">
-          <dt class="text-content-on-surface-muted">Counts in</dt>
+          <dt class="text-text-muted">Counts in</dt>
           <dd>{{ formatJalaliMonth(form.year, form.month) }}</dd>
         </div>
         <div class="flex justify-between gap-4">
-          <dt class="text-content-on-surface-muted">Amount</dt>
+          <dt class="text-text-muted">Amount</dt>
           <dd class="font-bold">{{ amountLabel }}</dd>
         </div>
       </dl>
@@ -251,7 +251,7 @@ function deleteExpense() {
       >
         {{ confirmingDelete ? 'Tap again to delete' : 'Delete expense' }}
       </BaseButton>
-      <p v-if="isPrinterBusy" class="text-center text-xs text-content-on-surface-muted">
+      <p v-if="isPrinterBusy" class="text-center text-xs text-text-muted">
         Printer is issuing your receipt…
       </p>
     </form>
@@ -263,10 +263,10 @@ function deleteExpense() {
 
   <article
     v-else
-    class="rounded-3xl border border-border-subtle/50 bg-surface px-6 py-10 text-center text-content-on-surface shadow-xl"
+    class="rounded-3xl border border-primary/20 bg-surface px-6 py-10 text-center text-text shadow-xl"
   >
     <p class="font-medium">Expense not found</p>
-    <p class="mt-2 text-sm text-content-on-surface-muted">
+    <p class="mt-2 text-sm text-text-muted">
       It may have been deleted from this device.
     </p>
     <RouterLink

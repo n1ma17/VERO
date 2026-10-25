@@ -33,6 +33,11 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 
 ## Task log
 <!-- Newest first. Format: - YYYY-MM-DD — summary (files touched) -->
+- 2026-10-25 — Bottom nav: `max-w-5xl px-4` wrapper (aligned with main + AppNavbar); bar `width: 100%`.
+- 2026-10-25 — Unified month navigator: `ViewMonthNavigator` + `JalaliMonthNavigatorBar` (shared); removed 4 page-specific navigators.
+- 2026-10-25 — Theme simplified to background, primary, accent, success/danger/warning, text (+ surface white); removed chart/nav/printer/bank hex tokens; migrated components to core tokens + opacity (`theme.css`, bulk class renames, `expenseCategories.ts`).
+- 2026-10-25 — Glass chrome: sticky blurred `AppNavbar`; frosted bottom pill (`backdrop-filter` in `main.css`).
+- 2026-10-25 — Bottom nav: nav-light pattern (sliding top bar + beam, per-tab glow, `nav-tab-*` tokens); replaced scooped raised circle (`AppBottomNav`, `main.css`, `theme.css`, `App.vue` pb).
 - 2026-10-25 — Deposits card 3D: Tailwind `rotate-x-*` was 2D `rotate` not `rotateX`; fixed with `.bank-card-scene` + `.bank-card-plate` in `main.css` (`bank-card-tilt-x/z`).
 - 2026-10-25 — Deposits hero restyled closer to reference: light `bank-balance-backdrop`, balance + muted unit, mandala card (`BankBalanceCard`, `BankCardPlastic`).
 - 2026-10-24 — Git remote `origin` → https://github.com/n1ma17/VERO.git; pushed `master` (commit c53b942).

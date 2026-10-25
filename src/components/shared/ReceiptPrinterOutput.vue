@@ -20,7 +20,7 @@ const isPaperVisible = computed(() => stage.value === 'printing' || stage.value 
     <div
       v-if="isPaperVisible"
       aria-hidden="true"
-      class="pointer-events-none absolute inset-x-2 -top-1 z-20 h-2 bg-printer-slot/75 blur-md"
+      class="pointer-events-none absolute inset-x-2 -top-1 z-20 h-2 bg-primary-slot/75 blur-md"
     />
     <div
       class="relative transition-opacity duration-150"

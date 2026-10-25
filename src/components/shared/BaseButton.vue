@@ -10,9 +10,9 @@ const props = withDefaults(
 )
 
 const variantClasses = {
-  primary: 'bg-surface text-content-on-surface hover:bg-accent',
-  danger: 'bg-danger text-on-primary hover:bg-danger-hover',
-  ghost: 'text-content-on-surface-muted hover:bg-danger-soft hover:text-danger',
+  primary: 'bg-surface text-text hover:bg-accent',
+  danger: 'bg-danger text-background hover:bg-danger',
+  ghost: 'text-text-muted hover:bg-danger/15 hover:text-danger',
 }
 
 const classes = computed(() => variantClasses[props.variant])

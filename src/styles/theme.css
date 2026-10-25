@@ -1,79 +1,23 @@
 /*
- * Loan-app palette (reference UI). Default Tailwind palette is disabled.
- * Use semantic tokens only: bg-background, bg-surface, bg-accent, text-content-on-surface, …
+ * Core palette only. Everything else uses these tokens + opacity (e.g. text-text/60).
+ * Default Tailwind palette is disabled.
  */
 @theme {
   --color-*: initial;
 
-  /* App shell — deep slate green */
-  --color-background: #41595B;
-  --color-background-elevated: #5d7572;
-  --color-border: #4a6360;
-  --color-border-subtle: #455e5b;
+  --color-background: #dbdddc;
+  --color-primary: #10202d;
+  --color-accent: #c8a667;
+  --color-success: #4a7d6a;
+  --color-danger: #c45c4e;
+  --color-warning: #c49a5a;
+  --color-text: #10202d;
+  --color-text-muted: color-mix(in oklab, var(--color-text) 48%, var(--color-background));
 
-  /* Cards & highlights */
+  /* White cards — not a brand hue */
   --color-surface: #ffffff;
-  --color-surface-inactive: #334745;
-  --color-accent: #FAD0A8;
-  --color-accent-hover: #eec498;
 
-  /* Text on dark background */
-  --color-content: #ffffff;
-  --color-content-muted: #aeb9b7;
-
-  /* Text on white / peach surfaces */
-  --color-content-on-surface: #2d3436;
-  --color-content-on-surface-muted: #7a7a7a;
-
-  /* Interactive / chrome */
-  --color-primary: #607C7D;
-  --color-primary-hover: #4d6562;
-  --color-primary-soft: #607d7b;
-  --color-on-primary: #ffffff;
-
-  /* Status (muted to match the UI) */
-  --color-success: #3a6b5c;
-  --color-success-soft: #dce8e4;
-
-  --color-danger: #b85c50;
-  --color-danger-hover: #9e4e44;
-  --color-danger-soft: #f0e0dd;
-  /* Readable negative values on dark surfaces (dashboard hero) */
-  --color-danger-on-dark: #f19a8c;
-
-  --color-warning: #c4925a;
-  --color-warning-soft: #f5e6d4;
-
-  /* Receipt printer device */
-  --color-printer: #22302f;
-  --color-printer-edge: #192423;
-  --color-printer-screen: #131c1b;
-  --color-printer-slot: #0b1110;
-  --color-printer-led: #8fd9b0;
-
-  /* Bank card (deposits page) */
-  --color-bank-card-from: #2a403e;
-  --color-bank-card-to: #1c2b29;
-  --color-bank-card-text: #ffffff;
-  --color-bank-card-chip: #e8d4b8;
-  --color-bank-card-shine: #f5cba7;
-  --color-bank-balance-backdrop: #e9eeed;
-  /* 3D tilt: card lies in the XY plane, tipped back with rotateX (not 2D rotate). */
   --bank-card-perspective: 68rem;
   --bank-card-tilt-x: 0deg;
   --bank-card-tilt-z: 0deg;
-
-  /* Categorical chart palette (dashboard bill breakdown) */
-  --color-chart-1: #3a6b5c;
-  --color-chart-2: #f5cba7;
-  --color-chart-3: #b85c50;
-  --color-chart-4: #c4925a;
-  --color-chart-5: #8fb8b0;
-  --color-chart-6: #5f86a0;
-  --color-chart-7: #8a6f9e;
-  --color-chart-8: #9a9f4f;
-  --color-chart-9: #c47a8a;
-  --color-chart-10: #4a6fa5;
-  --color-chart-11: #a06840;
-  --color-chart-muted: #c9d1cf;
 }

@@ -35,35 +35,35 @@ const verdict = computed(() => {
 </script>
 
 <template>
-  <section class="flex flex-col rounded-3xl bg-surface p-6 text-content-on-surface shadow-lg">
+  <section class="flex flex-col rounded-3xl bg-surface p-6 text-text shadow-lg">
     <h2 class="text-lg font-semibold">Spending coverage</h2>
-    <p class="mt-0.5 text-xs text-content-on-surface-muted">Share of deposits used by bills and expenses</p>
+    <p class="mt-0.5 text-xs text-text-muted">Share of deposits used by bills and expenses</p>
 
     <p class="mt-6 font-mono text-4xl font-bold" :class="isOver ? 'text-danger' : 'text-success'">
       {{ monthIncome > 0 ? `${usedPercent}%` : '—' }}
     </p>
 
     <svg viewBox="0 0 100 8" preserveAspectRatio="none" class="mt-4 h-3 w-full overflow-hidden rounded-full" aria-hidden="true">
-      <rect x="0" y="0" width="100" height="8" class="fill-primary-soft/20" />
+      <rect x="0" y="0" width="100" height="8" class="fill-primary/15/20" />
       <rect x="0" y="0" :width="segments.bills" height="8" class="fill-danger" />
       <rect :x="segments.bills" y="0" :width="segments.expenses" height="8" class="fill-warning" />
     </svg>
 
-    <p class="mt-4 text-sm text-content-on-surface-muted">{{ verdict }}</p>
+    <p class="mt-4 text-sm text-text-muted">{{ verdict }}</p>
 
-    <dl class="mt-auto space-y-2 border-t border-border-subtle/30 pt-4 text-sm">
+    <dl class="mt-auto space-y-2 border-t border-primary/20 pt-4 text-sm">
       <div class="flex justify-between gap-4">
-        <dt class="text-content-on-surface-muted">Deposits</dt>
+        <dt class="text-text-muted">Deposits</dt>
         <dd class="font-mono">{{ formatToman(monthIncome) }}</dd>
       </div>
       <div class="flex justify-between gap-4">
-        <dt class="flex items-center gap-2 text-content-on-surface-muted">
+        <dt class="flex items-center gap-2 text-text-muted">
           <span class="size-2 rounded-full bg-danger" /> Bills
         </dt>
         <dd class="font-mono">{{ formatToman(monthBills) }}</dd>
       </div>
       <div class="flex justify-between gap-4">
-        <dt class="flex items-center gap-2 text-content-on-surface-muted">
+        <dt class="flex items-center gap-2 text-text-muted">
           <span class="size-2 rounded-full bg-warning" /> Expenses
         </dt>
         <dd class="font-mono">{{ formatToman(monthExpenses) }}</dd>

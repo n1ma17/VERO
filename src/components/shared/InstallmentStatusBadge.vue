@@ -7,9 +7,9 @@ defineProps<{
 }>()
 
 const statusClasses: Record<InstallmentStatus, { badge: string; dot: string }> = {
-  paid: { badge: 'bg-success-soft text-success', dot: 'bg-success' },
-  unpaid: { badge: 'bg-warning-soft text-warning', dot: 'bg-warning' },
-  overdue: { badge: 'bg-danger-soft text-danger', dot: 'bg-danger' },
+  paid: { badge: 'bg-success/15 text-success', dot: 'bg-success' },
+  unpaid: { badge: 'bg-warning/15 text-warning', dot: 'bg-warning' },
+  overdue: { badge: 'bg-danger/15 text-danger', dot: 'bg-danger' },
 }
 </script>
 

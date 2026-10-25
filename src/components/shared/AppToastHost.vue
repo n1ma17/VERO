@@ -21,11 +21,11 @@ const { toasts, dismiss } = useToast()
         <div
           v-for="toast in toasts"
           :key="toast.id"
-          class="pointer-events-auto flex max-w-md items-center gap-3 rounded-2xl border border-success/30 bg-surface px-4 py-3 text-sm text-content-on-surface shadow-lg"
+          class="pointer-events-auto flex max-w-md items-center gap-3 rounded-2xl border border-success/30 bg-surface px-4 py-3 text-sm text-text shadow-lg"
           role="status"
         >
           <span
-            class="flex size-8 shrink-0 items-center justify-center rounded-full bg-success-soft text-success"
+            class="flex size-8 shrink-0 items-center justify-center rounded-full bg-success/15 text-success"
             aria-hidden="true"
           >
             ✓
@@ -33,7 +33,7 @@ const { toasts, dismiss } = useToast()
           <p class="font-medium">{{ toast.text }}</p>
           <button
             type="button"
-            class="ml-auto text-content-on-surface-muted transition hover:text-content-on-surface"
+            class="ml-auto text-text-muted transition hover:text-text"
             aria-label="Dismiss"
             @click="dismiss(toast.id)"
           >

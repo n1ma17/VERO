@@ -39,7 +39,7 @@ const screenAmount = computed(() => snapshot.value?.amountLabel ?? '—')
             stroke-linejoin="round"
           />
         </svg>
-        <span class="rounded-full bg-surface-inactive/80 px-3 py-1 text-xs font-medium text-content-muted">
+        <span class="rounded-full bg-primary/80 px-3 py-1 text-xs font-medium text-text-muted">
           {{ stage === 'idle' ? 'Waiting' : 'Recording…' }}
         </span>
       </div>
@@ -49,7 +49,7 @@ const screenAmount = computed(() => snapshot.value?.amountLabel ?? '—')
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <p class="truncate font-medium">{{ screenTitle }}</p>
-              <p class="mt-0.5 truncate text-xs text-content-muted">{{ screenSubtitle }}</p>
+              <p class="mt-0.5 truncate text-xs text-text-muted">{{ screenSubtitle }}</p>
             </div>
             <strong class="font-mono text-lg">{{ screenAmount }}</strong>
           </div>
@@ -62,44 +62,44 @@ const screenAmount = computed(() => snapshot.value?.amountLabel ?? '—')
       <ReceiptPrinterPaper v-if="snapshot">
         <header class="text-center">
           <p class="text-base font-bold uppercase tracking-widest">Money Management</p>
-          <p class="mt-1 text-xs text-content-on-surface-muted">
+          <p class="mt-1 text-xs text-text-muted">
             {{ snapshot.isUpdate ? 'Expense update receipt' : 'Purchase receipt' }}
           </p>
         </header>
 
-        <div class="my-5 border-t-2 border-dashed border-content-on-surface-muted/40" />
+        <div class="my-5 border-t-2 border-dashed border-text-muted/40" />
 
         <dl class="space-y-2">
           <div class="flex justify-between gap-4">
-            <dt class="text-content-on-surface-muted">Item</dt>
+            <dt class="text-text-muted">Item</dt>
             <dd class="truncate text-right">{{ snapshot.title }}</dd>
           </div>
           <div class="flex justify-between gap-4">
-            <dt class="text-content-on-surface-muted">Category</dt>
+            <dt class="text-text-muted">Category</dt>
             <dd class="text-right">{{ expenseCategories[snapshot.category].label }}</dd>
           </div>
           <div class="flex justify-between gap-4">
-            <dt class="text-content-on-surface-muted">Date</dt>
+            <dt class="text-text-muted">Date</dt>
             <dd>{{ snapshot.dateLabel }}</dd>
           </div>
           <div v-if="snapshot.note" class="flex justify-between gap-4">
-            <dt class="text-content-on-surface-muted">Note</dt>
+            <dt class="text-text-muted">Note</dt>
             <dd class="truncate text-right">{{ snapshot.note }}</dd>
           </div>
           <div class="flex justify-between gap-4">
-            <dt class="text-content-on-surface-muted">Ref.</dt>
+            <dt class="text-text-muted">Ref.</dt>
             <dd class="font-mono text-xs">{{ snapshot.id.slice(0, 8) }}</dd>
           </div>
         </dl>
 
-        <div class="my-5 border-t-2 border-dashed border-content-on-surface-muted/40" />
+        <div class="my-5 border-t-2 border-dashed border-text-muted/40" />
 
         <div class="flex items-baseline justify-between">
           <span class="uppercase tracking-widest">Total</span>
           <span class="text-xl font-bold">{{ snapshot.amountLabel }}</span>
         </div>
 
-        <p class="mt-6 text-center text-xs text-content-on-surface-muted">
+        <p class="mt-6 text-center text-xs text-text-muted">
           Deducted from your balance for this month.
         </p>
       </ReceiptPrinterPaper>

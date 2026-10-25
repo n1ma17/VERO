@@ -3,18 +3,18 @@
 <template>
   <div class="bank-card-scene relative mx-auto w-full max-w-lg px-2 pb-10 pt-4" aria-hidden="true">
     <div
-      class="pointer-events-none absolute inset-x-12 bottom-6 h-12 rounded-full bg-bank-card-to/30 blur-2xl"
+      class="pointer-events-none absolute inset-x-12 bottom-6 h-12 rounded-full bg-primary/30 blur-2xl"
     />
 
     <div
-      class="bank-card-plate relative overflow-hidden rounded-2xl bg-bank-card-to shadow-[0_32px_56px_-16px] shadow-bank-card-to/50"
+      class="bank-card-plate relative overflow-hidden rounded-2xl bg-primary shadow-[0_32px_56px_-16px] shadow-primary/50"
     >
       <div
-        class="absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-primary to-primary-hover"
+        class="absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-primary to-primary"
       />
 
       <svg
-        class="pointer-events-none absolute inset-0 size-full text-content/25"
+        class="pointer-events-none absolute inset-0 size-full text-background/25"
         viewBox="0 0 400 252"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -56,9 +56,9 @@
       </svg>
 
       <div class="relative flex aspect-8/5 flex-col justify-between px-7 py-6 sm:px-8">
-        <div class="flex items-center gap-2 text-content">
+        <div class="flex items-center gap-2 text-background">
           <span
-            class="grid size-6 place-items-center rounded-sm border border-content/25 bg-content/10"
+            class="grid size-6 place-items-center rounded-sm border border-background/25 bg-background/10"
           >
             <svg class="size-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path
@@ -73,7 +73,7 @@
           <span class="text-base font-medium tracking-wide">money</span>
         </div>
 
-        <p class="self-end text-xl font-bold italic tracking-[0.2em] text-content">VISA</p>
+        <p class="self-end text-xl font-bold italic tracking-[0.2em] text-background">VISA</p>
       </div>
 
       <div class="bank-card-plate__edge" />

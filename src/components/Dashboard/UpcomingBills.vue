@@ -6,9 +6,9 @@ import { formatToman } from '@/utils/formatToman'
 const { upcomingBills } = useDashboard()
 
 const dueClasses = {
-  overdue: 'bg-danger-soft text-danger',
-  soon: 'bg-warning-soft text-warning',
-  later: 'bg-primary-soft/15 text-content-on-surface-muted',
+  overdue: 'bg-danger/15 text-danger',
+  soon: 'bg-warning/15 text-warning',
+  later: 'bg-primary/15/15 text-text-muted',
 } as const
 
 function dueTone(bill: UpcomingBill): keyof typeof dueClasses {
@@ -27,7 +27,7 @@ function dueText(bill: UpcomingBill): string {
 
 <template>
   <section
-    class="flex animate-fade-up flex-col rounded-3xl bg-surface p-6 text-content-on-surface shadow-lg [animation-delay:360ms] motion-reduce:animate-none"
+    class="flex animate-fade-up flex-col rounded-3xl bg-surface p-6 text-text shadow-lg [animation-delay:360ms] motion-reduce:animate-none"
   >
     <div class="flex items-baseline justify-between">
       <h2 class="text-lg font-semibold">Upcoming bills</h2>
@@ -40,18 +40,18 @@ function dueText(bill: UpcomingBill): string {
       <li v-for="bill in upcomingBills" :key="bill.id">
         <RouterLink
           :to="{ name: 'installment-detail', params: { id: bill.id } }"
-          class="group flex items-center gap-3 rounded-2xl p-2 transition hover:bg-primary-soft/10"
+          class="group flex items-center gap-3 rounded-2xl p-2 transition hover:bg-primary/10"
         >
           <BillLogoImage v-if="bill.logoKey" :logo-key="bill.logoKey" />
           <span
             v-else
-            class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold uppercase text-on-primary"
+            class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold uppercase text-background"
           >
             {{ bill.title.slice(0, 1) }}
           </span>
           <div class="min-w-0 flex-1">
             <p class="truncate font-medium group-hover:underline">{{ bill.title }}</p>
-            <p class="truncate text-xs text-content-on-surface-muted">{{ bill.dueLabel }}</p>
+            <p class="truncate text-xs text-text-muted">{{ bill.dueLabel }}</p>
           </div>
           <div class="text-right">
             <p class="whitespace-nowrap font-mono text-sm font-semibold">{{ formatToman(bill.amount) }}</p>
@@ -68,7 +68,7 @@ function dueText(bill: UpcomingBill): string {
 
     <div v-else class="my-auto py-10 text-center">
       <p class="font-medium">Nothing to pay</p>
-      <p class="mt-1 text-sm text-content-on-surface-muted">All installments are settled.</p>
+      <p class="mt-1 text-sm text-text-muted">All installments are settled.</p>
       <RouterLink to="/bills" class="mt-4 inline-block text-sm font-medium text-primary hover:underline">
         Define a bill
       </RouterLink>

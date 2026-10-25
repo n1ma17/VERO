@@ -68,7 +68,7 @@ function resetBookedToCurrentMonth() {
 const isValid = computed(() => (amount.value ?? 0) > 0)
 
 const inputClasses =
-  'w-full rounded-2xl border border-border-subtle/50 bg-surface px-3 py-2.5 text-sm text-content-on-surface outline-none placeholder:text-content-on-surface-muted focus:border-primary focus:ring-2 focus:ring-accent/60'
+  'w-full rounded-2xl border border-primary/20 bg-surface px-3 py-2.5 text-sm text-text outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-accent/60'
 
 function buildPayload() {
   return {
@@ -107,9 +107,9 @@ function cancel() {
 </script>
 
 <template>
-  <section class="rounded-3xl bg-surface p-6 text-content-on-surface shadow-lg">
+  <section class="rounded-3xl bg-surface p-6 text-text shadow-lg">
     <h2 class="text-lg font-semibold">{{ isEditing ? 'Edit deposit' : 'Add deposit' }}</h2>
-    <p class="mt-1 text-sm text-content-on-surface-muted">
+    <p class="mt-1 text-sm text-text-muted">
       Bank date is when the transfer arrived. Count toward month is which month it belongs to (e.g.
       salary for this month).
     </p>
@@ -131,8 +131,8 @@ function cancel() {
       <TomanAmountInput v-model="amount" />
 
       <div>
-        <label class="mb-1.5 block text-xs text-content-on-surface-muted">
-          Note <span class="text-content-on-surface-muted/80">(optional)</span>
+        <label class="mb-1.5 block text-xs text-text-muted">
+          Note <span class="text-text-muted/80">(optional)</span>
         </label>
         <input
           v-model="note"

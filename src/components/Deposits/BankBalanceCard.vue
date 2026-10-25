@@ -15,10 +15,10 @@ const balanceNumber = computed(() => formatTomanNumber(totalBalance.value))
     aria-label="Bank balance card"
   >
     <div class="flex items-baseline justify-center gap-2 sm:gap-3">
-      <p class="text-5xl font-extrabold tracking-tight text-bank-card-text sm:text-6xl">
+      <p class="text-5xl font-extrabold tracking-tight text-accent sm:text-6xl">
         {{ balanceNumber }}
       </p>
-      <span class="text-2xl font-semibold text-content-on-surface-muted sm:text-3xl">Toman</span>
+      <span class="text-sm font-semibold text-primary sm:text-sm">Toman</span>
     </div>
 
     <div class="mt-[-40px] overflow-visible ">

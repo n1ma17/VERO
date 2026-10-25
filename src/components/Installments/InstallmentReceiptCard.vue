@@ -30,7 +30,7 @@ const amount = computed(() => formatToman(props.installment.amount))
 <template>
   <RouterLink
     :to="{ name: 'installment-detail', params: { id: installment.id } }"
-    class="relative block overflow-hidden rounded-t-3xl bg-surface pb-5 text-content-on-surface  outline-none transition duration-200 hover:-translate-y-1 focus-visible:ring-4 focus-visible:ring-accent"
+    class="relative block overflow-hidden rounded-t-3xl bg-surface pb-5 text-text  outline-none transition duration-200 hover:-translate-y-1 focus-visible:ring-4 focus-visible:ring-accent"
   >
     <div class="h-1.5" :class="statusStripClasses[status]" />
 
@@ -38,7 +38,7 @@ const amount = computed(() => formatToman(props.installment.amount))
       <div class="flex min-w-0 gap-3">
         <BillLogoImage :logo-key="installment.logoKey" size="md" />
         <div class="min-w-0">
-          <p class="text-xs font-medium uppercase tracking-widest text-content-on-surface-muted">
+          <p class="text-xs font-medium uppercase tracking-widest text-text-muted">
             Bill due
           </p>
           <h3 class="mt-1 truncate text-lg font-semibold">{{ installment.title }}</h3>
@@ -51,15 +51,15 @@ const amount = computed(() => formatToman(props.installment.amount))
 
     <dl class="space-y-2 px-6 pt-4 font-mono text-sm">
       <div class="flex justify-between">
-        <dt class="text-content-on-surface-muted">Due date</dt>
+        <dt class="text-text-muted">Due date</dt>
         <dd>{{ dueDate }}</dd>
       </div>
       <div class="flex justify-between">
-        <dt class="text-content-on-surface-muted">Ref.</dt>
+        <dt class="text-text-muted">Ref.</dt>
         <dd class="truncate text-right">{{ installment.billId.slice(0, 8) }}</dd>
       </div>
       <div class="flex items-baseline justify-between pt-2">
-        <dt class="text-content-on-surface-muted">Amount</dt>
+        <dt class="text-text-muted">Amount</dt>
         <dd class="text-xl font-bold">{{ amount }}</dd>
       </div>
     </dl>

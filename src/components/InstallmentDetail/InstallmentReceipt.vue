@@ -65,7 +65,7 @@ const isPaid = computed(() => status.value === 'paid')
 <template>
   <article
     v-if="installment && status"
-    class="relative overflow-hidden rounded-t-3xl bg-surface pb-6 text-content-on-surface shadow-xl transition-shadow duration-700 ease-out"
+    class="relative overflow-hidden rounded-t-3xl bg-surface pb-6 text-text shadow-xl transition-shadow duration-700 ease-out"
     :class="celebrating ? 'animate-receipt-celebrate motion-reduce:animate-none' : ''"
   >
     <div
@@ -77,7 +77,7 @@ const isPaid = computed(() => status.value === 'paid')
       <div class="mb-3 flex justify-center">
         <BillLogoImage :logo-key="installment.logoKey" size="md" />
       </div>
-      <p class="text-xs font-medium uppercase tracking-widest text-content-on-surface-muted">
+      <p class="text-xs font-medium uppercase tracking-widest text-text-muted">
         Payment receipt
       </p>
       <h2 class="mt-2 text-2xl font-bold">{{ installment.title }}</h2>
@@ -90,11 +90,11 @@ const isPaid = computed(() => status.value === 'paid')
 
     <dl class="space-y-3 px-8 py-6 font-mono text-sm">
       <div v-for="row in staticRows" :key="row.label" class="flex justify-between gap-4">
-        <dt class="text-content-on-surface-muted">{{ row.label }}</dt>
+        <dt class="text-text-muted">{{ row.label }}</dt>
         <dd class="text-right">{{ row.value }}</dd>
       </div>
       <div class="flex justify-between gap-4">
-        <dt class="text-content-on-surface-muted">Paid on</dt>
+        <dt class="text-text-muted">Paid on</dt>
         <dd class="min-w-[6.5rem] text-right">
           <Transition
             mode="out-in"
@@ -108,7 +108,7 @@ const isPaid = computed(() => status.value === 'paid')
             <span
               :key="paidOnLabel"
               class="inline-block font-semibold transition-colors duration-500"
-              :class="isPaid ? 'text-success' : 'text-content-on-surface'"
+              :class="isPaid ? 'text-success' : 'text-text'"
             >
               {{ paidOnLabel }}
             </span>
@@ -120,7 +120,7 @@ const isPaid = computed(() => status.value === 'paid')
     <ReceiptDivider />
 
     <div class="flex items-baseline justify-between px-8 py-6 font-mono">
-      <span class="text-sm uppercase tracking-widest text-content-on-surface-muted">Total</span>
+      <span class="text-sm uppercase tracking-widest text-text-muted">Total</span>
       <span class="text-3xl font-bold transition-transform duration-500 ease-out motion-reduce:transition-none" :class="isPaid ? 'scale-105' : 'scale-100'">
         {{ amount }}
       </span>
@@ -156,8 +156,8 @@ const isPaid = computed(() => status.value === 'paid')
     <ReceiptEdge :teeth="24" />
   </article>
 
-  <div v-else class="rounded-3xl bg-surface p-8 text-center text-content-on-surface">
+  <div v-else class="rounded-3xl bg-surface p-8 text-center text-text">
     <p class="font-semibold">Installment not found</p>
-    <p class="mt-1 text-sm text-content-on-surface-muted">It may have been removed.</p>
+    <p class="mt-1 text-sm text-text-muted">It may have been removed.</p>
   </div>
 </template>

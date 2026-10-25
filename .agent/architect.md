@@ -41,14 +41,12 @@ Bank deposits in Toman for the **current Jalali month**; total balance = sum of 
 
 ### TransactionsPage → `components/Transactions/`
 Monthly ledger (Toman, Jalali) built from deposits (income, by `booked` month), bill installments (by due month) and expenses (by purchase month). All read `useLedger()`.
-- `LedgerMonthNavigator.vue` — prev/next month, "Back to this month"
 - `LedgerSummaryCards.vue` — 3+2 grid: deposits, bills (paid/open), expenses, net, remaining balance (red card when negative)
 - `LedgerChart.vue` — SVG chart, last 6 months: deposit/bill/expense bars + cumulative balance line; nice round ticks incl. 0; hover shows values, click opens month
 - `LedgerCoverage.vue` — "Spending coverage": % of deposits used by bills + expenses (stacked SVG bar)
 - `LedgerTable.vue` — statement: carried-in row, entries with running balance, filter All/Deposits/Bills/Expenses; bill rows link to installment detail, expense rows to `expense-entry`
 
 ### ExpensesPage → `components/Expenses/` (list, like Installments)
-- `ExpenseMonthNavigator.vue` — prev/next (any month), "Back to this month"; `useExpenses` view month
 - `ExpenseSummary.vue` — month total + count, per-category bars with share %
 - `ExpenseList.vue` — grid of cards for the view month (newest first) + empty state
 - `ExpenseReceiptCard.vue` — receipt-style card (category strip, tile, date, note, amount); `RouterLink` to `expense-entry` edit
@@ -78,9 +76,11 @@ Layout: back link on top; 2-column grid on `lg` — left: receipt card + actions
 - `InstallmentPrinter.vue` — right side; owns printer `stage`. Pay button → `processing` (1.2s) → `printing` (1.8s) → `complete` + `setPaid(id, true)`. Already-paid installments start at `complete`; stage resets when id/paidAt changes.
 ## Shared components (`components/shared/`)
 - `AppNavbar.vue` — slim top bar: app title + Jalali date (no page links)
-- `AppBottomNav.vue` — fixed curved bottom tab bar (all breakpoints); 6 tabs from `utils/appNav.ts`, icons via `AppNavIcon.vue`; styles in `main.css` (`.app-bottom-nav*`); pill max-width 320px; active tab is a raised `danger` circle sitting in a scooped notch with a gap
+- `AppBottomNav.vue` — pill bottom bar + sliding light/beam; 6 tabs (`appNav.ts`, `AppNavIcon`); styles `.app-bottom-nav*` in `main.css`
 - `AppToastHost.vue` — global success toasts via `useToast()` (Teleport to body)
 - `PageHeader.vue` — props `title`, `subtitle?`
+- `JalaliMonthNavigatorBar.vue` — UI: Previous / caption / Jalali month / Next (+ optional back link)
+- `ViewMonthNavigator.vue` — prop `context`: `expenses` | `installments` | `deposits` | `ledger`; wires the right composable
 - `BaseCard.vue` — surface container; prop `title?`, default slot
 - `BaseButton.vue` — props `variant: primary|danger|ghost`, `type: button|submit`
 - `ApprovedStamp.vue` — rotated double-border "APPROVED" stamp; props `paidAt?`, `size: sm|lg`
@@ -134,18 +134,17 @@ Layout: back link on top; 2-column grid on `lg` — left: receipt card + actions
 - `installmentStatus.ts` — `getInstallmentStatus` (paid if `paidAt`, overdue if `dueDate` < today, else unpaid), `installmentStatusLabels`
 
 ## Theme tokens (`styles/theme.css`)
-Loan-app reference palette. Default Tailwind palette disabled.
+Minimal palette (default Tailwind palette disabled). Variants use opacity: `text-text/60`, `bg-success/15`, `border-primary/20`.
 
-| Group | Tokens |
+| Token | Use |
 | --- | --- |
-| Shell | `background` (#3d5250), `background-elevated` (#5d7572), `border`, `border-subtle` |
-| Surfaces | `surface` (white cards), `surface-inactive` (#334745), `accent` / `accent-hover` (peach #f5cba7) |
-| Text on dark | `content`, `content-muted` |
-| Text on cards | `content-on-surface` (#2d3436), `content-on-surface-muted` (#7a7a7a) |
-| Interactive | `primary`, `primary-hover`, `primary-soft`, `on-primary` |
-| Status | `success`, `success-soft`, `danger`, `danger-hover`, `danger-soft`, `warning`, `warning-soft` |
-| Printer | `printer` (body), `printer-edge`, `printer-screen`, `printer-slot`, `printer-led` (complete icon) |
-| Bank card | `bank-card-*`, `bank-balance-backdrop`, `rotate-x-bank-card` (18deg) |
-| Charts | `chart-1`…`chart-11`, `chart-muted` (`chart-1`/`3`/`4` share hexes with success/danger/warning; food uses `chart-8` to stay distinct from Bills); `danger-on-dark` (negative numbers on dark hero) |
+| `background` | Page shell |
+| `primary` | Dark brand (header, bottom nav, hero, printer, bank card) |
+| `accent` | Highlights / CTAs |
+| `success`, `danger`, `warning` | Deposits, bills, expenses + status |
+| `text`, `text-muted` | Copy on light `surface` cards |
+| `surface` | White cards (structural, not a brand hue) |
+
+On `bg-primary`: `text-background`, `text-background/70`. Charts & expense categories rotate the five brand hues. Bank card 3D: `--bank-card-perspective`, `--bank-card-tilt-*` in `theme.css`.
 
 Animations (`styles/main.css` `@theme`): `animate-receipt-feed` — stepped paper feed, 1.75s; `animate-receipt-celebrate`; `animate-fade-up` — section entrance (use `[animation-delay:…]` to stagger).

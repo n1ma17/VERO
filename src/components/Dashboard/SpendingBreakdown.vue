@@ -40,11 +40,11 @@ const monthLabel = formatJalaliMonth(today.year, today.month)
 
 <template>
   <section
-    class="animate-fade-up min-w-0 overflow-hidden rounded-3xl bg-surface p-6 text-content-on-surface shadow-lg [animation-delay:420ms] motion-reduce:animate-none"
+    class="animate-fade-up min-w-0 overflow-hidden rounded-3xl bg-surface p-6 text-text shadow-lg [animation-delay:420ms] motion-reduce:animate-none"
   >
     <div class="flex items-baseline justify-between gap-3">
       <h2 class="text-lg font-semibold">Where money goes</h2>
-      <span class="shrink-0 text-xs text-content-on-surface-muted">{{ monthLabel }}</span>
+      <span class="shrink-0 text-xs text-text-muted">{{ monthLabel }}</span>
     </div>
 
     <div
@@ -53,7 +53,7 @@ const monthLabel = formatJalaliMonth(today.year, today.month)
     >
       <div class="relative mx-auto size-36 shrink-0 sm:mx-0">
         <svg viewBox="0 0 160 160" class="size-full -rotate-90" aria-hidden="true">
-          <circle cx="80" cy="80" :r="RADIUS" fill="none" stroke-width="18" class="stroke-primary-soft/10" />
+          <circle cx="80" cy="80" :r="RADIUS" fill="none" stroke-width="18" class="stroke-primary/10" />
           <circle
             v-for="segment in segments"
             :key="segment.key"
@@ -68,7 +68,7 @@ const monthLabel = formatJalaliMonth(today.year, today.month)
           />
         </svg>
         <div class="absolute inset-0 flex flex-col items-center justify-center px-2 text-center">
-          <span class="text-[10px] uppercase tracking-wide text-content-on-surface-muted">Spent</span>
+          <span class="text-[10px] uppercase tracking-wide text-text-muted">Spent</span>
           <span class="font-mono text-base font-bold leading-tight">
             {{ formatTomanCompact(monthSpending) }}
           </span>
@@ -85,20 +85,20 @@ const monthLabel = formatJalaliMonth(today.year, today.month)
           <div class="min-w-0">
             <div class="flex min-w-0 items-baseline justify-between gap-2">
               <span class="truncate font-medium">{{ segment.label }}</span>
-              <span class="shrink-0 font-mono text-xs text-content-on-surface-muted">
+              <span class="shrink-0 font-mono text-xs text-text-muted">
                 {{ Math.round(segment.share * 100) }}%
               </span>
             </div>
             <p class="truncate text-right font-mono text-xs font-semibold">
               {{ formatTomanNumber(segment.amount) }}
-              <span class="font-sans font-normal text-content-on-surface-muted"> Toman</span>
+              <span class="font-sans font-normal text-text-muted"> Toman</span>
             </p>
           </div>
         </li>
       </ul>
     </div>
 
-    <p v-else class="py-12 text-center text-sm text-content-on-surface-muted">
+    <p v-else class="py-12 text-center text-sm text-text-muted">
       No bills or expenses this month.
     </p>
   </section>

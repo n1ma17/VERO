@@ -28,7 +28,7 @@ watch(() => props.logoKey, refresh)
 <template>
   <div
     v-if="src"
-    class="flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border-subtle/40 bg-primary-soft/20"
+    class="flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-primary/20 bg-primary/15"
     :class="sizeClasses[size]"
   >
     <img :src="src" alt="" class="size-full object-contain p-1" />

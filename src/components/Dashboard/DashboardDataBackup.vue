@@ -82,12 +82,12 @@ async function confirmImport() {
 
 <template>
   <section
-    class="animate-fade-up rounded-3xl bg-surface p-6 text-content-on-surface shadow-lg [animation-delay:540ms] motion-reduce:animate-none"
+    class="animate-fade-up rounded-3xl bg-surface p-6 text-text shadow-lg [animation-delay:540ms] motion-reduce:animate-none"
   >
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
         <h2 class="text-lg font-semibold">Backup &amp; restore</h2>
-        <p class="mt-0.5 max-w-xl text-sm text-content-on-surface-muted">
+        <p class="mt-0.5 max-w-xl text-sm text-text-muted">
           Export everything on this device to Excel — bills, deposits, expenses, paid installments,
           and bill logos. Import a file to replace local data after a loss.
         </p>
@@ -114,16 +114,16 @@ async function confirmImport() {
       </div>
     </div>
 
-    <p v-if="errorMessage" class="mt-4 rounded-2xl bg-danger-soft px-4 py-3 text-sm text-danger">
+    <p v-if="errorMessage" class="mt-4 rounded-2xl bg-danger/15 px-4 py-3 text-sm text-danger">
       {{ errorMessage }}
     </p>
 
     <div
       v-if="pendingSummary"
-      class="mt-4 rounded-2xl border border-border-subtle/40 bg-primary-soft/10 px-4 py-4 text-sm"
+      class="mt-4 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-4 text-sm"
     >
       <p class="font-semibold">Replace all data on this device?</p>
-      <p class="mt-1 text-content-on-surface-muted">
+      <p class="mt-1 text-text-muted">
         This file contains
         {{ pendingSummary.bills }} bill(s), {{ pendingSummary.deposits }} deposit(s),
         {{ pendingSummary.expenses }} expense(s), {{ pendingSummary.payments }} payment flag(s),

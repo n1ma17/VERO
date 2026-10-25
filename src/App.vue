@@ -8,7 +8,7 @@ import AppToastHost from '@/components/shared/AppToastHost.vue'
   <div class="min-h-screen">
     <AppToastHost />
     <AppNavbar />
-    <main class="mx-auto max-w-5xl px-4 py-8 pb-36">
+    <main class="mx-auto max-w-5xl px-4 py-8 pb-28">
       <RouterView />
     </main>
     <AppBottomNav />

@@ -25,16 +25,16 @@ function changeYear(delta: number) {
 
 <template>
   <div>
-    <label v-if="label" class="mb-1.5 block text-xs font-medium text-content-on-surface-muted">
+    <label v-if="label" class="mb-1.5 block text-xs font-medium text-text-muted">
       {{ label }}
     </label>
     <div
-      class="rounded-3xl border border-border-subtle/40 bg-surface px-4 py-4 text-content-on-surface"
+      class="rounded-3xl border border-primary/20 bg-surface px-4 py-4 text-text"
     >
       <div class="flex items-center justify-between gap-2">
         <button
           type="button"
-          class="rounded-full border border-border-subtle/50 px-3 py-1 text-sm transition hover:bg-accent"
+          class="rounded-[8px] text-accent border border-accent px-3 py-1 text-sm transition hover:bg-accent"
           aria-label="Year minus"
           @click="changeYear(-1)"
         >
@@ -43,7 +43,7 @@ function changeYear(delta: number) {
         <span class="font-mono text-sm font-semibold">{{ monthLabel() }}</span>
         <button
           type="button"
-          class="rounded-full border border-border-subtle/50 px-3 py-1 text-sm transition hover:bg-accent"
+          class="rounded-[8px] text-accent border border-accent px-3 py-1 text-sm transition hover:bg-accent"
           aria-label="Year plus"
           @click="changeYear(1)"
         >
@@ -55,11 +55,11 @@ function changeYear(delta: number) {
           v-for="(name, index) in JALALI_MONTH_NAMES"
           :key="name"
           type="button"
-          class="rounded-xl px-1 py-2 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
+          class="rounded-[8px] px-1 py-2 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
           :class="
             month === index + 1
-              ? 'bg-primary text-on-primary shadow-sm'
-              : 'text-content-on-surface hover:bg-accent/50'
+              ? 'bg-accent text-primary shadow-sm'
+              : 'text-text hover:bg-primary/50'
           "
           @click="selectMonth(index + 1)"
         >

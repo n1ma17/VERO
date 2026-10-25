@@ -10,12 +10,14 @@ const todayLabel = computed(
 </script>
 
 <template>
-  <header class="border-b border-border-subtle bg-background-elevated">
+  <header
+    class="sticky top-0 z-40 border-b border-background/15 bg-primary"
+  >
     <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-      <RouterLink to="/" class="text-base font-bold text-content sm:text-lg">
+      <RouterLink to="/" class="text-base font-bold text-background sm:text-lg">
         Money Management
       </RouterLink>
-      <p class="text-xs text-content-muted sm:text-sm">{{ todayLabel }}</p>
+      <p class="text-xs text-background/70 sm:text-sm">{{ todayLabel }}</p>
     </div>
   </header>
 </template>

@@ -108,7 +108,7 @@ const payLabel = computed(() => {
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <p class="truncate font-medium">{{ installment.title }}</p>
-              <p class="mt-0.5 text-xs text-content-muted">Due {{ dueDate }}</p>
+              <p class="mt-0.5 text-xs text-text-muted">Due {{ dueDate }}</p>
             </div>
             <strong class="font-mono text-lg">{{ amount }}</strong>
           </div>
@@ -121,38 +121,38 @@ const payLabel = computed(() => {
       <ReceiptPrinterPaper>
         <header class="text-center">
           <p class="text-base font-bold uppercase tracking-widest">Money Management</p>
-          <p class="mt-1 text-xs text-content-on-surface-muted">Installment payment receipt</p>
+          <p class="mt-1 text-xs text-text-muted">Installment payment receipt</p>
         </header>
 
-        <div class="my-5 border-t-2 border-dashed border-content-on-surface-muted/40" />
+        <div class="my-5 border-t-2 border-dashed border-text-muted/40" />
 
         <dl class="space-y-2">
           <div class="flex justify-between gap-4">
-            <dt class="text-content-on-surface-muted">Item</dt>
+            <dt class="text-text-muted">Item</dt>
             <dd class="truncate text-right">{{ installment.title }}</dd>
           </div>
           <div class="flex justify-between gap-4">
-            <dt class="text-content-on-surface-muted">Ref.</dt>
+            <dt class="text-text-muted">Ref.</dt>
             <dd>{{ installment.billId.slice(0, 8) }}</dd>
           </div>
           <div class="flex justify-between gap-4">
-            <dt class="text-content-on-surface-muted">Due</dt>
+            <dt class="text-text-muted">Due</dt>
             <dd>{{ dueDate }}</dd>
           </div>
           <div class="flex justify-between gap-4">
-            <dt class="text-content-on-surface-muted">Paid</dt>
+            <dt class="text-text-muted">Paid</dt>
             <dd>{{ paidOn }}</dd>
           </div>
         </dl>
 
-        <div class="my-5 border-t-2 border-dashed border-content-on-surface-muted/40" />
+        <div class="my-5 border-t-2 border-dashed border-text-muted/40" />
 
         <div class="flex items-baseline justify-between">
           <span class="uppercase tracking-widest">Total paid</span>
           <span class="text-xl font-bold">{{ amount }}</span>
         </div>
 
-        <p class="mt-6 text-center text-xs text-content-on-surface-muted">
+        <p class="mt-6 text-center text-xs text-text-muted">
           Thank you for your payment.
         </p>
       </ReceiptPrinterPaper>

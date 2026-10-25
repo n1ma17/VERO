@@ -18,7 +18,7 @@ function subtitle(item: ActivityItem) {
 
 <template>
   <section
-    class="flex min-w-0 animate-fade-up flex-col overflow-hidden rounded-3xl bg-surface p-6 text-content-on-surface shadow-lg [animation-delay:480ms] motion-reduce:animate-none"
+    class="flex min-w-0 animate-fade-up flex-col overflow-hidden rounded-3xl bg-surface p-6 text-text shadow-lg [animation-delay:480ms] motion-reduce:animate-none"
   >
     <div class="flex items-baseline justify-between">
       <h2 class="text-lg font-semibold">Recent activity</h2>
@@ -28,7 +28,7 @@ function subtitle(item: ActivityItem) {
       </div>
     </div>
 
-    <ol v-if="recentActivity.length" class="relative mt-5 space-y-4 border-l-2 border-border-subtle/30 pl-5">
+    <ol v-if="recentActivity.length" class="relative mt-5 space-y-4 border-l-2 border-primary/20 pl-5">
       <li v-for="item in recentActivity" :key="item.id" class="relative">
         <span
           class="absolute -left-[27px] top-1.5 size-3 rounded-full border-2 border-surface"
@@ -45,7 +45,7 @@ function subtitle(item: ActivityItem) {
               {{ item.title }}
             </RouterLink>
             <p v-else class="truncate font-medium">{{ item.title }}</p>
-            <p class="text-xs text-content-on-surface-muted">{{ subtitle(item) }}</p>
+            <p class="text-xs text-text-muted">{{ subtitle(item) }}</p>
           </div>
           <p
             class="whitespace-nowrap font-mono text-sm font-semibold"

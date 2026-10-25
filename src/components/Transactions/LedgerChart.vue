@@ -80,15 +80,15 @@ function selectMonth(year: number, month: number) {
 </script>
 
 <template>
-  <section class="rounded-3xl bg-surface p-6 text-content-on-surface shadow-lg">
+  <section class="rounded-3xl bg-surface p-6 text-text shadow-lg">
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
         <h2 class="text-lg font-semibold">Last 6 months</h2>
-        <p class="mt-0.5 text-xs text-content-on-surface-muted">
+        <p class="mt-0.5 text-xs text-text-muted">
           Click a month to open its statement.
         </p>
       </div>
-      <div class="flex flex-wrap gap-4 text-xs text-content-on-surface-muted">
+      <div class="flex flex-wrap gap-4 text-xs text-text-muted">
         <span class="flex items-center gap-1.5">
           <span class="size-2.5 rounded-sm bg-success" /> Deposits
         </span>
@@ -99,38 +99,38 @@ function selectMonth(year: number, month: number) {
           <span class="size-2.5 rounded-sm bg-warning" /> Expenses
         </span>
         <span class="flex items-center gap-1.5">
-          <span class="h-0.5 w-4 rounded-full bg-content-on-surface" /> Balance
+          <span class="h-0.5 w-4 rounded-full bg-text" /> Balance
         </span>
       </div>
     </div>
 
     <dl
       v-if="activeGroup"
-      class="mt-4 grid grid-cols-2 gap-3 rounded-2xl bg-primary-soft/10 px-4 py-3 text-sm sm:grid-cols-5"
+      class="mt-4 grid grid-cols-2 gap-3 rounded-2xl bg-primary/10 px-4 py-3 text-sm sm:grid-cols-5"
     >
       <div>
-        <dt class="text-xs text-content-on-surface-muted">Month</dt>
+        <dt class="text-xs text-text-muted">Month</dt>
         <dd class="font-semibold">
           {{ formatJalaliMonth(activeGroup.point.year, activeGroup.point.month) }}
         </dd>
       </div>
       <div>
-        <dt class="text-xs text-content-on-surface-muted">Deposits</dt>
+        <dt class="text-xs text-text-muted">Deposits</dt>
         <dd class="whitespace-nowrap font-mono text-xs text-success">{{ formatToman(activeGroup.point.income) }}</dd>
       </div>
       <div>
-        <dt class="text-xs text-content-on-surface-muted">Bills</dt>
+        <dt class="text-xs text-text-muted">Bills</dt>
         <dd class="whitespace-nowrap font-mono text-xs text-danger">{{ formatToman(activeGroup.point.bills) }}</dd>
       </div>
       <div>
-        <dt class="text-xs text-content-on-surface-muted">Expenses</dt>
+        <dt class="text-xs text-text-muted">Expenses</dt>
         <dd class="whitespace-nowrap font-mono text-xs text-warning">{{ formatToman(activeGroup.point.expenses) }}</dd>
       </div>
       <div>
-        <dt class="text-xs text-content-on-surface-muted">Balance</dt>
+        <dt class="text-xs text-text-muted">Balance</dt>
         <dd
           class="whitespace-nowrap font-mono text-xs font-semibold"
-          :class="activeGroup.point.balance < 0 ? 'text-danger' : 'text-content-on-surface'"
+          :class="activeGroup.point.balance < 0 ? 'text-danger' : 'text-text'"
         >
           {{ formatToman(activeGroup.point.balance) }}
         </dd>
@@ -161,7 +161,7 @@ function selectMonth(year: number, month: number) {
           :x="PAD_LEFT - 8"
           :y="tick.y + 4"
           text-anchor="end"
-          class="fill-content-on-surface-muted text-[10px]"
+          class="fill-text-muted text-[10px]"
         >
           {{ tick.label }}
         </text>
@@ -176,7 +176,7 @@ function selectMonth(year: number, month: number) {
         :width="groupWidth - 8"
         :height="plotHeight"
         rx="10"
-        :class="group.isView ? 'fill-accent/30' : 'fill-primary-soft/10'"
+        :class="group.isView ? 'fill-accent/30' : 'fill-primary/15/10'"
       />
 
       <line
@@ -184,7 +184,7 @@ function selectMonth(year: number, month: number) {
         :x2="WIDTH - PAD_RIGHT"
         :y1="zeroY"
         :y2="zeroY"
-        class="stroke-content-on-surface-muted/60"
+        class="stroke-text-muted/60"
       />
 
       <g v-for="group in groups" :key="`bars-${group.index}`">
@@ -217,7 +217,7 @@ function selectMonth(year: number, month: number) {
           :y="HEIGHT - 10"
           text-anchor="middle"
           class="text-[11px]"
-          :class="group.isView ? 'fill-content-on-surface font-semibold' : 'fill-content-on-surface-muted'"
+          :class="group.isView ? 'fill-text font-semibold' : 'fill-text-muted'"
         >
           {{ group.point.label }}
         </text>
@@ -226,7 +226,7 @@ function selectMonth(year: number, month: number) {
       <path
         :d="balancePath"
         fill="none"
-        class="stroke-content-on-surface"
+        class="stroke-text"
         stroke-width="2.5"
         stroke-linejoin="round"
         stroke-linecap="round"
@@ -239,7 +239,7 @@ function selectMonth(year: number, month: number) {
         r="4.5"
         class="stroke-surface"
         stroke-width="2"
-        :class="group.point.balance < 0 ? 'fill-danger' : 'fill-content-on-surface'"
+        :class="group.point.balance < 0 ? 'fill-danger' : 'fill-text'"
       />
 
       <rect

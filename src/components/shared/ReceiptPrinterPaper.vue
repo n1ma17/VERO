@@ -4,7 +4,7 @@ import ReceiptEdge from '@/components/shared/ReceiptEdge.vue'
 
 <template>
   <article
-    class="relative overflow-hidden bg-surface px-6 pb-10 pt-7 font-mono text-sm text-content-on-surface shadow-lg"
+    class="relative overflow-hidden bg-surface px-6 pb-10 pt-7 font-mono text-sm text-text shadow-lg"
   >
     <slot />
     <ReceiptEdge :teeth="20" />

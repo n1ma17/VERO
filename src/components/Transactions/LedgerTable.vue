@@ -25,14 +25,14 @@ const visibleEntries = computed(() =>
 )
 
 const filterClasses = {
-  active: 'bg-primary text-on-primary',
-  idle: 'text-content-on-surface-muted hover:bg-accent/50',
+  active: 'bg-primary text-background',
+  idle: 'text-text-muted hover:bg-accent/50',
 } as const
 
 const kindBadgeClasses: Record<LedgerEntryKind, string> = {
-  deposit: 'bg-success-soft text-success',
-  bill: 'bg-danger-soft text-danger',
-  expense: 'bg-warning-soft text-warning',
+  deposit: 'bg-success/15 text-success',
+  bill: 'bg-danger/15 text-danger',
+  expense: 'bg-warning/15 text-warning',
 }
 
 const kindLabels: Record<LedgerEntryKind, string> = {
@@ -48,18 +48,18 @@ const amountClasses: Record<LedgerEntryKind, string> = {
 }
 
 function balanceClass(value: number) {
-  return value < 0 ? 'text-danger' : 'text-content-on-surface'
+  return value < 0 ? 'text-danger' : 'text-text'
 }
 </script>
 
 <template>
-  <section class="rounded-3xl bg-surface p-6 text-content-on-surface shadow-lg">
+  <section class="rounded-3xl bg-surface p-6 text-text shadow-lg">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
         <h2 class="text-lg font-semibold">Statement</h2>
-        <p class="mt-0.5 text-xs text-content-on-surface-muted">{{ viewLabel }}</p>
+        <p class="mt-0.5 text-xs text-text-muted">{{ viewLabel }}</p>
       </div>
-      <div class="flex gap-1 rounded-full border border-border-subtle/40 p-1">
+      <div class="flex gap-1 rounded-full border border-primary/20 p-1">
         <button
           v-for="option in filters"
           :key="option.id"
@@ -77,7 +77,7 @@ function balanceClass(value: number) {
       <table class="w-full min-w-[640px] text-left text-sm">
         <thead>
           <tr
-            class="border-b border-border-subtle/30 text-xs uppercase tracking-wider text-content-on-surface-muted"
+            class="border-b border-primary/20 text-xs uppercase tracking-wider text-text-muted"
           >
             <th class="py-2 pr-4 font-medium">Date</th>
             <th class="py-2 pr-4 font-medium">Description</th>
@@ -87,7 +87,7 @@ function balanceClass(value: number) {
           </tr>
         </thead>
         <tbody>
-          <tr class="border-b border-border-subtle/20 text-content-on-surface-muted">
+          <tr class="border-b border-primary/15 text-text-muted">
             <td class="py-3 pr-4" />
             <td class="py-3 pr-4 italic" colspan="3">Carried in from previous months</td>
             <td class="py-3 text-right font-mono" :class="balanceClass(openingBalance)">
@@ -98,7 +98,7 @@ function balanceClass(value: number) {
           <tr
             v-for="entry in visibleEntries"
             :key="entry.id"
-            class="border-b border-border-subtle/20 transition hover:bg-primary-soft/10"
+            class="border-b border-primary/15 transition hover:bg-primary/10"
           >
             <td class="whitespace-nowrap py-3 pr-4 font-mono text-xs">
               {{ formatJalaliDate(entry.year, entry.month, entry.day) }}
@@ -119,7 +119,7 @@ function balanceClass(value: number) {
                 {{ entry.title }}
               </RouterLink>
               <span v-else class="font-medium">{{ entry.title }}</span>
-              <p v-if="entry.detail" class="text-xs text-content-on-surface-muted">
+              <p v-if="entry.detail" class="text-xs text-text-muted">
                 {{ entry.detail }}
               </p>
             </td>
@@ -134,7 +134,7 @@ function balanceClass(value: number) {
                 <InstallmentStatusBadge v-if="entry.status" :status="entry.status" />
                 <span
                   v-if="entry.category"
-                  class="flex items-center gap-1.5 text-xs text-content-on-surface-muted"
+                  class="flex items-center gap-1.5 text-xs text-text-muted"
                 >
                   <span class="size-2 rounded-full" :class="expenseCategories[entry.category].dot" />
                   {{ expenseCategories[entry.category].label }}
@@ -153,7 +153,7 @@ function balanceClass(value: number) {
           </tr>
 
           <tr v-if="!visibleEntries.length">
-            <td colspan="5" class="py-8 text-center text-content-on-surface-muted">
+            <td colspan="5" class="py-8 text-center text-text-muted">
               No entries for this month.
             </td>
           </tr>

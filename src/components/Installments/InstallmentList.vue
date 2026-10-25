@@ -13,16 +13,16 @@ const monthLabel = computed(() =>
 
 <template>
   <section class="space-y-4">
-    <h2 class="px-1 text-sm font-semibold text-content">Bills due in {{ monthLabel }}</h2>
+    <h2 class="px-1 text-sm font-semibold text-text">Bills due in {{ monthLabel }}</h2>
 
     <ul v-if="installments.length" class="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
       <li v-for="installment in installments" :key="installment.id">
         <InstallmentReceiptCard :installment="installment" />
       </li>
     </ul>
-    <p v-else class="rounded-3xl border border-dashed border-border-subtle/50 p-8 text-center text-sm text-content-muted">
+    <p v-else class="rounded-3xl border border-dashed border-primary/20 p-8 text-center text-sm text-text-muted">
       No bills due in {{ monthLabel }}.
-      <RouterLink to="/bills" class="font-medium text-content hover:underline">Add bills</RouterLink>
+      <RouterLink to="/bills" class="font-medium text-primary hover:underline">Add bills</RouterLink>
       or choose another month.
     </p>
   </section>

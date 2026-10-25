@@ -112,7 +112,7 @@ const previewAmount = computed(() =>
 )
 
 const inputClasses =
-  'w-full rounded-2xl border border-border-subtle/50 bg-surface px-3 py-2.5 text-sm text-content-on-surface outline-none placeholder:text-content-on-surface-muted focus:border-primary focus:ring-2 focus:ring-accent/60'
+  'w-full rounded-2xl border border-primary/20 bg-surface px-3 py-2.5 text-sm text-text outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-accent/60'
 
 async function submit() {
   if (!isValid.value || isPrinterBusy.value || billNotFound.value) return
@@ -150,16 +150,16 @@ async function submit() {
 <template>
   <article
     v-if="!billNotFound"
-    class="relative overflow-visible rounded-t-3xl bg-surface text-content-on-surface"
+    class="relative overflow-visible rounded-t-3xl bg-surface text-text"
   >
     <div class="h-2 bg-primary" />
 
     <header class="px-6 pb-4 pt-6 text-center">
-      <p class="text-xs font-medium uppercase tracking-widest text-content-on-surface-muted">
+      <p class="text-xs font-medium uppercase tracking-widest text-text-muted">
         Bill definition
       </p>
       <h2 class="mt-2 text-xl font-bold">{{ isEditing ? 'Edit bill' : 'New bill' }}</h2>
-      <p class="mt-1 text-xs text-content-on-surface-muted">First due: {{ firstDueLabel }}</p>
+      <p class="mt-1 text-xs text-text-muted">First due: {{ firstDueLabel }}</p>
     </header>
 
     <ReceiptDivider />
@@ -168,7 +168,7 @@ async function submit() {
       <BillLogoUpload v-model="form.logoUrl" />
 
       <div>
-        <label class="mb-1.5 block text-xs text-content-on-surface-muted">Title</label>
+        <label class="mb-1.5 block text-xs text-text-muted">Title</label>
         <input
           v-model="form.title"
           type="text"
@@ -189,7 +189,7 @@ async function submit() {
       />
 
       <div>
-        <label class="mb-1.5 block text-xs text-content-on-surface-muted">
+        <label class="mb-1.5 block text-xs text-text-muted">
           Duration (1–60 months) — {{ form.durationMonths }} month(s)
         </label>
         <input
@@ -200,7 +200,7 @@ async function submit() {
           class="w-full accent-primary"
           :disabled="isPrinterBusy"
         />
-        <p class="mt-1 text-xs text-content-on-surface-muted">
+        <p class="mt-1 text-xs text-text-muted">
           Due on day {{ form.dueDay }} in each active month (adjusted for shorter months).
         </p>
       </div>
@@ -209,15 +209,15 @@ async function submit() {
 
       <dl class="space-y-2 font-mono text-sm">
         <div class="flex justify-between gap-4">
-          <dt class="text-content-on-surface-muted">Period</dt>
+          <dt class="text-text-muted">Period</dt>
           <dd class="text-right">{{ previewPeriod }}</dd>
         </div>
         <div class="flex justify-between gap-4">
-          <dt class="text-content-on-surface-muted">Due</dt>
+          <dt class="text-text-muted">Due</dt>
           <dd class="text-right">{{ firstDueLabel }}</dd>
         </div>
         <div class="flex justify-between gap-4">
-          <dt class="text-content-on-surface-muted">Amount</dt>
+          <dt class="text-text-muted">Amount</dt>
           <dd class="font-bold">{{ previewAmount }}</dd>
         </div>
       </dl>
@@ -225,7 +225,7 @@ async function submit() {
       <BaseButton type="submit" class="w-full" :disabled="!isValid || isPrinterBusy">
         {{ isEditing ? 'Update bill' : 'Save bill' }}
       </BaseButton>
-      <p v-if="isPrinterBusy" class="text-center text-xs text-content-on-surface-muted">
+      <p v-if="isPrinterBusy" class="text-center text-xs text-text-muted">
         Printer is issuing your receipt…
       </p>
     </form>
@@ -237,10 +237,10 @@ async function submit() {
 
   <article
     v-else
-    class="rounded-3xl border border-border-subtle/50 bg-surface px-6 py-10 text-center text-content-on-surface shadow-xl"
+    class="rounded-3xl border border-primary/20 bg-surface px-6 py-10 text-center text-text shadow-xl"
   >
     <p class="font-medium">Bill not found</p>
-    <p class="mt-2 text-sm text-content-on-surface-muted">
+    <p class="mt-2 text-sm text-text-muted">
       This bill may have been removed from this device.
     </p>
     <RouterLink

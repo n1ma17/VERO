@@ -25,12 +25,12 @@ function onBlur() {
 }
 
 const inputClasses =
-  'w-full rounded-2xl border border-border-subtle/50 bg-surface px-3 py-2.5 text-sm font-mono text-content-on-surface outline-none placeholder:text-content-on-surface-muted focus:border-primary focus:ring-2 focus:ring-accent/60'
+  'w-full rounded-2xl border border-primary/20 bg-surface px-3 py-2.5 text-sm font-mono text-text outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-accent/60'
 </script>
 
 <template>
   <div>
-    <label class="mb-1.5 block text-xs text-content-on-surface-muted">Amount (Toman)</label>
+    <label class="mb-1.5 block text-xs text-text-muted">Amount (Toman)</label>
     <input
       :value="display"
       type="text"

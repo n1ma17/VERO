@@ -36,7 +36,7 @@ const screenAmount = computed(() => snapshot.value?.amountLabel ?? '—')
             d="M5 2h14v20l-2.5-1.5L14 22l-2-1.5L10 22l-2.5-1.5L5 22V2Zm3 5v2h8V7H8Zm0 4v2h8v-2H8Zm0 4v2h5v-2H8Z"
           />
         </svg>
-        <span class="rounded-full bg-surface-inactive/80 px-3 py-1 text-xs font-medium text-content-muted">
+        <span class="rounded-full bg-primary/80 px-3 py-1 text-xs font-medium text-text-muted">
           {{ stage === 'idle' ? 'Waiting' : 'Issuing…' }}
         </span>
       </div>
@@ -46,7 +46,7 @@ const screenAmount = computed(() => snapshot.value?.amountLabel ?? '—')
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <p class="truncate font-medium">{{ screenTitle }}</p>
-              <p class="mt-0.5 text-xs text-content-muted">{{ screenSubtitle }}</p>
+              <p class="mt-0.5 text-xs text-text-muted">{{ screenSubtitle }}</p>
             </div>
             <strong class="font-mono text-lg">{{ screenAmount }}</strong>
           </div>
@@ -59,40 +59,40 @@ const screenAmount = computed(() => snapshot.value?.amountLabel ?? '—')
       <ReceiptPrinterPaper v-if="snapshot">
         <header class="text-center">
           <p class="text-base font-bold uppercase tracking-widest">Money Management</p>
-          <p class="mt-1 text-xs text-content-on-surface-muted">
+          <p class="mt-1 text-xs text-text-muted">
             {{ snapshot.isUpdate ? 'Bill update receipt' : 'Bill definition receipt' }}
           </p>
         </header>
 
-        <div class="my-5 border-t-2 border-dashed border-content-on-surface-muted/40" />
+        <div class="my-5 border-t-2 border-dashed border-text-muted/40" />
 
         <dl class="space-y-2">
           <div class="flex justify-between gap-4">
-            <dt class="text-content-on-surface-muted">Title</dt>
+            <dt class="text-text-muted">Title</dt>
             <dd class="truncate text-right">{{ snapshot.title }}</dd>
           </div>
           <div class="flex justify-between gap-4">
-            <dt class="text-content-on-surface-muted">Ref.</dt>
+            <dt class="text-text-muted">Ref.</dt>
             <dd class="font-mono text-xs">{{ snapshot.id.slice(0, 8) }}</dd>
           </div>
           <div class="flex justify-between gap-4">
-            <dt class="text-content-on-surface-muted">Period</dt>
+            <dt class="text-text-muted">Period</dt>
             <dd class="text-right text-xs">{{ snapshot.periodLabel }}</dd>
           </div>
           <div class="flex justify-between gap-4">
-            <dt class="text-content-on-surface-muted">First due</dt>
+            <dt class="text-text-muted">First due</dt>
             <dd>{{ snapshot.firstDueLabel }}</dd>
           </div>
         </dl>
 
-        <div class="my-5 border-t-2 border-dashed border-content-on-surface-muted/40" />
+        <div class="my-5 border-t-2 border-dashed border-text-muted/40" />
 
         <div class="flex items-baseline justify-between">
           <span class="uppercase tracking-widest">Amount</span>
           <span class="text-xl font-bold">{{ snapshot.amountLabel }}</span>
         </div>
 
-        <p class="mt-6 text-center text-xs text-content-on-surface-muted">
+        <p class="mt-6 text-center text-xs text-text-muted">
           Installments will appear on the Installments page.
         </p>
       </ReceiptPrinterPaper>

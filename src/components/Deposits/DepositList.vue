@@ -29,10 +29,10 @@ function showsDifferentBankMonth(deposit: BankDeposit) {
 </script>
 
 <template>
-  <section class="rounded-3xl bg-surface p-6 text-content-on-surface shadow-lg">
+  <section class="rounded-3xl bg-surface p-6 text-text shadow-lg">
     <div class="flex items-baseline justify-between gap-4">
       <h2 class="text-lg font-semibold">Deposits</h2>
-      <span class="text-sm text-content-on-surface-muted">{{ monthLabel }}</span>
+      <span class="text-sm text-text-muted">{{ monthLabel }}</span>
     </div>
 
     <ul v-if="depositsInViewMonth.length" class="mt-5 space-y-3">
@@ -43,20 +43,20 @@ function showsDifferentBankMonth(deposit: BankDeposit) {
         :class="
           editingDepositId === deposit.id
             ? 'border-accent bg-accent/25'
-            : 'border-border-subtle/40 bg-primary-soft/10'
+            : 'border-primary/20 bg-primary/10'
         "
       >
         <div class="min-w-0 flex-1">
           <p class="font-mono font-semibold text-success">{{ formatToman(deposit.amount) }}</p>
-          <p v-if="deposit.note" class="mt-0.5 truncate text-sm text-content-on-surface-muted">
+          <p v-if="deposit.note" class="mt-0.5 truncate text-sm text-text-muted">
             {{ deposit.note }}
           </p>
-          <p class="mt-0.5 text-xs text-content-on-surface-muted">
+          <p class="mt-0.5 text-xs text-text-muted">
             Bank date: {{ bankDateLabel(deposit) }}
           </p>
           <p
             v-if="showsDifferentBankMonth(deposit)"
-            class="mt-0.5 text-xs text-content-on-surface-muted"
+            class="mt-0.5 text-xs text-text-muted"
           >
             Counted in {{ formatJalaliMonth(deposit.bookedYear, deposit.bookedMonth) }}
           </p>
@@ -70,7 +70,7 @@ function showsDifferentBankMonth(deposit: BankDeposit) {
       </li>
     </ul>
 
-    <p v-else class="mt-5 text-center text-sm text-content-on-surface-muted">
+    <p v-else class="mt-5 text-center text-sm text-text-muted">
       No deposits counted in this month. Use Previous to browse earlier months.
     </p>
   </section>

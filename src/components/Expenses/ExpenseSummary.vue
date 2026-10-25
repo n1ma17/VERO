@@ -18,15 +18,15 @@ function share(amount: number) {
 </script>
 
 <template>
-  <section class="grid gap-6 rounded-3xl bg-surface p-6 text-content-on-surface md:grid-cols-[14rem_1fr]">
-    <div class="md:border-r md:border-border-subtle/30 md:pr-6">
-      <p class="text-xs font-medium uppercase tracking-widest text-content-on-surface-muted">
+  <section class="grid gap-6 rounded-3xl bg-surface p-6 text-text md:grid-cols-[14rem_1fr]">
+    <div class="md:border-r md:border-primary/20 md:pr-6">
+      <p class="text-xs font-medium uppercase tracking-widest text-text-muted">
         Spent this month
       </p>
       <p class="mt-2 whitespace-nowrap font-mono text-3xl font-bold text-warning">
         {{ formatTomanNumber(monthTotal) }}<span class="ml-1 font-sans text-xs font-medium">Toman</span>
       </p>
-      <p class="mt-1 text-sm text-content-on-surface-muted">
+      <p class="mt-1 text-sm text-text-muted">
         {{ expensesInViewMonth.length }} purchase(s)
       </p>
     </div>
@@ -38,7 +38,7 @@ function share(amount: number) {
           {{ expenseCategories[item.category].label }}
         </span>
         <svg viewBox="0 0 100 6" preserveAspectRatio="none" class="h-2 w-full" aria-hidden="true">
-          <rect width="100" height="6" rx="3" class="fill-primary-soft/10" />
+          <rect width="100" height="6" rx="3" class="fill-primary/15/10" />
           <rect
             :width="barWidth(item.amount)"
             height="6"
@@ -48,11 +48,11 @@ function share(amount: number) {
         </svg>
         <span class="whitespace-nowrap text-right font-mono text-xs">
           {{ formatToman(item.amount) }}
-          <span class="text-content-on-surface-muted">· {{ share(item.amount) }}%</span>
+          <span class="text-text-muted">· {{ share(item.amount) }}%</span>
         </span>
       </li>
     </ul>
-    <p v-else class="self-center text-sm text-content-on-surface-muted">
+    <p v-else class="self-center text-sm text-text-muted">
       No purchases recorded for this month.
     </p>
   </section>

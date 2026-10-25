@@ -151,19 +151,19 @@ onUnmounted(() => {
 
 <template>
   <div ref="root" class="relative">
-    <label v-if="label" class="mb-1.5 block text-xs font-medium text-content-on-surface-muted">
+    <label v-if="label" class="mb-1.5 block text-xs font-medium text-text-muted">
       {{ label }}
     </label>
     <button
       ref="trigger"
       type="button"
-      class="flex w-full items-center justify-between gap-2 rounded-2xl border border-border-subtle/50 bg-surface px-4 py-3 text-sm text-content-on-surface transition hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 disabled:cursor-not-allowed disabled:opacity-50"
+      class="flex w-full items-center justify-between gap-2 rounded-2xl border border-primary/20 bg-surface px-4 py-3 text-sm text-text transition hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 disabled:cursor-not-allowed disabled:opacity-50"
       :aria-expanded="open"
       :disabled="disabled"
       @click.stop="toggle"
     >
       <span class="font-mono font-medium">{{ display }}</span>
-      <span class="text-content-on-surface-muted" aria-hidden="true">▾</span>
+      <span class="text-text-muted" aria-hidden="true">▾</span>
     </button>
 
     <Teleport to="body">

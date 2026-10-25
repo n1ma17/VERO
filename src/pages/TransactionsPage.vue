@@ -2,7 +2,7 @@
 import PageHeader from '@/components/shared/PageHeader.vue'
 import LedgerChart from '@/components/Transactions/LedgerChart.vue'
 import LedgerCoverage from '@/components/Transactions/LedgerCoverage.vue'
-import LedgerMonthNavigator from '@/components/Transactions/LedgerMonthNavigator.vue'
+import ViewMonthNavigator from '@/components/shared/ViewMonthNavigator.vue'
 import LedgerSummaryCards from '@/components/Transactions/LedgerSummaryCards.vue'
 import LedgerTable from '@/components/Transactions/LedgerTable.vue'
 </script>
@@ -13,7 +13,7 @@ import LedgerTable from '@/components/Transactions/LedgerTable.vue'
     subtitle="Deposits, bills, expenses and remaining balance by Jalali month"
   />
   <div class="space-y-6">
-    <LedgerMonthNavigator />
+    <ViewMonthNavigator context="ledger" />
     <LedgerSummaryCards />
     <div class="grid gap-6 lg:grid-cols-3">
       <LedgerChart class="lg:col-span-2" />

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ExpenseList from '@/components/Expenses/ExpenseList.vue'
-import ExpenseMonthNavigator from '@/components/Expenses/ExpenseMonthNavigator.vue'
+import ViewMonthNavigator from '@/components/shared/ViewMonthNavigator.vue'
 import ExpenseSummary from '@/components/Expenses/ExpenseSummary.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 </script>
@@ -10,13 +10,13 @@ import PageHeader from '@/components/shared/PageHeader.vue'
     <PageHeader title="Expenses" subtitle="Everyday purchases by month — tap a receipt to edit it" />
     <RouterLink
       :to="{ name: 'expense-entry' }"
-      class="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-content-on-surface transition hover:bg-accent-hover"
+      class="rounded-[16px] bg-accent px-5 py-2.5 text-sm font-semibold text-text transition hover:bg-accent mb-3 md:mb-0"
     >
       Add expense
     </RouterLink>
   </div>
   <div class="space-y-8">
-    <ExpenseMonthNavigator />
+    <ViewMonthNavigator context="expenses" />
     <ExpenseSummary />
     <ExpenseList />
   </div>

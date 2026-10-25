@@ -39,7 +39,7 @@ const indicator = computed(() => {
           key="complete"
           viewBox="0 0 24 24"
           fill="currentColor"
-          class="size-4.5 text-printer-led"
+          class="size-4.5 text-success"
         >
           <path
             fill-rule="evenodd"
@@ -55,7 +55,7 @@ const indicator = computed(() => {
           stroke="currentColor"
           stroke-width="2.5"
           stroke-linecap="round"
-          class="size-4.5 animate-spin text-content-muted motion-reduce:animate-none"
+          class="size-4.5 animate-spin text-text-muted motion-reduce:animate-none"
         >
           <path d="M12 3a9 9 0 1 0 9 9" />
         </svg>
@@ -71,7 +71,7 @@ const indicator = computed(() => {
         leave-active-class="transition duration-150 ease-in motion-reduce:transition-none"
         leave-to-class="-translate-y-1 opacity-0"
       >
-        <p :key="stage" class="truncate text-xs font-medium leading-none text-content-muted">
+        <p :key="stage" class="truncate text-xs font-medium leading-none text-text-muted">
           {{ label }}
         </p>
       </Transition>

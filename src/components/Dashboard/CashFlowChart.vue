@@ -78,28 +78,28 @@ const activePoint = computed(() => cashFlow.value[activeIndex.value])
 
 <template>
   <section
-    class="flex animate-fade-up flex-col rounded-3xl bg-surface p-6 text-content-on-surface shadow-lg [animation-delay:300ms] motion-reduce:animate-none"
+    class="flex animate-fade-up flex-col rounded-3xl bg-surface p-6 text-text shadow-lg [animation-delay:300ms] motion-reduce:animate-none"
   >
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
         <h2 class="text-lg font-semibold">Cash flow</h2>
-        <p class="mt-0.5 text-xs text-content-on-surface-muted">Deposits vs. bills and expenses, last 12 months</p>
+        <p class="mt-0.5 text-xs text-text-muted">Deposits vs. bills and expenses, last 12 months</p>
       </div>
       <div class="flex flex-wrap gap-6 text-right">
         <div>
-          <p class="flex items-center justify-end gap-1.5 text-xs text-content-on-surface-muted">
+          <p class="flex items-center justify-end gap-1.5 text-xs text-text-muted">
             <span class="size-2 rounded-full bg-success" /> Deposits
           </p>
           <p class="font-mono text-sm font-semibold">{{ formatToman(totals.income) }}</p>
         </div>
         <div>
-          <p class="flex items-center justify-end gap-1.5 text-xs text-content-on-surface-muted">
+          <p class="flex items-center justify-end gap-1.5 text-xs text-text-muted">
             <span class="size-2 rounded-full bg-danger" /> Bills
           </p>
           <p class="font-mono text-sm font-semibold">{{ formatToman(totals.bills) }}</p>
         </div>
         <div>
-          <p class="flex items-center justify-end gap-1.5 text-xs text-content-on-surface-muted">
+          <p class="flex items-center justify-end gap-1.5 text-xs text-text-muted">
             <span class="size-2 rounded-full bg-warning" /> Expenses
           </p>
           <p class="font-mono text-sm font-semibold">{{ formatToman(totals.expenses) }}</p>
@@ -110,7 +110,7 @@ const activePoint = computed(() => cashFlow.value[activeIndex.value])
     <div class="relative mt-4">
       <div
         v-if="activePoint"
-        class="pointer-events-none absolute right-0 top-0 z-10 rounded-2xl border border-border-subtle/30 bg-surface/95 px-3 py-2 text-xs shadow-md"
+        class="pointer-events-none absolute right-0 top-0 z-10 rounded-2xl border border-primary/20 bg-surface/95 px-3 py-2 text-xs shadow-md"
       >
         <p class="font-semibold">{{ formatJalaliMonth(activePoint.year, activePoint.month) }}</p>
         <p class="mt-1 font-mono text-success">+{{ formatToman(activePoint.income) }}</p>
@@ -141,7 +141,7 @@ const activePoint = computed(() => cashFlow.value[activeIndex.value])
           :x="PAD_LEFT - 8"
           :y="tick.y + 4"
           text-anchor="end"
-          class="fill-content-on-surface-muted text-[10px]"
+          class="fill-text-muted text-[10px]"
         >
           {{ tick.label }}
         </text>
@@ -178,7 +178,7 @@ const activePoint = computed(() => cashFlow.value[activeIndex.value])
           :x2="x(activeIndex)"
           :y1="PAD_TOP"
           :y2="baseline"
-          class="stroke-content-on-surface-muted/40"
+          class="stroke-text-muted/40"
           stroke-dasharray="2 3"
         />
         <circle
@@ -210,7 +210,7 @@ const activePoint = computed(() => cashFlow.value[activeIndex.value])
           :y="HEIGHT - 8"
           text-anchor="middle"
           class="text-[10px]"
-          :class="index === activeIndex ? 'fill-content-on-surface font-semibold' : 'fill-content-on-surface-muted'"
+          :class="index === activeIndex ? 'fill-text font-semibold' : 'fill-text-muted'"
         >
           {{ point.label }}
         </text>
@@ -228,26 +228,26 @@ const activePoint = computed(() => cashFlow.value[activeIndex.value])
       </svg>
     </div>
 
-    <dl class="mt-auto grid grid-cols-1 gap-3 border-t border-border-subtle/30 pt-5 sm:grid-cols-3">
-      <div class="rounded-2xl bg-success-soft/50 px-4 py-3">
-        <dt class="text-xs text-content-on-surface-muted">Avg. monthly deposits</dt>
+    <dl class="mt-auto grid grid-cols-1 gap-3 border-t border-primary/20 pt-5 sm:grid-cols-3">
+      <div class="rounded-2xl bg-success/15/50 px-4 py-3">
+        <dt class="text-xs text-text-muted">Avg. monthly deposits</dt>
         <dd class="mt-1 font-mono text-sm font-semibold text-success">
           {{ formatToman(Math.round(averages.income)) }}
         </dd>
       </div>
-      <div class="rounded-2xl bg-danger-soft/50 px-4 py-3">
-        <dt class="text-xs text-content-on-surface-muted">Avg. monthly spending</dt>
+      <div class="rounded-2xl bg-danger/15/50 px-4 py-3">
+        <dt class="text-xs text-text-muted">Avg. monthly spending</dt>
         <dd class="mt-1 font-mono text-sm font-semibold text-danger">
           {{ formatToman(Math.round(averages.spending)) }}
         </dd>
       </div>
       <div class="rounded-2xl bg-accent/30 px-4 py-3">
-        <dt class="text-xs text-content-on-surface-muted">Best month</dt>
+        <dt class="text-xs text-text-muted">Best month</dt>
         <dd v-if="bestMonth" class="mt-1 text-sm font-semibold">
           {{ bestMonth.label }}
           <span class="font-mono text-xs text-success">+{{ formatToman(bestMonth.net) }}</span>
         </dd>
-        <dd v-else class="mt-1 text-sm text-content-on-surface-muted">No surplus yet</dd>
+        <dd v-else class="mt-1 text-sm text-text-muted">No surplus yet</dd>
       </div>
     </dl>
   </section>

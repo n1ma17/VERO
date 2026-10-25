@@ -22,7 +22,7 @@
   @keyframes receipt-celebrate {
     0% {
       box-shadow:
-        0 10px 25px -12px color-mix(in oklab, var(--color-content-on-surface) 18%, transparent),
+        0 10px 25px -12px color-mix(in oklab, var(--color-text) 18%, transparent),
         0 0 0 0 color-mix(in oklab, var(--color-success) 0%, transparent);
     }
     45% {
@@ -32,7 +32,7 @@
     }
     100% {
       box-shadow:
-        0 10px 25px -12px color-mix(in oklab, var(--color-content-on-surface) 18%, transparent),
+        0 10px 25px -12px color-mix(in oklab, var(--color-text) 18%, transparent),
         0 0 0 0 color-mix(in oklab, var(--color-success) 0%, transparent);
     }
   }
@@ -85,7 +85,7 @@
 
 @layer base {
   body {
-    @apply bg-background text-content antialiased;
+    @apply bg-background text-text antialiased;
   }
 }
 
@@ -108,7 +108,7 @@
     bottom: 0;
     height: 0.4rem;
     border-radius: 0 0 1rem 1rem;
-    background: var(--color-bank-card-from);
+    background: var(--color-primary);
     transform: translate3d(0, 99%, 0) rotateX(0deg);
     transform-origin: top center;
   }
@@ -124,197 +124,144 @@
   }
 }
 
-@property --nav-notch-x {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 0px;
-}
-
 /*
- * Curved bottom tab bar. The active tab is a raised danger circle sitting
- * in a scooped notch, with a gap between the circle and the pill (like a
- * floating dock). Pill is capped at 320px.
+ * Bottom tab bar: sliding top “light” + beam, per-tab glow (ported from nav-light pattern).
  */
 @layer components {
   .app-bottom-nav-dock {
-    --nav-count: 6;
-    --nav-width: min(320px, calc(100vw - 1.5rem));
-    --nav-pad-x: 1.25rem;
-    --nav-track: calc(var(--nav-width) - 2 * var(--nav-pad-x));
-    --nav-item: calc(var(--nav-track) / var(--nav-count));
-    --nav-height: 4.5rem;
-    --nav-circle: var(--nav-item);
-    --nav-gap: 0.4rem;
-    --nav-notch-r: calc(var(--nav-circle) / 2 + var(--nav-gap));
-
     position: fixed;
     inset-inline: 0;
     bottom: 0;
     z-index: 50;
-    display: flex;
-    justify-content: center;
-    padding: calc(var(--nav-circle) / 2 + var(--nav-gap) + 0.2rem) 0.75rem
-      calc(0.65rem + env(safe-area-inset-bottom));
-  
+    padding: 0.75rem 0 calc(0.75rem + env(safe-area-inset-bottom));
     pointer-events: none;
   }
 
   .app-bottom-nav {
+    --nav-tab-accent: var(--color-accent);
+
     pointer-events: auto;
     position: relative;
-    width: var(--nav-width);
-    max-width: 320px;
-    height: var(--nav-height);
-    --nav-notch-x: calc(var(--nav-pad-x) + var(--nav-item) * 0.5);
-    transition: --nav-notch-x 0.5s;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 5rem;
+    padding-inline: 2rem;
+    overflow: hidden;
+    border-radius: 16px;
+    border: 1px solid color-mix(in oklab, var(--color-background) 18%, transparent);
+    background-color: var(--color-primary);
+    box-shadow: 0 1em 1em color-mix(in oklab, var(--color-primary) 35%, transparent);
+
   }
 
   .app-bottom-nav[data-index='1'] {
-    --nav-notch-x: calc(var(--nav-pad-x) + var(--nav-item) * 1.5);
+    --nav-tab-accent: var(--color-success);
   }
   .app-bottom-nav[data-index='2'] {
-    --nav-notch-x: calc(var(--nav-pad-x) + var(--nav-item) * 2.5);
+    --nav-tab-accent: var(--color-warning);
   }
   .app-bottom-nav[data-index='3'] {
-    --nav-notch-x: calc(var(--nav-pad-x) + var(--nav-item) * 3.5);
+    --nav-tab-accent: var(--color-danger);
   }
   .app-bottom-nav[data-index='4'] {
-    --nav-notch-x: calc(var(--nav-pad-x) + var(--nav-item) * 4.5);
+    --nav-tab-accent: var(--color-accent);
   }
   .app-bottom-nav[data-index='5'] {
-    --nav-notch-x: calc(var(--nav-pad-x) + var(--nav-item) * 5.5);
+    --nav-tab-accent: var(--color-success);
   }
 
-  /* White pill with a circular scoop under the raised tab — circle stays unmasked. */
-  .app-bottom-nav::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-   
-    border-radius: 16px;
-    background: var(--color-primary);
-    box-shadow: 0 12px 32px color-mix(in oklab, var(--color-printer) 28%, transparent);
-    -webkit-mask-image: radial-gradient(
-      circle at var(--nav-notch-x) 0px,
-      transparent var(--nav-notch-r),
-      #000 calc(var(--nav-notch-r) + 1px)
-    );
-    mask-image: radial-gradient(
-      circle at var(--nav-notch-x) 0px,
-      transparent var(--nav-notch-r),
-      #000 calc(var(--nav-notch-r) + 1px)
-    );
-  }
-
-  .app-bottom-nav__list {
+  .app-bottom-nav__links {
     position: relative;
+    z-index: 1;
     display: flex;
     width: 100%;
     height: 100%;
-    padding-inline: var(--nav-pad-x);
-    box-sizing: border-box;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
 
   .app-bottom-nav__item {
-    position: relative;
-    z-index: 1;
     flex: 1;
-    min-width: 0;
-    height: var(--nav-height);
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
   }
 
   .app-bottom-nav__link {
-    position: relative;
     display: flex;
-    flex-direction: column;
+    height: 100%;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    height: 100%;
+    padding-inline: 0.25rem;
+    color: var(--color-background);
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+  }
+
+  .app-bottom-nav__item.is-active .app-bottom-nav__link {
+    opacity: 1;
   }
 
   .app-bottom-nav__icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 1.75rem;
-    color: var(--color-white);
-    transition: transform 0.5s;
+    color: inherit;
+    transition:
+      color 0.3s ease,
+      filter 0.3s ease;
   }
 
   .app-bottom-nav__icon svg {
-    width: 1.65rem;
-    height: 1.65rem;
-  }
-
-  .app-bottom-nav__label {
-    position: absolute;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.01em;
-    color: var(--color-white);
-    opacity: 0;
-    transform: translateY(1.25rem);
-    transition:
-      opacity 0.5s,
-      transform 0.5s;
+    width: 2.25rem;
+    height: 2.25rem;
   }
 
   .app-bottom-nav__item.is-active .app-bottom-nav__icon {
-    position: absolute;
-    left: 50%;
-    top: calc(var(--nav-circle) / -2);
-    z-index: 2;
-    width: var(--nav-circle);
-    height: var(--nav-circle);
-    transform: translateX(-50%);
-    color: var(--color-primary);
+    color: var(--nav-tab-accent);
+    filter: drop-shadow(0 0 5px color-mix(in oklab, var(--nav-tab-accent) 65%, transparent))
+      drop-shadow(0 0 12px color-mix(in oklab, var(--nav-tab-accent) 40%, transparent));
   }
 
-  .app-bottom-nav__item.is-active .app-bottom-nav__label {
-    opacity: 1;
-    transform: translateY(0.7rem);
-  }
-
-  .app-bottom-nav__indicator {
+  .app-bottom-nav__light {
     position: absolute;
-    top: calc(var(--nav-circle) / -2);
-    left: var(--nav-pad-x);
+    top: 0;
+    left: var(--nav-light-left, 0px);
+    width: 3rem;
+    height: 0.35rem;
+    border-radius: 2px;
+    background-color: var(--nav-tab-accent);
+    display: flex;
+    justify-content: center;
+    transition: left 0.3s ease;
+    pointer-events: none;
     z-index: 0;
-    width: var(--nav-circle);
-    height: var(--nav-circle);
-    background: var(--color-accent);
-    border-radius: 50%;
-
-    transition: transform 0.5s;
   }
 
-  .app-bottom-nav__indicator[data-index='0'] {
-    transform: translateX(0);
-  }
-  .app-bottom-nav__indicator[data-index='1'] {
-    transform: translateX(var(--nav-item));
-  }
-  .app-bottom-nav__indicator[data-index='2'] {
-    transform: translateX(calc(var(--nav-item) * 2));
-  }
-  .app-bottom-nav__indicator[data-index='3'] {
-    transform: translateX(calc(var(--nav-item) * 3));
-  }
-  .app-bottom-nav__indicator[data-index='4'] {
-    transform: translateX(calc(var(--nav-item) * 4));
-  }
-  .app-bottom-nav__indicator[data-index='5'] {
-    transform: translateX(calc(var(--nav-item) * 5));
+  .app-bottom-nav__light::before {
+    content: '';
+    position: absolute;
+    top: 0.35rem;
+    left: 50%;
+    width: 5rem;
+    height: 7rem;
+    transform: translateX(-50%);
+    background: linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--nav-tab-accent) 32%, transparent) -50%,
+      transparent 90%
+    );
+    clip-path: polygon(30% 0, 70% 0, 100% 100%, 0% 100%);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .app-bottom-nav,
-    .app-bottom-nav__icon,
-    .app-bottom-nav__label,
-    .app-bottom-nav__indicator {
+    .app-bottom-nav__light,
+    .app-bottom-nav__link,
+    .app-bottom-nav__icon {
       transition: none;
     }
   }

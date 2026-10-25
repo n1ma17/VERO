@@ -2,16 +2,54 @@ import type { ExpenseCategory } from '@/types/expense'
 
 export interface ExpenseCategoryMeta {
   label: string
-  /** Solid tile with readable text, e.g. category avatar. */
   tile: string
-  /** Small swatch / legend dot. */
   dot: string
-  /** SVG bar fill. */
   fill: string
-  /** Donut segment. */
   stroke: string
-  /** Receipt top strip. */
   strip: string
+}
+
+/** Rotates the five brand colors for category chips and charts. */
+const categoryPalette: Omit<ExpenseCategoryMeta, 'label'>[] = [
+  {
+    tile: 'bg-success text-background',
+    dot: 'bg-success',
+    fill: 'fill-success',
+    stroke: 'stroke-success',
+    strip: 'bg-success',
+  },
+  {
+    tile: 'bg-accent text-text',
+    dot: 'bg-accent',
+    fill: 'fill-accent',
+    stroke: 'stroke-accent',
+    strip: 'bg-accent',
+  },
+  {
+    tile: 'bg-warning text-text',
+    dot: 'bg-warning',
+    fill: 'fill-warning',
+    stroke: 'stroke-warning',
+    strip: 'bg-warning',
+  },
+  {
+    tile: 'bg-danger text-background',
+    dot: 'bg-danger',
+    fill: 'fill-danger',
+    stroke: 'stroke-danger',
+    strip: 'bg-danger',
+  },
+  {
+    tile: 'bg-primary text-background',
+    dot: 'bg-primary',
+    fill: 'fill-primary',
+    stroke: 'stroke-primary',
+    strip: 'bg-primary',
+  },
+]
+
+function paletteFor(index: number): Omit<ExpenseCategoryMeta, 'label'> {
+  return categoryPalette[index % categoryPalette.length]
 }
 
 export const EXPENSE_CATEGORY_ORDER: ExpenseCategory[] = [
@@ -28,94 +66,28 @@ export const EXPENSE_CATEGORY_ORDER: ExpenseCategory[] = [
   'other',
 ]
 
+function category(label: string, paletteIndex: number): ExpenseCategoryMeta {
+  return { ...paletteFor(paletteIndex), label }
+}
+
 export const expenseCategories: Record<ExpenseCategory, ExpenseCategoryMeta> = {
-  food: {
-    label: 'Food & dining',
-    tile: 'bg-chart-8 text-on-primary',
-    dot: 'bg-chart-8',
-    fill: 'fill-chart-8',
-    stroke: 'stroke-chart-8',
-    strip: 'bg-chart-8',
-  },
-  groceries: {
-    label: 'Groceries',
-    tile: 'bg-chart-1 text-on-primary',
-    dot: 'bg-chart-1',
-    fill: 'fill-chart-1',
-    stroke: 'stroke-chart-1',
-    strip: 'bg-chart-1',
-  },
-  home: {
-    label: 'Home',
-    tile: 'bg-chart-4 text-on-primary',
-    dot: 'bg-chart-4',
-    fill: 'fill-chart-4',
-    stroke: 'stroke-chart-4',
-    strip: 'bg-chart-4',
-  },
-  clothing: {
-    label: 'Clothing',
-    tile: 'bg-chart-7 text-on-primary',
-    dot: 'bg-chart-7',
-    fill: 'fill-chart-7',
-    stroke: 'stroke-chart-7',
-    strip: 'bg-chart-7',
-  },
-  entertainment: {
-    label: 'Entertainment',
-    tile: 'bg-chart-2 text-content-on-surface',
-    dot: 'bg-chart-2',
-    fill: 'fill-chart-2',
-    stroke: 'stroke-chart-2',
-    strip: 'bg-chart-2',
-  },
-  transport: {
-    label: 'Transport',
-    tile: 'bg-chart-6 text-on-primary',
-    dot: 'bg-chart-6',
-    fill: 'fill-chart-6',
-    stroke: 'stroke-chart-6',
-    strip: 'bg-chart-6',
-  },
-  car: {
-    label: 'Car',
-    tile: 'bg-chart-10 text-on-primary',
-    dot: 'bg-chart-10',
-    fill: 'fill-chart-10',
-    stroke: 'stroke-chart-10',
-    strip: 'bg-chart-10',
-  },
-  motorcycle: {
-    label: 'Motorcycle',
-    tile: 'bg-chart-11 text-on-primary',
-    dot: 'bg-chart-11',
-    fill: 'fill-chart-11',
-    stroke: 'stroke-chart-11',
-    strip: 'bg-chart-11',
-  },
-  beauty: {
-    label: 'Beauty',
-    tile: 'bg-chart-9 text-on-primary',
-    dot: 'bg-chart-9',
-    fill: 'fill-chart-9',
-    stroke: 'stroke-chart-9',
-    strip: 'bg-chart-9',
-  },
-  health: {
-    label: 'Health',
-    tile: 'bg-chart-5 text-content-on-surface',
-    dot: 'bg-chart-5',
-    fill: 'fill-chart-5',
-    stroke: 'stroke-chart-5',
-    strip: 'bg-chart-5',
-  },
+  food: category('Food & dining', 0),
+  groceries: category('Groceries', 1),
+  home: category('Home', 2),
+  clothing: category('Clothing', 3),
+  entertainment: category('Entertainment', 4),
+  transport: category('Transport', 0),
+  car: category('Car', 1),
+  motorcycle: category('Motorcycle', 2),
+  beauty: category('Beauty', 3),
+  health: category('Health', 4),
   other: {
     label: 'Other',
-    tile: 'bg-chart-muted text-content-on-surface',
-    dot: 'bg-chart-muted',
-    fill: 'fill-chart-muted',
-    stroke: 'stroke-chart-muted',
-    strip: 'bg-chart-muted',
+    tile: 'bg-primary/15 text-text',
+    dot: 'bg-primary/40',
+    fill: 'fill-primary/40',
+    stroke: 'stroke-primary/40',
+    strip: 'bg-primary/20',
   },
 }
 
