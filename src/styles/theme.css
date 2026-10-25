@@ -54,8 +54,14 @@
   /* Bank card (deposits page) */
   --color-bank-card-from: #2a403e;
   --color-bank-card-to: #1c2b29;
+  --color-bank-card-text: #ffffff;
   --color-bank-card-chip: #e8d4b8;
   --color-bank-card-shine: #f5cba7;
+  --color-bank-balance-backdrop: #e9eeed;
+  /* 3D tilt: card lies in the XY plane, tipped back with rotateX (not 2D rotate). */
+  --bank-card-perspective: 68rem;
+  --bank-card-tilt-x: 0deg;
+  --bank-card-tilt-z: 0deg;
 
   /* Categorical chart palette (dashboard bill breakdown) */
   --color-chart-1: #3a6b5c;

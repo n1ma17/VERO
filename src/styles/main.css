@@ -89,6 +89,41 @@
   }
 }
 
+/* Deposits: credit card flat on the “table”, viewer above — rotateX + slight rotateZ. */
+@layer components {
+  .bank-card-scene {
+    perspective: var(--bank-card-perspective);
+    perspective-origin: 50% 38%;
+  }
+
+  .bank-card-plate {
+    transform: rotateX(55deg) rotateY(0) rotateZ(var(--bank-card-tilt-z));
+    transform-origin: center center;
+    transform-style: preserve-3d;
+  }
+
+  .bank-card-plate__edge {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 0.4rem;
+    border-radius: 0 0 1rem 1rem;
+    background: var(--color-bank-card-from);
+    transform: translate3d(0, 99%, 0) rotateX(0deg);
+    transform-origin: top center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bank-card-plate {
+      transform: none;
+    }
+
+    .bank-card-plate__edge {
+      display: none;
+    }
+  }
+}
+
 @property --nav-notch-x {
   syntax: '<length>';
   inherits: true;

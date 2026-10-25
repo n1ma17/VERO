@@ -34,7 +34,8 @@ Current Jalali month overview, all from `useDashboard()`. No `PageHeader` (hero 
 
 ### DepositsPage → `components/Deposits/`
 Bank deposits in Toman for the **current Jalali month**; total balance = sum of all deposits.
-- `BankBalanceCard.vue` — card-style UI: total balance + this month’s deposit total
+- `BankBalanceCard.vue` — `bank-balance-backdrop`: large balance + small unit (like reference $), then 3D card
+- `BankCardPlastic.vue` — two-tone card (`primary` top / `bank-card-to` bottom), corner mandalas, `money` + VISA only, 3D tilt
 - `DepositForm.vue` — amount (Toman) + optional note → `addDeposit`
 - `DepositList.vue` — current month’s deposits, remove row
 
@@ -144,7 +145,7 @@ Loan-app reference palette. Default Tailwind palette disabled.
 | Interactive | `primary`, `primary-hover`, `primary-soft`, `on-primary` |
 | Status | `success`, `success-soft`, `danger`, `danger-hover`, `danger-soft`, `warning`, `warning-soft` |
 | Printer | `printer` (body), `printer-edge`, `printer-screen`, `printer-slot`, `printer-led` (complete icon) |
-| Bank card | `bank-card-from`, `bank-card-to`, `bank-card-chip`, `bank-card-shine` |
+| Bank card | `bank-card-*`, `bank-balance-backdrop`, `rotate-x-bank-card` (18deg) |
 | Charts | `chart-1`…`chart-11`, `chart-muted` (`chart-1`/`3`/`4` share hexes with success/danger/warning; food uses `chart-8` to stay distinct from Bills); `danger-on-dark` (negative numbers on dark hero) |
 
 Animations (`styles/main.css` `@theme`): `animate-receipt-feed` — stepped paper feed, 1.75s; `animate-receipt-celebrate`; `animate-fade-up` — section entrance (use `[animation-delay:…]` to stagger).
