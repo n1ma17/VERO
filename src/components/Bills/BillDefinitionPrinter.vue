@@ -45,10 +45,10 @@ const screenAmount = computed(() => snapshot.value?.amountLabel ?? '—')
         <div class="space-y-4">
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
-              <p class="truncate font-medium">{{ screenTitle }}</p>
+              <p class="truncate text-text-muted font-medium">{{ screenTitle }}</p>
               <p class="mt-0.5 text-xs text-text-muted">{{ screenSubtitle }}</p>
             </div>
-            <strong class="font-mono text-lg">{{ screenAmount }}</strong>
+            <strong class="font-mono text-accent text-lg">{{ screenAmount }}</strong>
           </div>
           <ReceiptPrinterStatus :labels="statusLabels" />
         </div>

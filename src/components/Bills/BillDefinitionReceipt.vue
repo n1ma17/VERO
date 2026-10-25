@@ -205,7 +205,7 @@ async function submit() {
         </p>
       </div>
 
-      <ReceiptDivider />
+      <ReceiptDivider :right="8" :left="8" />
 
       <dl class="space-y-2 font-mono text-sm">
         <div class="flex justify-between gap-4">
