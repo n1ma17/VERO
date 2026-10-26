@@ -11,7 +11,8 @@ export interface MonthTotals {
 
 /**
  * Income by deposit "counted" month, bills by installment due month, expenses by purchase month.
- * Keyed by `monthToIndex`.
+ * Keyed by `monthToIndex`. Used by the dashboard overview; the Transactions page reads
+ * the same totals from `GET /api/ledger`.
  */
 export function buildMonthTotals(
   deposits: ReadonlyArray<Pick<BankDeposit, 'amount' | 'bookedYear' | 'bookedMonth'>>,

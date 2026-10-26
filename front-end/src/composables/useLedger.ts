@@ -1,18 +1,19 @@
 import { computed, ref, watch } from 'vue'
+import { ApiError, api } from '@/api/http'
 import { useBankDeposits } from '@/composables/useBankDeposits'
 import { useExpenses } from '@/composables/useExpenses'
 import { useInstallments } from '@/composables/useInstallments'
 import type { JalaliMonth } from '@/types/bill'
-import type { LedgerEntry, LedgerMonthPoint } from '@/types/ledger'
-import { getInstallmentStatus } from '@/utils/installmentStatus'
-import { balanceThrough as balanceThroughTotals, buildMonthTotals } from '@/utils/ledger'
+import type { LedgerMonth, LedgerMonthPoint } from '@/types/ledger'
 import {
   JALALI_MONTH_NAMES,
   currentJalaliMonth,
   formatJalaliMonth,
   indexToMonth,
+  jalaliMonthFirstIso,
   monthToIndex,
 } from '@/utils/jalali'
+import { ledgerFromApi, type LedgerMonthApi } from '@/utils/moneyApi'
 
 const VIEW_KEY = 'money-managment:transactions-view-month'
 const CHART_MONTHS = 6
@@ -27,32 +28,106 @@ function loadViewMonth(): JalaliMonth {
   return currentJalaliMonth()
 }
 
+function emptyChart(year: number, month: number): LedgerMonthPoint[] {
+  const viewIndex = monthToIndex(year, month)
+  const points: LedgerMonthPoint[] = []
+  for (let offset = CHART_MONTHS - 1; offset >= 0; offset--) {
+    const point = indexToMonth(viewIndex - offset)
+    points.push({
+      year: point.year,
+      month: point.month,
+      label: JALALI_MONTH_NAMES[point.month - 1].slice(0, 3),
+      income: 0,
+      bills: 0,
+      expenses: 0,
+      balance: 0,
+    })
+  }
+  return points
+}
+
+function emptyMonth(year: number, month: number): LedgerMonth {
+  return {
+    year,
+    month,
+    monthIncome: 0,
+    monthBills: 0,
+    monthExpenses: 0,
+    monthSpending: 0,
+    monthNet: 0,
+    openingBalance: 0,
+    closingBalance: 0,
+    entries: [],
+    depositCount: 0,
+    billCount: 0,
+    expenseCount: 0,
+    paidBillsTotal: 0,
+    unpaidBillsTotal: 0,
+    chartSeries: emptyChart(year, month),
+  }
+}
+
 const viewMonth = ref<JalaliMonth>(loadViewMonth())
+const snapshot = ref<LedgerMonth | null>(null)
+const sessionActive = ref(false)
 
 watch(viewMonth, (value) => localStorage.setItem(VIEW_KEY, JSON.stringify(value)), { deep: true })
 
-type PendingEntry = Omit<LedgerEntry, 'balance'> & { sortKey: number }
+let fetchSeq = 0
+let watching = false
 
-function dateKey(year: number, month: number, day: number): number {
-  return year * 10000 + month * 100 + day
+export async function loadLedger(): Promise<void> {
+  if (!sessionActive.value) return
+  const { year, month } = viewMonth.value
+  const seq = ++fetchSeq
+  try {
+    const data = await api<LedgerMonthApi>(
+      `/api/ledger?date=${jalaliMonthFirstIso(year, month)}`,
+    )
+    if (seq !== fetchSeq) return
+    snapshot.value = ledgerFromApi(data)
+  } catch (error) {
+    if (seq !== fetchSeq) return
+    if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+      snapshot.value = null
+      return
+    }
+    snapshot.value = emptyMonth(year, month)
+  }
+}
+
+export function armLedger(): void {
+  sessionActive.value = true
+}
+
+export function clearLedger(): void {
+  sessionActive.value = false
+  fetchSeq += 1
+  snapshot.value = null
+}
+
+function ensureLedgerWatch(): void {
+  if (watching) return
+  watching = true
+  const { deposits } = useBankDeposits()
+  const { expenses } = useExpenses()
+  const { allInstallments } = useInstallments()
+  watch(
+    [viewMonth, deposits, expenses, allInstallments],
+    () => {
+      void loadLedger()
+    },
+    { immediate: true },
+  )
 }
 
 /**
- * Deposits (by their "counted" month) minus bill installments (by due month) and expenses
- * (by purchase month). Balance is cumulative across all months and may go negative.
+ * Statement for the selected Jalali month, loaded from Postgres via
+ * `GET /api/ledger?date=` (Gregorian ISO of that month's first day).
+ * View-month is only UI state (localStorage).
  */
 export function useLedger() {
-  const { deposits } = useBankDeposits()
-  const { allInstallments } = useInstallments()
-  const { expenses } = useExpenses()
-
-  const monthTotals = computed(() =>
-    buildMonthTotals(deposits.value, allInstallments.value, expenses.value),
-  )
-
-  function balanceThrough(index: number): number {
-    return balanceThroughTotals(monthTotals.value, index)
-  }
+  ensureLedgerWatch()
 
   const viewIndex = computed(() => monthToIndex(viewMonth.value.year, viewMonth.value.month))
   const viewLabel = computed(() => formatJalaliMonth(viewMonth.value.year, viewMonth.value.month))
@@ -61,118 +136,44 @@ export function useLedger() {
     return viewIndex.value === monthToIndex(now.year, now.month)
   })
 
-  const monthIncome = computed(() => monthTotals.value.get(viewIndex.value)?.income ?? 0)
-  const monthBills = computed(() => monthTotals.value.get(viewIndex.value)?.bills ?? 0)
-  const monthExpenses = computed(() => monthTotals.value.get(viewIndex.value)?.expenses ?? 0)
-  const monthSpending = computed(() => monthBills.value + monthExpenses.value)
-  const monthNet = computed(() => monthIncome.value - monthSpending.value)
-  const openingBalance = computed(() => balanceThrough(viewIndex.value - 1))
-  const closingBalance = computed(() => openingBalance.value + monthNet.value)
-
-  const entries = computed<LedgerEntry[]>(() => {
-    const { year, month } = viewMonth.value
-    const pending: PendingEntry[] = []
-
-    for (const deposit of deposits.value) {
-      if (deposit.bookedYear !== year || deposit.bookedMonth !== month) continue
-      const bankInOtherMonth = deposit.jalaliYear !== year || deposit.jalaliMonth !== month
-      pending.push({
-        id: `deposit-${deposit.id}`,
-        kind: 'deposit',
-        title: deposit.note ?? 'Bank deposit',
-        detail: bankInOtherMonth
-          ? `Arrived ${formatJalaliMonth(deposit.jalaliYear, deposit.jalaliMonth)}`
-          : null,
-        amount: deposit.amount,
-        year: deposit.jalaliYear,
-        month: deposit.jalaliMonth,
-        day: deposit.jalaliDay,
-        status: null,
-        installmentId: null,
-        expenseId: null,
-        category: null,
-        sortKey: dateKey(deposit.jalaliYear, deposit.jalaliMonth, deposit.jalaliDay) * 3,
-      })
+  const month = computed(() => {
+    const current = snapshot.value
+    if (
+      current &&
+      current.year === viewMonth.value.year &&
+      current.month === viewMonth.value.month
+    ) {
+      return current
     }
-
-    for (const installment of allInstallments.value) {
-      if (installment.dueYear !== year || installment.dueMonth !== month) continue
-      pending.push({
-        id: `bill-${installment.id}`,
-        kind: 'bill',
-        title: installment.title,
-        detail: null,
-        amount: installment.amount,
-        year: installment.dueYear,
-        month: installment.dueMonth,
-        day: installment.dueDay,
-        status: getInstallmentStatus(installment),
-        installmentId: installment.id,
-        expenseId: null,
-        category: null,
-        sortKey: dateKey(installment.dueYear, installment.dueMonth, installment.dueDay) * 3 + 1,
-      })
-    }
-
-    for (const expense of expenses.value) {
-      if (expense.jalaliYear !== year || expense.jalaliMonth !== month) continue
-      pending.push({
-        id: `expense-${expense.id}`,
-        kind: 'expense',
-        title: expense.title,
-        detail: expense.note,
-        amount: expense.amount,
-        year: expense.jalaliYear,
-        month: expense.jalaliMonth,
-        day: expense.jalaliDay,
-        status: null,
-        installmentId: null,
-        expenseId: expense.id,
-        category: expense.category,
-        sortKey: dateKey(expense.jalaliYear, expense.jalaliMonth, expense.jalaliDay) * 3 + 2,
-      })
-    }
-
-    pending.sort((a, b) => a.sortKey - b.sortKey)
-
-    let running = openingBalance.value
-    return pending.map(({ sortKey: _sortKey, ...entry }) => {
-      running += entry.kind === 'deposit' ? entry.amount : -entry.amount
-      return { ...entry, balance: running }
-    })
+    return emptyMonth(viewMonth.value.year, viewMonth.value.month)
   })
 
-  const depositCount = computed(() => entries.value.filter((e) => e.kind === 'deposit').length)
-  const billCount = computed(() => entries.value.filter((e) => e.kind === 'bill').length)
-  const expenseCount = computed(() => entries.value.filter((e) => e.kind === 'expense').length)
-  const paidBillsTotal = computed(() =>
-    entries.value
-      .filter((e) => e.kind === 'bill' && e.status === 'paid')
-      .reduce((sum, e) => sum + e.amount, 0),
-  )
-  const unpaidBillsTotal = computed(() => monthBills.value - paidBillsTotal.value)
-
-  const chartSeries = computed<LedgerMonthPoint[]>(() => {
-    const points: LedgerMonthPoint[] = []
-    for (let offset = CHART_MONTHS - 1; offset >= 0; offset--) {
-      const index = viewIndex.value - offset
-      const { year, month } = indexToMonth(index)
-      const totals = monthTotals.value.get(index)
-      points.push({
-        year,
-        month,
-        label: JALALI_MONTH_NAMES[month - 1].slice(0, 3),
-        income: totals?.income ?? 0,
-        bills: totals?.bills ?? 0,
-        expenses: totals?.expenses ?? 0,
-        balance: balanceThrough(index),
-      })
-    }
-    return points
+  const loading = computed(() => {
+    const current = snapshot.value
+    return (
+      current === null ||
+      current.year !== viewMonth.value.year ||
+      current.month !== viewMonth.value.month
+    )
   })
 
-  function setViewMonth(year: number, month: number) {
-    viewMonth.value = { year, month }
+  const monthIncome = computed(() => month.value.monthIncome)
+  const monthBills = computed(() => month.value.monthBills)
+  const monthExpenses = computed(() => month.value.monthExpenses)
+  const monthSpending = computed(() => month.value.monthSpending)
+  const monthNet = computed(() => month.value.monthNet)
+  const openingBalance = computed(() => month.value.openingBalance)
+  const closingBalance = computed(() => month.value.closingBalance)
+  const entries = computed(() => month.value.entries)
+  const depositCount = computed(() => month.value.depositCount)
+  const billCount = computed(() => month.value.billCount)
+  const expenseCount = computed(() => month.value.expenseCount)
+  const paidBillsTotal = computed(() => month.value.paidBillsTotal)
+  const unpaidBillsTotal = computed(() => month.value.unpaidBillsTotal)
+  const chartSeries = computed(() => month.value.chartSeries)
+
+  function setViewMonth(year: number, monthNumber: number) {
+    viewMonth.value = { year, month: monthNumber }
   }
 
   function shiftViewMonth(delta: number) {
@@ -189,6 +190,7 @@ export function useLedger() {
     viewMonth,
     viewLabel,
     isCurrentMonth,
+    loading,
     monthIncome,
     monthBills,
     monthExpenses,

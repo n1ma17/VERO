@@ -3,6 +3,7 @@ import { api } from '@/api/http'
 import type { JalaliMonth } from '@/types/bill'
 import type { Installment } from '@/types/installment'
 import { currentJalaliMonth, monthToIndex } from '@/utils/jalali'
+import { installmentFromApi, type InstallmentApi } from '@/utils/moneyApi'
 
 const VIEW_KEY = 'money-managment:installments-view-month'
 
@@ -29,8 +30,13 @@ function isInViewMonth(installment: Installment, year: number, month: number): b
 const installments = ref<Installment[]>([])
 const viewMonth = ref<JalaliMonth>(loadViewMonth())
 
-export function replaceInstallments(next: Installment[]): void {
-  installments.value = next
+export async function loadInstallments(): Promise<void> {
+  const rows = await api<InstallmentApi[]>('/api/installments')
+  installments.value = rows.map(installmentFromApi)
+}
+
+export function clearInstallments(): void {
+  installments.value = []
 }
 
 export function getInstallmentsSnapshot(): Installment[] {
@@ -38,7 +44,7 @@ export function getInstallmentsSnapshot(): Installment[] {
 }
 
 export async function refreshInstallments(): Promise<void> {
-  installments.value = await api<Installment[]>('/api/installments')
+  await loadInstallments()
 }
 
 export function useInstallments() {
@@ -65,10 +71,12 @@ export function useInstallments() {
   }
 
   async function setPaid(id: string, paid: boolean) {
-    const updated = await api<Installment>(`/api/installments/${encodeURIComponent(id)}/paid`, {
-      method: 'PATCH',
-      body: JSON.stringify({ paid }),
-    })
+    const updated = installmentFromApi(
+      await api<InstallmentApi>(`/api/installments/${encodeURIComponent(id)}/paid`, {
+        method: 'PATCH',
+        body: JSON.stringify({ paid }),
+      }),
+    )
     installments.value = installments.value.map((item) => (item.id === updated.id ? updated : item))
   }
 

@@ -10,6 +10,13 @@ export async function persistBillLogo(billId: string, dataUrl: string | null): P
   cache.value[billId] = dataUrl
 }
 
+export function evictBillLogo(billId: string): void {
+  const previous = cache.value[billId]
+  if (previous?.startsWith('blob:')) URL.revokeObjectURL(previous)
+  delete cache.value[billId]
+  inflight.delete(billId)
+}
+
 export async function loadBillLogo(key: string): Promise<string | null> {
   if (key in cache.value) return cache.value[key]
 

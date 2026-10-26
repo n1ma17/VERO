@@ -7,15 +7,15 @@ Last updated: 2026-10-26
 - Connected local Postgres `app_money` through `PgModule` / `PgService` (shared pool).
 - Better Auth (`/api/auth`) with Kysely adapter, `usePlural: true`, vin-style `UsersModule`.
 - Arcjet Shield + 120/min window (`DRY_RUN` locally).
-- Money APIs: bills, logos, deposits, expenses, installments, ledger, dashboard, wallet hydrate/import.
-- Vue composables call those APIs; Excel backup uses `PUT /api/wallet`.
+- Money APIs: bills, logos, deposits, expenses, installments, ledger, dashboard; wallet is import-only (`PUT`).
+- Vue composables load each collection from its own GET; Excel backup uses `PUT /api/wallet`.
 - Migration `database/sql/004_better_auth.sql`. `npm run db:seed` creates admin Nima Abbasi and imports `money-management-backup-2026-10-26.xlsx` from the repo root.
 
 ## Decisions made
 
 - Money tables stay snake_case; auth tables are Better Auth camelCase plural.
 - `user_id` on money tables is `text` so Better Auth ids fit.
-- Frontend hydrates once via `GET /api/wallet` and still computes dashboard/ledger in the client.
+- Frontend loads bills, deposits, expenses, and installments from their own GET endpoints and still computes dashboard/ledger in the client.
 - Logo API accepts JPEG/PNG/WebP/GIF only (no SVG).
 - User `role` is `ADMIN` | `USER` (not vin's `PRINCIPLE`).
 

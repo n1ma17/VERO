@@ -10,10 +10,10 @@ import ReceiptEdge from '@/components/shared/ReceiptEdge.vue'
 import { useBillDefinitionFlow } from '@/composables/useBillDefinitionFlow'
 import { loadBillLogo } from '@/composables/useBillLogos'
 import { useBills } from '@/composables/useBills'
+import { useToast } from '@/composables/useToast'
 import {
   clampDueDay,
   currentJalaliDate,
-  currentJalaliMonth,
   formatJalaliDate,
   formatJalaliMonthRange,
 } from '@/utils/jalali'
@@ -21,17 +21,19 @@ import { formatToman } from '@/utils/formatToman'
 
 const route = useRoute()
 const router = useRouter()
-const { getBillById, addBill, updateBill } = useBills()
+const { getBillById, addBill, updateBill, removeBill, viewMonth } = useBills()
 const { stage, startIssue, formResetTick } = useBillDefinitionFlow()
+const { showSuccess } = useToast()
 
 const today = currentJalaliDate()
 const billNotFound = ref(false)
+const confirmingDelete = ref(false)
 
 const form = reactive({
   title: '',
   amount: null as number | null,
-  startYear: currentJalaliMonth().year,
-  startMonth: currentJalaliMonth().month,
+  startYear: viewMonth.value.year,
+  startMonth: viewMonth.value.month,
   dueDay: today.day,
   durationMonths: 1,
   logoUrl: null as string | null,
@@ -55,6 +57,7 @@ watch(
   () => editBillId.value,
   async (id) => {
     billNotFound.value = false
+    confirmingDelete.value = false
     if (!id) {
       resetFormFields()
       return
@@ -87,11 +90,20 @@ function resetFormFields() {
   form.amount = null
   form.logoUrl = null
   form.durationMonths = 1
-  const month = currentJalaliMonth()
-  form.startYear = month.year
-  form.startMonth = month.month
-  form.dueDay = clampDueDay(today.day, month.year, month.month)
+  form.startYear = viewMonth.value.year
+  form.startMonth = viewMonth.value.month
+  form.dueDay = clampDueDay(today.day, viewMonth.value.year, viewMonth.value.month)
 }
+
+watch(
+  () => [viewMonth.value.year, viewMonth.value.month, isEditing.value] as const,
+  ([year, month, editing]) => {
+    if (editing) return
+    form.startYear = year
+    form.startMonth = month
+    form.dueDay = clampDueDay(form.dueDay, year, month)
+  },
+)
 
 const isValid = computed(
   () => form.title.trim() !== '' && (form.amount ?? 0) > 0 && form.durationMonths >= 1,
@@ -144,6 +156,17 @@ async function submit() {
     amountLabel: formatToman(bill.amount),
     isUpdate: isEditing.value,
   })
+}
+
+async function deleteBill() {
+  if (!editBillId.value) return
+  if (!confirmingDelete.value) {
+    confirmingDelete.value = true
+    return
+  }
+  await removeBill(editBillId.value)
+  showSuccess('Bill deleted — all installments removed.')
+  void router.replace({ name: 'bills' })
 }
 </script>
 
@@ -225,6 +248,19 @@ async function submit() {
       <BaseButton type="submit" class="w-full" :disabled="!isValid || isPrinterBusy">
         {{ isEditing ? 'Update bill' : 'Save bill' }}
       </BaseButton>
+      <BaseButton
+        v-if="isEditing"
+        type="button"
+        :variant="confirmingDelete ? 'danger' : 'ghost'"
+        class="w-full"
+        :disabled="isPrinterBusy"
+        @click="deleteBill"
+      >
+        {{ confirmingDelete ? 'Tap again to delete bill' : 'Delete bill' }}
+      </BaseButton>
+      <p v-if="isEditing && !confirmingDelete" class="text-center text-xs text-text-muted">
+        Deletes every installment month for this bill.
+      </p>
       <p v-if="isPrinterBusy" class="text-center text-xs text-text-muted">
         Printer is issuing your receipt…
       </p>

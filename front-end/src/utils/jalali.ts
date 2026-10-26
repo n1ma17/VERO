@@ -132,6 +132,44 @@ export function jalaliToIsoDate(year: number, month: number, day: number): strin
   return toIsoDate(new Date(gy, gm - 1, gd))
 }
 
+/** Jalali year/month/day from a Gregorian `YYYY-MM-DD` (or ISO timestamp). */
+export function isoToJalali(iso: string): { year: number; month: number; day: number } {
+  const [gy, gm, gd] = iso.slice(0, 10).split('-').map(Number)
+  const { jy, jm, jd } = toJalaali(gy, gm, gd)
+  return { year: jy, month: jm, day: jd }
+}
+
+export function formatIsoAsJalali(iso: string): string {
+  const { year, month, day } = isoToJalali(iso)
+  return formatJalaliDate(year, month, day)
+}
+
+/** Format a timestamptz / ISO timestamp as a Jalali calendar date (local). */
+export function formatTimestampAsJalali(iso: string): string {
+  const { jy, jm, jd } = toJalaali(new Date(iso))
+  return formatJalaliDate(jy, jm, jd)
+}
+
+export function jalaliMonthFirstIso(year: number, month: number): string {
+  return jalaliToIsoDate(year, month, 1)
+}
+
+export function billEndIso(
+  startYear: number,
+  startMonth: number,
+  dueDay: number,
+  durationMonths: number,
+): string {
+  const end = addJalaliMonths(startYear, startMonth, durationMonths - 1)
+  return jalaliToIsoDate(end.year, end.month, dueDay)
+}
+
+export function durationFromIsoSpan(startOn: string, endOn: string): number {
+  const start = isoToJalali(startOn)
+  const end = isoToJalali(endOn)
+  return monthToIndex(end.year, end.month) - monthToIndex(start.year, start.month) + 1
+}
+
 export function buildMonthDayGrid(year: number, month: number): (number | null)[] {
   const length = jalaaliMonthLength(year, month)
   const leading = jalaliWeekdayIndex(year, month, 1)

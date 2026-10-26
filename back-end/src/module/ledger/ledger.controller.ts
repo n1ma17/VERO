@@ -9,6 +9,6 @@ export class LedgerController {
 
   @Get()
   getMonth(@Session() session: UserSession, @Query() query: LedgerQueryDto) {
-    return this.ledger.getMonth(session.user.id, query.year, query.month);
+    return this.ledger.getMonth(session.user.id, query.date);
   }
 }

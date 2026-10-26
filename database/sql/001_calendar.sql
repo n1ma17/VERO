@@ -226,3 +226,114 @@ BEGIN
   END IF;
 END;
 $$;
+
+-- Inverse of jalali_to_date. Matches jalaali-js `d2j` / `toJalaali`.
+CREATE OR REPLACE FUNCTION date_to_jalali(d date)
+RETURNS TABLE (jy integer, jm integer, jd integer)
+LANGUAGE plpgsql
+IMMUTABLE
+STRICT
+AS $$
+DECLARE
+  jdn bigint;
+  gy integer;
+  jy_v integer;
+  cal record;
+  jdn1f bigint;
+  k integer;
+BEGIN
+  jdn := gregorian_to_jdn(
+    EXTRACT(YEAR FROM d)::integer,
+    EXTRACT(MONTH FROM d)::integer,
+    EXTRACT(DAY FROM d)::integer
+  );
+  gy := EXTRACT(YEAR FROM jdn_to_gregorian(jdn))::integer;
+  jy_v := gy - 621;
+  IF jy_v > 3177 THEN
+    jy_v := 3177;
+  END IF;
+  SELECT * INTO cal FROM jal_cal(jy_v);
+  jdn1f := gregorian_to_jdn(cal.gy, 3, cal.march);
+  k := (jdn - jdn1f)::integer;
+  IF k >= 0 THEN
+    IF k <= 185 THEN
+      jy := jy_v;
+      jm := 1 + jal_div(k, 31)::integer;
+      jd := jal_mod(k, 31)::integer + 1;
+      RETURN NEXT;
+      RETURN;
+    END IF;
+    k := k - 186;
+  ELSE
+    jy_v := jy_v - 1;
+    k := k + 179;
+    IF cal.leap = 1 THEN
+      k := k + 1;
+    END IF;
+  END IF;
+  jy := jy_v;
+  jm := 7 + jal_div(k, 30)::integer;
+  jd := jal_mod(k, 30)::integer + 1;
+  RETURN NEXT;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION jalali_year(d date)
+RETURNS integer
+LANGUAGE sql
+IMMUTABLE
+STRICT
+AS $$
+  SELECT jy FROM date_to_jalali(d);
+$$;
+
+CREATE OR REPLACE FUNCTION jalali_month(d date)
+RETURNS integer
+LANGUAGE sql
+IMMUTABLE
+STRICT
+AS $$
+  SELECT jm FROM date_to_jalali(d);
+$$;
+
+CREATE OR REPLACE FUNCTION jalali_day(d date)
+RETURNS integer
+LANGUAGE sql
+IMMUTABLE
+STRICT
+AS $$
+  SELECT jd FROM date_to_jalali(d);
+$$;
+
+CREATE OR REPLACE FUNCTION jalali_month_index(d date)
+RETURNS integer
+LANGUAGE sql
+IMMUTABLE
+STRICT
+AS $$
+  SELECT jy * 12 + (jm - 1) FROM date_to_jalali(d);
+$$;
+
+DO $$
+DECLARE
+  parts record;
+BEGIN
+  SELECT * INTO parts FROM date_to_jalali(DATE '2016-04-11');
+  IF parts.jy <> 1395 OR parts.jm <> 1 OR parts.jd <> 23 THEN
+    RAISE EXCEPTION '2016-04-11 converted to %', parts;
+  END IF;
+
+  SELECT * INTO parts FROM date_to_jalali(DATE '2021-07-21');
+  IF parts.jy <> 1400 OR parts.jm <> 4 OR parts.jd <> 30 THEN
+    RAISE EXCEPTION '2021-07-21 converted to %', parts;
+  END IF;
+
+  IF jalali_to_date(
+    (SELECT jy FROM date_to_jalali(DATE '2016-04-11')),
+    (SELECT jm FROM date_to_jalali(DATE '2016-04-11')),
+    (SELECT jd FROM date_to_jalali(DATE '2016-04-11'))
+  ) <> DATE '2016-04-11' THEN
+    RAISE EXCEPTION 'date_to_jalali round-trip failed';
+  END IF;
+END;
+$$;

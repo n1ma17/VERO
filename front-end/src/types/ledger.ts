@@ -31,3 +31,23 @@ export interface LedgerMonthPoint {
   /** Cumulative balance at the end of the month. */
   balance: number
 }
+
+/** One Jalali month statement from `GET /api/ledger?date=` (Gregorian ISO). */
+export interface LedgerMonth {
+  year: number
+  month: number
+  monthIncome: number
+  monthBills: number
+  monthExpenses: number
+  monthSpending: number
+  monthNet: number
+  openingBalance: number
+  closingBalance: number
+  entries: LedgerEntry[]
+  depositCount: number
+  billCount: number
+  expenseCount: number
+  paidBillsTotal: number
+  unpaidBillsTotal: number
+  chartSeries: LedgerMonthPoint[]
+}

@@ -16,20 +16,27 @@ import { formatToman } from '@/utils/formatToman'
 
 const route = useRoute()
 const router = useRouter()
-const { getExpenseById, addExpense, updateExpense, removeExpense } = useExpenses()
+const { getExpenseById, addExpense, updateExpense, removeExpense, viewMonth } = useExpenses()
 const { stage, startIssue, formResetTick } = useExpenseEntryFlow()
 const { showSuccess } = useToast()
 
 const expenseNotFound = ref(false)
 const confirmingDelete = ref(false)
 
+function defaultEntryDate() {
+  const today = currentJalaliDate()
+  const viewed = viewMonth.value
+  if (viewed.year === today.year && viewed.month === today.month) return today
+  return { year: viewed.year, month: viewed.month, day: clampDueDay(today.day, viewed.year, viewed.month) }
+}
+
 const form = reactive({
   title: '',
   amount: null as number | null,
   category: 'food' as ExpenseCategory,
-  year: currentJalaliDate().year,
-  month: currentJalaliDate().month,
-  day: currentJalaliDate().day,
+  year: defaultEntryDate().year,
+  month: defaultEntryDate().month,
+  day: defaultEntryDate().day,
   note: '',
 })
 
@@ -41,13 +48,13 @@ const isEditing = computed(() => editId.value !== null)
 const isPrinterBusy = computed(() => stage.value !== 'idle')
 
 function resetForm() {
-  const today = currentJalaliDate()
+  const date = defaultEntryDate()
   form.title = ''
   form.amount = null
   form.category = 'food'
-  form.year = today.year
-  form.month = today.month
-  form.day = today.day
+  form.year = date.year
+  form.month = date.month
+  form.day = date.day
   form.note = ''
   confirmingDelete.value = false
 }

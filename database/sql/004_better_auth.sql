@@ -194,7 +194,7 @@ CREATE TRIGGER verifications_set_updated_at
 CREATE OR REPLACE VIEW v_installments AS
 SELECT
   b.user_id,
-  b.id::text || '__' || m.due_year::text || '-' || lpad(m.due_month::text, 2, '0') AS id,
+  b.id::text || '__' || to_char(m.due_date, 'YYYY-MM-DD') AS id,
   b.id AS bill_id,
   b.title,
   b.amount,
@@ -218,20 +218,22 @@ CROSS JOIN LATERAL (
     jalali_to_date(due.due_year, due.due_month, due.due_day) AS due_date
   FROM (
     SELECT
-      ((b.start_year * 12 + (b.start_month - 1) + gs.month_offset) / 12)::smallint AS due_year,
-      (((b.start_year * 12 + (b.start_month - 1) + gs.month_offset) % 12) + 1)::smallint AS due_month,
+      ((jalali_month_index(b.start_on) + gs.month_offset) / 12)::smallint AS due_year,
+      (((jalali_month_index(b.start_on) + gs.month_offset) % 12) + 1)::smallint AS due_month,
       jalali_clamp_day(
-        ((b.start_year * 12 + (b.start_month - 1) + gs.month_offset) / 12)::integer,
-        (((b.start_year * 12 + (b.start_month - 1) + gs.month_offset) % 12) + 1)::integer,
+        ((jalali_month_index(b.start_on) + gs.month_offset) / 12)::integer,
+        (((jalali_month_index(b.start_on) + gs.month_offset) % 12) + 1)::integer,
         b.due_day
       ) AS due_day
-    FROM generate_series(0, b.duration_months - 1) AS gs(month_offset)
+    FROM generate_series(
+      0,
+      jalali_month_index(b.end_on) - jalali_month_index(b.start_on)
+    ) AS gs(month_offset)
   ) AS due
 ) AS m
 LEFT JOIN installment_payments AS p
   ON p.bill_id = b.id
- AND p.jalali_year = m.due_year
- AND p.jalali_month = m.due_month
+ AND p.due_on = m.due_date
 LEFT JOIN bill_logos AS l
   ON l.bill_id = b.id;
 
@@ -239,8 +241,8 @@ CREATE OR REPLACE VIEW v_month_totals AS
 WITH lines AS (
   SELECT
     user_id,
-    booked_year AS jalali_year,
-    booked_month AS jalali_month,
+    jalali_year(booked_on) AS jalali_year,
+    jalali_month(booked_on) AS jalali_month,
     amount AS income,
     0::bigint AS bills,
     0::bigint AS expenses
@@ -257,8 +259,8 @@ WITH lines AS (
   UNION ALL
   SELECT
     user_id,
-    jalali_year,
-    jalali_month,
+    jalali_year(occurred_on),
+    jalali_month(occurred_on),
     0::bigint,
     0::bigint,
     amount
@@ -301,20 +303,25 @@ WITH lines AS (
     'deposit'::text AS kind,
     COALESCE(d.note, 'Bank deposit') AS title,
     CASE
-      WHEN d.jalali_year = d.booked_year AND d.jalali_month = d.booked_month THEN NULL
-      ELSE 'Arrived ' || jalali_month_name(d.jalali_month) || ' ' || d.jalali_year::text
+      WHEN jalali_year(d.arrived_on) = jalali_year(d.booked_on)
+       AND jalali_month(d.arrived_on) = jalali_month(d.booked_on) THEN NULL
+      ELSE 'Arrived ' || jalali_month_name(jalali_month(d.arrived_on))
+        || ' ' || jalali_year(d.arrived_on)::text
     END AS detail,
     d.amount,
-    d.booked_year AS counted_year,
-    d.booked_month AS counted_month,
-    d.jalali_year AS year,
-    d.jalali_month AS month,
-    d.jalali_day AS day,
+    jalali_year(d.booked_on) AS counted_year,
+    jalali_month(d.booked_on) AS counted_month,
+    jalali_year(d.arrived_on) AS year,
+    jalali_month(d.arrived_on) AS month,
+    jalali_day(d.arrived_on) AS day,
+    d.arrived_on AS occurred_on,
     NULL::text AS status,
     NULL::text AS installment_id,
     NULL::uuid AS expense_id,
     NULL::expense_category AS category,
-    (d.jalali_year * 10000 + d.jalali_month * 100 + d.jalali_day) * 3 AS sort_key,
+    (jalali_year(d.arrived_on) * 10000
+      + jalali_month(d.arrived_on) * 100
+      + jalali_day(d.arrived_on)) * 3 AS sort_key,
     d.id AS source_id
   FROM bank_deposits AS d
   UNION ALL
@@ -330,6 +337,7 @@ WITH lines AS (
     i.due_year,
     i.due_month,
     i.due_day,
+    i.due_date,
     i.status,
     i.id,
     NULL::uuid,
@@ -345,16 +353,19 @@ WITH lines AS (
     e.title,
     e.note,
     e.amount,
-    e.jalali_year,
-    e.jalali_month,
-    e.jalali_year,
-    e.jalali_month,
-    e.jalali_day,
+    jalali_year(e.occurred_on),
+    jalali_month(e.occurred_on),
+    jalali_year(e.occurred_on),
+    jalali_month(e.occurred_on),
+    jalali_day(e.occurred_on),
+    e.occurred_on,
     NULL,
     NULL,
     e.id,
     e.category,
-    (e.jalali_year * 10000 + e.jalali_month * 100 + e.jalali_day) * 3 + 2,
+    (jalali_year(e.occurred_on) * 10000
+      + jalali_month(e.occurred_on) * 100
+      + jalali_day(e.occurred_on)) * 3 + 2,
     e.id
   FROM expenses AS e
 )
@@ -370,6 +381,7 @@ SELECT
   year,
   month,
   day,
+  occurred_on,
   status,
   installment_id,
   expense_id,

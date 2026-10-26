@@ -1,3 +1,4 @@
+import { jalaliToIso } from './calendar.js';
 import type {
   BankDepositDto,
   BillDto,
@@ -15,8 +16,11 @@ function toIso(value: Date | string | null | undefined): string | null {
 }
 
 function toDateOnly(value: Date | string): string {
-  if (value instanceof Date) return value.toISOString().slice(0, 10);
-  return String(value).slice(0, 10);
+  if (typeof value === 'string') return value.slice(0, 10);
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, '0');
+  const day = String(value.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function toNumber(value: unknown): number {
@@ -27,10 +31,9 @@ export type BillRow = {
   id: string;
   title: string;
   amount: string | number;
-  start_year: number;
-  start_month: number;
+  start_on: Date | string;
+  end_on: Date | string;
   due_day: number;
-  duration_months: number;
   created_at: Date | string;
   has_logo: boolean;
 };
@@ -38,11 +41,8 @@ export type BillRow = {
 export type DepositRow = {
   id: string;
   amount: string | number;
-  jalali_year: number;
-  jalali_month: number;
-  jalali_day: number;
-  booked_year: number;
-  booked_month: number;
+  arrived_on: Date | string;
+  booked_on: Date | string;
   note: string | null;
   created_at: Date | string;
 };
@@ -52,9 +52,7 @@ export type ExpenseRow = {
   title: string;
   amount: string | number;
   category: ExpenseCategory;
-  jalali_year: number;
-  jalali_month: number;
-  jalali_day: number;
+  occurred_on: Date | string;
   note: string | null;
   created_at: Date | string;
 };
@@ -64,9 +62,6 @@ export type InstallmentRow = {
   bill_id: string;
   title: string;
   amount: string | number;
-  due_year: number;
-  due_month: number;
-  due_day: number;
   due_date: Date | string;
   paid_at: Date | string | null;
   logo_key: string | null;
@@ -79,6 +74,7 @@ export type LedgerRow = {
   title: string;
   detail: string | null;
   amount: string | number;
+  occurred_on: Date | string;
   year: number;
   month: number;
   day: number;
@@ -94,10 +90,9 @@ export function mapBill(row: BillRow): BillDto {
     id: row.id,
     title: row.title,
     amount: toNumber(row.amount),
-    startYear: row.start_year,
-    startMonth: row.start_month,
+    startOn: toDateOnly(row.start_on),
+    endOn: toDateOnly(row.end_on),
     dueDay: row.due_day,
-    durationMonths: row.duration_months,
     logoKey: row.has_logo ? row.id : null,
     createdAt: toIso(row.created_at) ?? new Date().toISOString(),
   };
@@ -107,11 +102,8 @@ export function mapDeposit(row: DepositRow): BankDepositDto {
   return {
     id: row.id,
     amount: toNumber(row.amount),
-    jalaliYear: row.jalali_year,
-    jalaliMonth: row.jalali_month,
-    jalaliDay: row.jalali_day,
-    bookedYear: row.booked_year,
-    bookedMonth: row.booked_month,
+    arrivedOn: toDateOnly(row.arrived_on),
+    bookedOn: toDateOnly(row.booked_on),
     note: row.note,
     createdAt: toIso(row.created_at) ?? new Date().toISOString(),
   };
@@ -123,9 +115,7 @@ export function mapExpense(row: ExpenseRow): ExpenseDto {
     title: row.title,
     amount: toNumber(row.amount),
     category: row.category,
-    jalaliYear: row.jalali_year,
-    jalaliMonth: row.jalali_month,
-    jalaliDay: row.jalali_day,
+    occurredOn: toDateOnly(row.occurred_on),
     note: row.note,
     createdAt: toIso(row.created_at) ?? new Date().toISOString(),
   };
@@ -137,14 +127,16 @@ export function mapInstallment(row: InstallmentRow): InstallmentDto {
     billId: row.bill_id,
     title: row.title,
     amount: toNumber(row.amount),
-    dueYear: row.due_year,
-    dueMonth: row.due_month,
-    dueDay: row.due_day,
     dueDate: toDateOnly(row.due_date),
     paidAt: toIso(row.paid_at),
     logoKey: row.logo_key,
     status: row.status,
   };
+}
+
+function mapLedgerStatus(status: string | null): InstallmentStatus | null {
+  if (status === 'paid' || status === 'unpaid' || status === 'overdue') return status;
+  return null;
 }
 
 export function mapLedgerEntry(row: LedgerRow): LedgerEntryDto {
@@ -154,10 +146,10 @@ export function mapLedgerEntry(row: LedgerRow): LedgerEntryDto {
     title: row.title,
     detail: row.detail,
     amount: toNumber(row.amount),
-    year: row.year,
-    month: row.month,
-    day: row.day,
-    status: row.status,
+    date: row.occurred_on
+      ? toDateOnly(row.occurred_on)
+      : jalaliToIso(row.year, row.month, row.day),
+    status: mapLedgerStatus(row.status),
     installmentId: row.installment_id,
     expenseId: row.expense_id,
     category: row.category,

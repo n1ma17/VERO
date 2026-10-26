@@ -1,14 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { isIsoDate } from '../../common/money/calendar.js';
 import { mapDeposit, type DepositRow } from '../../common/money/mappers.js';
 import type { BankDepositDto } from '../../common/money/types.js';
 import { PgService } from '../../lib/database/pg.service.js';
 import type { SaveDepositDto } from './dto/save-deposit.dto.js';
 
 const SELECT = `
-  SELECT id, amount, jalali_year, jalali_month, jalali_day,
-         booked_year, booked_month, note, created_at
+  SELECT id, amount, arrived_on, booked_on, note, created_at
     FROM bank_deposits
 `;
+
+function assertDates(dto: SaveDepositDto): void {
+  if (!isIsoDate(dto.arrivedOn) || !isIsoDate(dto.bookedOn)) {
+    throw new BadRequestException('arrivedOn and bookedOn must be real Gregorian dates');
+  }
+}
 
 @Injectable()
 export class DepositsService {
@@ -23,50 +29,28 @@ export class DepositsService {
   }
 
   async create(userId: string, dto: SaveDepositDto): Promise<BankDepositDto> {
+    assertDates(dto);
     const { rows } = await this.pg.query<DepositRow>(
       `INSERT INTO bank_deposits
-         (user_id, amount, jalali_year, jalali_month, jalali_day, booked_year, booked_month, note)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING id, amount, jalali_year, jalali_month, jalali_day,
-                 booked_year, booked_month, note, created_at`,
-      [
-        userId,
-        dto.amount,
-        dto.jalaliYear,
-        dto.jalaliMonth,
-        dto.jalaliDay,
-        dto.bookedYear,
-        dto.bookedMonth,
-        dto.note?.trim() || null,
-      ],
+         (user_id, amount, arrived_on, booked_on, note)
+       VALUES ($1, $2, $3::date, $4::date, $5)
+       RETURNING id, amount, arrived_on, booked_on, note, created_at`,
+      [userId, dto.amount, dto.arrivedOn, dto.bookedOn, dto.note?.trim() || null],
     );
     return mapDeposit(rows[0]);
   }
 
   async update(userId: string, id: string, dto: SaveDepositDto): Promise<BankDepositDto> {
+    assertDates(dto);
     const { rows } = await this.pg.query<DepositRow>(
       `UPDATE bank_deposits
           SET amount = $3,
-              jalali_year = $4,
-              jalali_month = $5,
-              jalali_day = $6,
-              booked_year = $7,
-              booked_month = $8,
-              note = $9
+              arrived_on = $4::date,
+              booked_on = $5::date,
+              note = $6
         WHERE user_id = $1 AND id = $2
-    RETURNING id, amount, jalali_year, jalali_month, jalali_day,
-              booked_year, booked_month, note, created_at`,
-      [
-        userId,
-        id,
-        dto.amount,
-        dto.jalaliYear,
-        dto.jalaliMonth,
-        dto.jalaliDay,
-        dto.bookedYear,
-        dto.bookedMonth,
-        dto.note?.trim() || null,
-      ],
+    RETURNING id, amount, arrived_on, booked_on, note, created_at`,
+      [userId, id, dto.amount, dto.arrivedOn, dto.bookedOn, dto.note?.trim() || null],
     );
     const row = rows[0];
     if (!row) throw new NotFoundException('Deposit not found');

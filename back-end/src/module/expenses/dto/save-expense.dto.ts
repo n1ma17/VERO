@@ -3,12 +3,14 @@ import {
   IsInt,
   IsOptional,
   IsString,
-  Max,
+  Matches,
   MaxLength,
   Min,
   MinLength,
 } from 'class-validator';
 import { EXPENSE_CATEGORIES } from '../../../common/money/types.js';
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export class SaveExpenseDto {
   @IsString()
@@ -23,20 +25,9 @@ export class SaveExpenseDto {
   @IsIn(EXPENSE_CATEGORIES)
   category!: (typeof EXPENSE_CATEGORIES)[number];
 
-  @IsInt()
-  @Min(1200)
-  @Max(1600)
-  jalaliYear!: number;
-
-  @IsInt()
-  @Min(1)
-  @Max(12)
-  jalaliMonth!: number;
-
-  @IsInt()
-  @Min(1)
-  @Max(31)
-  jalaliDay!: number;
+  @IsString()
+  @Matches(ISO_DATE)
+  occurredOn!: string;
 
   @IsOptional()
   @IsString()

@@ -9,9 +9,8 @@ import ReceiptPrinterStatus from '@/components/shared/ReceiptPrinterStatus.vue'
 import BaseButton from '@/components/shared/BaseButton.vue'
 import { useCurrentInstallment } from '@/composables/useCurrentInstallment'
 import type { ReceiptPrinterStage } from '@/types/receiptPrinter'
-import { formatDate } from '@/utils/date'
 import { formatToman } from '@/utils/formatToman'
-import { formatJalaliDate } from '@/utils/jalali'
+import { formatJalaliDate, formatTimestampAsJalali } from '@/utils/jalali'
 import { scrollToReceiptPrinter } from '@/utils/scrollToReceiptPrinter'
 
 const PROCESSING_MS = 1200
@@ -81,7 +80,9 @@ const dueDate = computed(() =>
       )
     : '',
 )
-const paidOn = computed(() => formatDate(installment.value?.paidAt ?? new Date().toISOString()))
+const paidOn = computed(() =>
+  formatTimestampAsJalali(installment.value?.paidAt ?? new Date().toISOString()),
+)
 
 const payLabel = computed(() => {
   if (stage.value === 'idle') return `Pay ${amount.value}`

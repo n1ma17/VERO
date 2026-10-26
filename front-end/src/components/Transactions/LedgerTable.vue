@@ -9,7 +9,7 @@ import { formatToman } from '@/utils/formatToman'
 
 type Filter = 'all' | LedgerEntryKind
 
-const { entries, openingBalance, closingBalance, viewLabel } = useLedger()
+const { entries, openingBalance, closingBalance, viewLabel, loading } = useLedger()
 
 const filter = ref<Filter>('all')
 
@@ -133,7 +133,7 @@ function balanceClass(value: number) {
         </div>
       </li>
       <li v-if="!visibleEntries.length" class="py-6 text-center text-sm text-text-muted">
-        No entries for this month.
+        {{ loading ? 'Loading statement…' : 'No entries for this month.' }}
       </li>
       <li class="flex items-center justify-between gap-3 px-3 pt-2 text-sm font-semibold">
         <span>Remaining</span>
@@ -224,7 +224,7 @@ function balanceClass(value: number) {
 
           <tr v-if="!visibleEntries.length">
             <td colspan="5" class="py-8 text-center text-text-muted">
-              No entries for this month.
+              {{ loading ? 'Loading statement…' : 'No entries for this month.' }}
             </td>
           </tr>
         </tbody>

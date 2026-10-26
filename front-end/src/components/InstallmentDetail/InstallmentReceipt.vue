@@ -8,9 +8,8 @@ import ReceiptDivider from '@/components/shared/ReceiptDivider.vue'
 import ReceiptEdge from '@/components/shared/ReceiptEdge.vue'
 import { useCurrentInstallment } from '@/composables/useCurrentInstallment'
 import type { InstallmentStatus } from '@/types/installment'
-import { formatDate } from '@/utils/date'
 import { formatToman } from '@/utils/formatToman'
-import { formatJalaliDate } from '@/utils/jalali'
+import { formatJalaliDate, formatTimestampAsJalali } from '@/utils/jalali'
 
 const { installment, status } = useCurrentInstallment()
 
@@ -55,7 +54,7 @@ const staticRows = computed(() => {
 })
 
 const paidOnLabel = computed(() =>
-  installment.value?.paidAt ? formatDate(installment.value.paidAt) : '—',
+  installment.value?.paidAt ? formatTimestampAsJalali(installment.value.paidAt) : '—',
 )
 
 const amount = computed(() => (installment.value ? formatToman(installment.value.amount) : ''))
@@ -65,7 +64,7 @@ const isPaid = computed(() => status.value === 'paid')
 <template>
   <article
     v-if="installment && status"
-    class="relative overflow-hidden rounded-t-3xl bg-surface pb-6 text-text shadow-xl transition-shadow duration-700 ease-out"
+    class="relative overflow-hidden rounded-t-3xl bg-surface pb-6 text-text transition-shadow duration-700 ease-out"
     :class="celebrating ? 'animate-receipt-celebrate motion-reduce:animate-none' : ''"
   >
     <div

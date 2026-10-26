@@ -20,10 +20,11 @@ export interface BillDto {
   id: string;
   title: string;
   amount: number;
-  startYear: number;
-  startMonth: number;
+  /** Gregorian ISO date of the first due. */
+  startOn: string;
+  /** Gregorian ISO date of the last due. */
+  endOn: string;
   dueDay: number;
-  durationMonths: number;
   logoKey: string | null;
   createdAt: string;
 }
@@ -31,11 +32,10 @@ export interface BillDto {
 export interface BankDepositDto {
   id: string;
   amount: number;
-  jalaliYear: number;
-  jalaliMonth: number;
-  jalaliDay: number;
-  bookedYear: number;
-  bookedMonth: number;
+  /** Gregorian ISO date the transfer arrived. */
+  arrivedOn: string;
+  /** Gregorian ISO date of Jalali day 1 of the counted month. */
+  bookedOn: string;
   note: string | null;
   createdAt: string;
 }
@@ -45,9 +45,8 @@ export interface ExpenseDto {
   title: string;
   amount: number;
   category: ExpenseCategory;
-  jalaliYear: number;
-  jalaliMonth: number;
-  jalaliDay: number;
+  /** Gregorian ISO purchase date. */
+  occurredOn: string;
   note: string | null;
   createdAt: string;
 }
@@ -57,9 +56,7 @@ export interface InstallmentDto {
   billId: string;
   title: string;
   amount: number;
-  dueYear: number;
-  dueMonth: number;
-  dueDay: number;
+  /** Gregorian ISO due date. */
   dueDate: string;
   paidAt: string | null;
   logoKey: string | null;
@@ -72,19 +69,41 @@ export interface LedgerEntryDto {
   title: string;
   detail: string | null;
   amount: number;
-  year: number;
-  month: number;
-  day: number;
-  status: string | null;
+  /** Gregorian ISO date of the line. */
+  date: string;
+  status: InstallmentStatus | null;
   installmentId: string | null;
   expenseId: string | null;
   category: ExpenseCategory | null;
   balance: number;
 }
 
-export interface WalletSnapshot {
-  bills: BillDto[];
-  deposits: BankDepositDto[];
-  expenses: ExpenseDto[];
-  installments: InstallmentDto[];
+export interface LedgerMonthPointDto {
+  /** Gregorian ISO date of Jalali day 1 of this chart month. */
+  date: string;
+  label: string;
+  income: number;
+  bills: number;
+  expenses: number;
+  balance: number;
 }
+
+export interface LedgerMonthDto {
+  /** Gregorian ISO date of Jalali day 1 of the statement month. */
+  date: string;
+  monthIncome: number;
+  monthBills: number;
+  monthExpenses: number;
+  monthSpending: number;
+  monthNet: number;
+  openingBalance: number;
+  closingBalance: number;
+  entries: LedgerEntryDto[];
+  depositCount: number;
+  billCount: number;
+  expenseCount: number;
+  paidBillsTotal: number;
+  unpaidBillsTotal: number;
+  chartSeries: LedgerMonthPointDto[];
+}
+

@@ -14,7 +14,7 @@ async function markUnpaid() {
   <div v-if="installment" class="space-y-3 text-center">
     <RouterLink
       :to="{ name: 'bills', params: { id: installment.billId } }"
-      class="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-primary/25 bg-surface px-4 py-2 text-sm font-medium text-text transition hover:bg-accent"
+      class="inline-flex min-h-11 w-full items-center justify-center rounded-[16px] border border-primary/25 bg-surface px-4 py-2 text-sm font-medium text-text transition hover:bg-accent"
     >
       Edit bill
     </RouterLink>

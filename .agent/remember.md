@@ -15,7 +15,10 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 - `--color-*: initial` in `theme.css` removes the default palette so only theme colors can be used.
 - Page files are named `<Name>Page.vue`; their component folder is `components/<Name>/` (without the `Page` suffix).
 - Shared reactive state lives in composables as module-level refs (simple singleton store). No Pinia yet — add it only if state grows complex.
-- Money data lives in Postgres `app_money` via Nest. Vue composables hydrate from `GET /api/wallet` and mutate through REST. View-month keys stay in `localStorage`.
+- Money data lives in Postgres `app_money` via Nest. Vue composables load bills, deposits, expenses, and installments from their own GET endpoints (not `GET /api/wallet`). View-month keys stay in `localStorage`. `PUT /api/wallet` is only for Excel import.
+- Canonical dates in Postgres and the Nest API are Gregorian `DATE` / ISO `YYYY-MM-DD`. The Vue UI displays and edits Jalali only; composables convert at the HTTP boundary (`moneyApi.ts`). Ledger grouping stays Jalali (a Jalali month spans two Gregorian months).
+- The Transactions statement is stored/derived in Postgres by Jalali year and month (`v_month_totals`, `v_ledger_entries` via `date_to_jalali`). The page fetches `GET /api/ledger?date=` (Gregorian ISO of Jalali day 1); it must not re-aggregate collections in the client. Dashboard charts still use the collection cache.
+- Bill duration stays a 1–60 slider in the UI. On save it becomes `startOn`/`endOn` ISO (`billEndIso`). Bills and expenses pages both have a Jalali month navigator; new rows default to the viewed month.
 - Auth is Better Auth (email/password, httpOnly session cookie). Login/register UI is still an admission ticket; success stamps the stub then redirects; failure stamps REJECTED and shows Try again. Passwords hashed by Better Auth in `accounts.password`.
 - User service follows the vin project: `UsersModule` + `PgService`, public columns only, `role` is `ADMIN` | `USER` (not vin's `PRINCIPLE`). Role/status are not client-writable.
 - Nest Better Auth must construct `kyselyAdapter` with `usePlural: true` (tables are `users`/`sessions`/`accounts`/`verifications`). `bodyParser: false` in `main.ts`.
@@ -27,7 +30,7 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 - Receipt look: white card, colored status strip on top, notched dashed dividers, scalloped bottom, monospace values, "APPROVED" stamp on paid ones. Keep the stamp off data rows (on detail it has its own row).
 
 - Ledger balance = all deposits (by counted month) minus all bill installments (by due month, paid or not) minus all expenses (by purchase month); cumulative, can be negative.
-- Postgres lives in repo `database/` and local database `app_money` (PostgreSQL 18, port 5432, user `postgres`). Cluster files stay in `F:\database`. Money rows are per `user_id`. Installments and the ledger are views; only `paid_at` is stored. Jalali SQL matches `jalaali-js` 2.0.1. Overdue uses `Asia/Tehran`. Identity is Better Auth (`004_better_auth.sql`).
+- Postgres lives in repo `database/` and local database `app_money` (PostgreSQL 18, port 5432, user `postgres`). Cluster files stay in `F:\database`. Money rows are per `user_id`. Installments and the ledger are views; only `paid_at` is stored. SQL `date_to_jalali` matches `jalaali-js` 2.0.1. Overdue uses `Asia/Tehran`. Identity is Better Auth (`004_better_auth.sql`). Existing DBs migrate via `002a_gregorian_dates.sql` (`npm run db:migrate`).
 - Color language: deposits = success (green), bills = danger (red), expenses = warning (amber).
 - Printer pages share `createPrinterFlow` (`usePrinterFlow.ts`); editing reuses the entry page with an optional `:id` route param.
 - Charts are hand-written SVG with `fill-*`/`stroke-*` theme classes; no chart library. Dynamic sizes go in SVG attributes, never inline `style`.
@@ -40,9 +43,16 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 - `@arcjet/nest` 1.14 peer range is Nest 10/11; this repo uses Nest 12 with `legacy-peer-deps=true` (same as vin).
 - `bg-white`, `text-black`, `bg-gray-*` etc. do not exist (palette disabled). Use `bg-surface`, `text-content`, ...
 - Nested `.git` folders in `front-end/` or `back-end/` make the root repo skip those trees. Keep a single `.git` at the repo root.
+- `001_calendar.sql` is already applied on the live local DB, so `date_to_jalali` helpers also live in `002a_gregorian_dates.sql`. Fresh installs get them from 001; 002a is idempotent.
+- Installment ids are `billId__YYYY-MM-DD` (Gregorian due date). Old `billId__YYYY-MM` URLs break after the date migration.
+- `pg` DATE values must use local `getFullYear`/`getMonth`/`getDate` in `toDateOnly` — UTC `toISOString().slice(0,10)` is a Tehran off-by-one.
 
 ## Task log
 <!-- Newest first. Format: - YYYY-MM-DD — summary (files touched) -->
+- 2026-10-26 — `DELETE /api/bills/:id` removes bill + all installments (DB CASCADE). Bills page list + edit form double-tap delete. (`bills.service.ts`, `BillDefinedList.vue`, `BillDefinitionReceipt.vue`, `useBills.ts`)
+- 2026-10-26 — Gregorian DATE in DB/API; Jalali only in the Vue UI. Bills/expenses are month pages; bill duration slider becomes `startOn`/`endOn` on POST. (`002a_gregorian_dates.sql`, `calendar.ts`, `moneyApi.ts`, `useBills.ts`, `useExpenses.ts`, `useLedger.ts`, Bills/Expenses pages)
+- 2026-10-26 — Transactions statement comes from Postgres by Jalali year/month (`GET /api/ledger?date=`), not client-side aggregation. View-month stays UI state in localStorage. (`ledger.service.ts`, `useLedger.ts`, `loadMoneyCollections.ts`, `LedgerTable.vue`)
+- 2026-10-26 — Stopped hydrating via `GET /api/wallet`. Boot/login loads `/api/bills`, `/api/deposits`, `/api/expenses`, `/api/installments`. Wallet GET removed; PUT stays for Excel import. (`loadMoneyCollections.ts`, composables, `useAuth.ts`, `wallet.controller.ts` / `wallet.service.ts`)
 - 2026-10-26 — Published the full monorepo to `https://github.com/n1ma17/VERO.git` (`master` @ `fb86318`). Vue moved under `front-end/`; Nest + Postgres schema added. Root `.gitignore` keeps `.env`, `node_modules`, and `dist` off the remote.
 - 2026-10-26 — Bottom nav overlap on sm+: `sm:py-8` reset main `pb`; use `sm:pt-8` only (`App.vue`).
 - 2026-10-26 — Admin seed loads `money-management-backup-2026-10-26.xlsx` via `npm run db:seed` (`scripts/lib/backup-xlsx.ts`, `import-wallet-snapshot.ts`, `seed.ts`).

@@ -3,6 +3,7 @@ import { api } from '@/api/http'
 import type { JalaliMonth } from '@/types/bill'
 import type { BankDeposit, NewBankDeposit } from '@/types/bankDeposit'
 import { clampDueDay, currentJalaliMonth, monthToIndex } from '@/utils/jalali'
+import { depositFromApi, depositToApi, type DepositApi } from '@/utils/moneyApi'
 
 const VIEW_KEY = 'money-managment:deposits-view-month'
 
@@ -31,7 +32,7 @@ function isBookedInMonth(deposit: BankDeposit, year: number, month: number): boo
 }
 
 function payload(input: NewBankDeposit) {
-  return {
+  return depositToApi({
     amount: Math.round(input.amount),
     jalaliYear: input.jalaliYear,
     jalaliMonth: input.jalaliMonth,
@@ -39,15 +40,20 @@ function payload(input: NewBankDeposit) {
     bookedYear: input.bookedYear,
     bookedMonth: input.bookedMonth,
     note: input.note?.trim() || null,
-  }
+  })
 }
 
 const deposits = ref<BankDeposit[]>([])
 const editingDepositId = ref<string | null>(null)
 const viewMonth = ref<JalaliMonth>(loadViewMonth())
 
-export function replaceDeposits(next: BankDeposit[]): void {
-  deposits.value = next
+export async function loadDeposits(): Promise<void> {
+  const rows = await api<DepositApi[]>('/api/deposits')
+  deposits.value = rows.map(depositFromApi)
+}
+
+export function clearDeposits(): void {
+  deposits.value = []
 }
 
 export function getDepositsSnapshot(): BankDeposit[] {
@@ -93,10 +99,12 @@ export function useBankDeposits() {
   }
 
   async function addDeposit(input: NewBankDeposit) {
-    const created = await api<BankDeposit>('/api/deposits', {
-      method: 'POST',
-      body: JSON.stringify(payload(input)),
-    })
+    const created = depositFromApi(
+      await api<DepositApi>('/api/deposits', {
+        method: 'POST',
+        body: JSON.stringify(payload(input)),
+      }),
+    )
     deposits.value = [created, ...deposits.value]
   }
 
@@ -115,10 +123,12 @@ export function useBankDeposits() {
   }
 
   async function updateDeposit(id: string, input: NewBankDeposit) {
-    const updated = await api<BankDeposit>(`/api/deposits/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(payload(input)),
-    })
+    const updated = depositFromApi(
+      await api<DepositApi>(`/api/deposits/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload(input)),
+      }),
+    )
     deposits.value = deposits.value.map((deposit) => (deposit.id === id ? updated : deposit))
     editingDepositId.value = null
     return true

@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import { authClient } from '@/api/authClient'
-import { clearWallet, hydrateWallet } from '@/composables/useWallet'
+import { clearMoneyCollections, loadMoneyCollections } from '@/composables/loadMoneyCollections'
 import type { AuthSession } from '@/types/auth'
 
 export type AuthAttemptResult =
@@ -30,7 +30,7 @@ export async function ensureAuthReady(): Promise<void> {
       try {
         const { data } = await authClient.getSession()
         applyUser(data?.user)
-        if (session.value) await hydrateWallet()
+        if (session.value) await loadMoneyCollections()
       } finally {
         ready.value = true
       }
@@ -50,7 +50,7 @@ export function useAuth() {
     })
     if (error || !data?.user) return { ok: false, reason: 'invalid' }
     applyUser(data.user)
-    await hydrateWallet()
+    await loadMoneyCollections()
     return { ok: true }
   }
 
@@ -73,14 +73,14 @@ export function useAuth() {
     }
     if (!data?.user) return { ok: false, reason: 'invalid' }
     applyUser(data.user)
-    await hydrateWallet()
+    await loadMoneyCollections()
     return { ok: true }
   }
 
   async function logout() {
     await authClient.signOut()
     session.value = null
-    clearWallet()
+    clearMoneyCollections()
   }
 
   return {

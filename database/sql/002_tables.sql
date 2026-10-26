@@ -108,23 +108,27 @@ CREATE TABLE IF NOT EXISTS bills (
   user_id uuid NOT NULL REFERENCES users (id) ON DELETE CASCADE,
   title text NOT NULL CHECK (char_length(btrim(title)) BETWEEN 1 AND 160),
   amount toman NOT NULL,
-  start_year jalali_year NOT NULL,
-  start_month jalali_month NOT NULL,
-  -- Nominal due day. Shorter months clamp it in v_installments.
+  -- First and last due dates (Gregorian). Installments expand by Jalali month.
+  start_on date NOT NULL,
+  end_on date NOT NULL,
+  -- Nominal Jalali day of month. Shorter months clamp it in v_installments.
   due_day jalali_day NOT NULL,
-  duration_months smallint NOT NULL CHECK (duration_months BETWEEN 1 AND 60),
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT bills_end_on_after_start CHECK (end_on >= start_on),
+  CONSTRAINT bills_duration_months CHECK (
+    jalali_month_index(end_on) - jalali_month_index(start_on) BETWEEN 0 AND 59
+  ),
   CONSTRAINT bills_due_day_in_start_month CHECK (
-    due_day <= jalali_month_length(start_year, start_month)
+    due_day <= jalali_month_length(jalali_year(start_on), jalali_month(start_on))
   )
 );
 
 COMMENT ON TABLE bills IS
-  'Recurring bill definitions. Front key: money-managment:bills. One row per definition, not per month.';
+  'Recurring bill definitions. start_on/end_on are Gregorian dates; months are Jalali.';
 
 CREATE INDEX IF NOT EXISTS bills_user_start_idx
-  ON bills (user_id, start_year, start_month);
+  ON bills (user_id, start_on);
 
 -- Replaces the IndexedDB `bill-logos` store. The front's logoKey is the bill id.
 CREATE TABLE IF NOT EXISTS bill_logos (
@@ -143,42 +147,33 @@ CREATE TABLE IF NOT EXISTS bill_logos (
 COMMENT ON TABLE bill_logos IS
   'Optional institution logo, max 128 KB, same cap as MAX_BILL_LOGO_BYTES.';
 
--- The only persisted installment fact. Key in the client is billId:YYYY-MM.
+-- The only persisted installment fact. Keyed by the Gregorian due date.
 CREATE TABLE IF NOT EXISTS installment_payments (
   bill_id uuid NOT NULL REFERENCES bills (id) ON DELETE CASCADE,
-  jalali_year jalali_year NOT NULL,
-  jalali_month jalali_month NOT NULL,
+  due_on date NOT NULL,
   paid_at timestamptz NOT NULL,
-  PRIMARY KEY (bill_id, jalali_year, jalali_month)
+  PRIMARY KEY (bill_id, due_on)
 );
 
 COMMENT ON TABLE installment_payments IS
-  'Front key: money-managment:installment-payments. Absence of a row means unpaid. Overdue is not stored.';
+  'Absence of a row means unpaid. Overdue is not stored. due_on is Gregorian.';
 
 CREATE TABLE IF NOT EXISTS bank_deposits (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES users (id) ON DELETE CASCADE,
   amount toman NOT NULL,
-  jalali_year jalali_year NOT NULL,
-  jalali_month jalali_month NOT NULL,
-  jalali_day jalali_day NOT NULL,
-  booked_year jalali_year NOT NULL,
-  booked_month jalali_month NOT NULL,
+  arrived_on date NOT NULL,
+  booked_on date NOT NULL,
   note text CHECK (note IS NULL OR char_length(btrim(note)) BETWEEN 1 AND 2000),
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT bank_deposits_real_day CHECK (
-    jalali_day <= jalali_month_length(jalali_year, jalali_month)
-  )
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
 
 COMMENT ON TABLE bank_deposits IS
-  'Front key: money-managment:bank-deposits. Counted in booked_year/booked_month, not necessarily the arrival month.';
-COMMENT ON COLUMN bank_deposits.booked_year IS
-  'Jalali year this deposit counts toward (salary for a month may arrive on another date).';
+  'arrived_on is the bank date. booked_on is the Gregorian date of Jalali day 1 of the counted month.';
 
 CREATE INDEX IF NOT EXISTS bank_deposits_booked_idx
-  ON bank_deposits (user_id, booked_year, booked_month);
+  ON bank_deposits (user_id, booked_on);
 
 CREATE INDEX IF NOT EXISTS bank_deposits_user_created_idx
   ON bank_deposits (user_id, created_at DESC);
@@ -189,22 +184,17 @@ CREATE TABLE IF NOT EXISTS expenses (
   title text NOT NULL CHECK (char_length(btrim(title)) BETWEEN 1 AND 160),
   amount toman NOT NULL,
   category expense_category NOT NULL,
-  jalali_year jalali_year NOT NULL,
-  jalali_month jalali_month NOT NULL,
-  jalali_day jalali_day NOT NULL,
+  occurred_on date NOT NULL,
   note text CHECK (note IS NULL OR char_length(btrim(note)) BETWEEN 1 AND 2000),
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT expenses_real_day CHECK (
-    jalali_day <= jalali_month_length(jalali_year, jalali_month)
-  )
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
 
 COMMENT ON TABLE expenses IS
-  'Front key: money-managment:expenses. Counted in the purchase month.';
+  'Purchase date is Gregorian occurred_on. Counted in that date''s Jalali month.';
 
 CREATE INDEX IF NOT EXISTS expenses_month_idx
-  ON expenses (user_id, jalali_year, jalali_month);
+  ON expenses (user_id, occurred_on);
 
 CREATE INDEX IF NOT EXISTS expenses_category_idx
   ON expenses (user_id, category);
@@ -253,13 +243,13 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
   start_index integer;
-  duration integer;
+  end_index integer;
   pay_index integer;
 BEGIN
   SELECT
-    b.start_year * 12 + (b.start_month - 1),
-    b.duration_months
-  INTO start_index, duration
+    jalali_month_index(b.start_on),
+    jalali_month_index(b.end_on)
+  INTO start_index, end_index
   FROM bills AS b
   WHERE b.id = NEW.bill_id;
 
@@ -267,11 +257,9 @@ BEGIN
     RAISE EXCEPTION 'bill % does not exist', NEW.bill_id;
   END IF;
 
-  pay_index := NEW.jalali_year * 12 + (NEW.jalali_month - 1);
-  IF pay_index < start_index OR pay_index >= start_index + duration THEN
-    RAISE EXCEPTION
-      'payment %-% is outside the bill span',
-      NEW.jalali_year, NEW.jalali_month;
+  pay_index := jalali_month_index(NEW.due_on);
+  IF pay_index < start_index OR pay_index > end_index THEN
+    RAISE EXCEPTION 'payment % is outside the bill span', NEW.due_on;
   END IF;
 
   RETURN NEW;
@@ -288,15 +276,16 @@ RETURNS trigger
 LANGUAGE plpgsql
 AS $$
 DECLARE
-  start_index integer := NEW.start_year * 12 + (NEW.start_month - 1);
+  start_index integer := jalali_month_index(NEW.start_on);
+  end_index integer := jalali_month_index(NEW.end_on);
 BEGIN
   IF EXISTS (
     SELECT 1
     FROM installment_payments AS p
     WHERE p.bill_id = NEW.id
       AND (
-        p.jalali_year * 12 + (p.jalali_month - 1) < start_index
-        OR p.jalali_year * 12 + (p.jalali_month - 1) >= start_index + NEW.duration_months
+        jalali_month_index(p.due_on) < start_index
+        OR jalali_month_index(p.due_on) > end_index
       )
   ) THEN
     RAISE EXCEPTION 'bill span no longer covers recorded payments';
@@ -307,5 +296,5 @@ $$;
 
 DROP TRIGGER IF EXISTS bills_keep_payments_inside_span ON bills;
 CREATE TRIGGER bills_keep_payments_inside_span
-  BEFORE UPDATE OF start_year, start_month, duration_months ON bills
+  BEFORE UPDATE OF start_on, end_on ON bills
   FOR EACH ROW EXECUTE FUNCTION bills_keep_payments_inside_span();

@@ -29,7 +29,7 @@ fi
 "$PSQL" -d postgres -v ON_ERROR_STOP=1 -c \
   "COMMENT ON DATABASE app_money IS 'Money app ledger. Amounts are integer Iranian Toman.'"
 
-for file in 001_calendar.sql 002_tables.sql 003_views.sql 004_better_auth.sql; do
+for file in 001_calendar.sql 002_tables.sql 002a_gregorian_dates.sql 003_views.sql 004_better_auth.sql; do
   "$PSQL" -d app_money -v ON_ERROR_STOP=1 -f "$ROOT/sql/$file"
 done
 

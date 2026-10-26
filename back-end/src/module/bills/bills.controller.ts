@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Header, Param, Patch, Post, StreamableFile } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Header,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  StreamableFile,
+} from '@nestjs/common';
 import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { BillsService } from './bills.service.js';
 import { SaveBillDto } from './dto/save-bill.dto.js';
@@ -36,5 +47,11 @@ export class BillsController {
     @Body() dto: SaveBillDto,
   ) {
     return this.bills.update(session.user.id, id, dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  remove(@Session() session: UserSession, @Param('id') id: string) {
+    return this.bills.remove(session.user.id, id);
   }
 }

@@ -1,34 +1,19 @@
-import { IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { IsInt, IsOptional, IsString, Matches, MaxLength, Min, MinLength } from 'class-validator';
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export class SaveDepositDto {
   @IsInt()
   @Min(1)
   amount!: number;
 
-  @IsInt()
-  @Min(1200)
-  @Max(1600)
-  jalaliYear!: number;
+  @IsString()
+  @Matches(ISO_DATE)
+  arrivedOn!: string;
 
-  @IsInt()
-  @Min(1)
-  @Max(12)
-  jalaliMonth!: number;
-
-  @IsInt()
-  @Min(1)
-  @Max(31)
-  jalaliDay!: number;
-
-  @IsInt()
-  @Min(1200)
-  @Max(1600)
-  bookedYear!: number;
-
-  @IsInt()
-  @Min(1)
-  @Max(12)
-  bookedMonth!: number;
+  @IsString()
+  @Matches(ISO_DATE)
+  bookedOn!: string;
 
   @IsOptional()
   @IsString()

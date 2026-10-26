@@ -5,13 +5,15 @@ import { getBillsSnapshot } from '@/composables/useBills'
 import { getDepositsSnapshot } from '@/composables/useBankDeposits'
 import { getExpensesSnapshot } from '@/composables/useExpenses'
 import { getInstallmentsSnapshot } from '@/composables/useInstallments'
-import { hydrateWallet } from '@/composables/useWallet'
+import { loadMoneyCollections } from '@/composables/loadMoneyCollections'
 import type { Bill } from '@/types/bill'
 import type { BankDeposit } from '@/types/bankDeposit'
 import type { Expense } from '@/types/expense'
 import { BACKUP_FORMAT_VERSION } from '@/utils/appDataKeys'
 import { installmentPaymentKey } from '@/utils/billInstallments'
 import { isExpenseCategory } from '@/utils/expenseCategories'
+import { billToApi, depositToApi, expenseToApi } from '@/utils/moneyApi'
+import { jalaliToIsoDate } from '@/utils/jalali'
 
 const LOGO_CHUNK_SIZE = 30_000
 
@@ -260,10 +262,19 @@ function parsePaymentKey(key: string): { billId: string; year: number; month: nu
 }
 
 export async function applyAppBackupSnapshot(snapshot: AppBackupSnapshot): Promise<void> {
+  const billsById = new Map(snapshot.bills.map((bill) => [bill.id, bill]))
   const payments = Object.entries(snapshot.installmentPayments).flatMap(([key, paidAt]) => {
     const parsed = parsePaymentKey(key)
     if (!parsed) return []
-    return [{ ...parsed, paidAt }]
+    const bill = billsById.get(parsed.billId)
+    const dueDay = bill?.dueDay ?? 1
+    return [
+      {
+        billId: parsed.billId,
+        dueOn: jalaliToIsoDate(parsed.year, parsed.month, dueDay),
+        paidAt,
+      },
+    ]
   })
 
   await api('/api/wallet', {
@@ -271,38 +282,28 @@ export async function applyAppBackupSnapshot(snapshot: AppBackupSnapshot): Promi
     body: JSON.stringify({
       bills: snapshot.bills.map((bill) => ({
         id: bill.id,
-        title: bill.title,
-        amount: bill.amount,
-        startYear: bill.startYear,
-        startMonth: bill.startMonth,
-        dueDay: bill.dueDay,
-        durationMonths: bill.durationMonths,
+        ...billToApi({
+          title: bill.title,
+          amount: bill.amount,
+          startYear: bill.startYear,
+          startMonth: bill.startMonth,
+          dueDay: bill.dueDay,
+          durationMonths: bill.durationMonths,
+        }),
       })),
       deposits: snapshot.deposits.map((deposit) => ({
         id: deposit.id,
-        amount: deposit.amount,
-        jalaliYear: deposit.jalaliYear,
-        jalaliMonth: deposit.jalaliMonth,
-        jalaliDay: deposit.jalaliDay,
-        bookedYear: deposit.bookedYear,
-        bookedMonth: deposit.bookedMonth,
-        note: deposit.note,
+        ...depositToApi(deposit),
       })),
       expenses: snapshot.expenses.map((expense) => ({
         id: expense.id,
-        title: expense.title,
-        amount: expense.amount,
-        category: expense.category,
-        jalaliYear: expense.jalaliYear,
-        jalaliMonth: expense.jalaliMonth,
-        jalaliDay: expense.jalaliDay,
-        note: expense.note,
+        ...expenseToApi(expense),
       })),
       payments,
       logos: snapshot.logos.map((logo) => ({ billId: logo.key, dataUrl: logo.dataUrl })),
     }),
   })
-  await hydrateWallet()
+  await loadMoneyCollections()
 }
 
 export async function readAppBackupFile(file: File): Promise<AppBackupSnapshot> {

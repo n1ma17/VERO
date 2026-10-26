@@ -1,12 +1,10 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsInt,
   IsOptional,
   IsString,
-  Max,
+  Matches,
   MaxLength,
-  Min,
   MinLength,
   ValidateNested,
 } from 'class-validator';
@@ -33,15 +31,9 @@ class ImportPaymentDto {
   @IsString()
   billId!: string;
 
-  @IsInt()
-  @Min(1200)
-  @Max(1600)
-  year!: number;
-
-  @IsInt()
-  @Min(1)
-  @Max(12)
-  month!: number;
+  @IsString()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  dueOn!: string;
 
   @IsOptional()
   @IsString()

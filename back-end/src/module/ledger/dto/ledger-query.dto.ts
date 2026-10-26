@@ -1,16 +1,9 @@
-import { Type } from 'class-transformer';
-import { IsInt, Max, Min } from 'class-validator';
+import { Matches } from 'class-validator';
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export class LedgerQueryDto {
-  @Type(() => Number)
-  @IsInt()
-  @Min(1200)
-  @Max(1600)
-  year!: number;
-
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  @Max(12)
-  month!: number;
+  /** Gregorian ISO date; the statement is the Jalali month that contains it. */
+  @Matches(ISO_DATE)
+  date!: string;
 }

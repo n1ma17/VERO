@@ -1,11 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { isIsoDate } from '../../common/money/calendar.js';
 import { mapExpense, type ExpenseRow } from '../../common/money/mappers.js';
 import type { ExpenseDto } from '../../common/money/types.js';
 import { PgService } from '../../lib/database/pg.service.js';
 import type { SaveExpenseDto } from './dto/save-expense.dto.js';
 
 const SELECT = `
-  SELECT id, title, amount, category, jalali_year, jalali_month, jalali_day, note, created_at
+  SELECT id, title, amount, category, occurred_on, note, created_at
     FROM expenses
 `;
 
@@ -32,19 +33,20 @@ export class ExpensesService {
   }
 
   async create(userId: string, dto: SaveExpenseDto): Promise<ExpenseDto> {
+    if (!isIsoDate(dto.occurredOn)) {
+      throw new BadRequestException('occurredOn must be a real Gregorian date');
+    }
     const { rows } = await this.pg.query<ExpenseRow>(
       `INSERT INTO expenses
-         (user_id, title, amount, category, jalali_year, jalali_month, jalali_day, note)
-       VALUES ($1, $2, $3, $4::expense_category, $5, $6, $7, $8)
-       RETURNING id, title, amount, category, jalali_year, jalali_month, jalali_day, note, created_at`,
+         (user_id, title, amount, category, occurred_on, note)
+       VALUES ($1, $2, $3, $4::expense_category, $5::date, $6)
+       RETURNING id, title, amount, category, occurred_on, note, created_at`,
       [
         userId,
         dto.title.trim(),
         dto.amount,
         dto.category,
-        dto.jalaliYear,
-        dto.jalaliMonth,
-        dto.jalaliDay,
+        dto.occurredOn,
         dto.note?.trim() || null,
       ],
     );
@@ -52,26 +54,25 @@ export class ExpensesService {
   }
 
   async update(userId: string, id: string, dto: SaveExpenseDto): Promise<ExpenseDto> {
+    if (!isIsoDate(dto.occurredOn)) {
+      throw new BadRequestException('occurredOn must be a real Gregorian date');
+    }
     const { rows } = await this.pg.query<ExpenseRow>(
       `UPDATE expenses
           SET title = $3,
               amount = $4,
               category = $5::expense_category,
-              jalali_year = $6,
-              jalali_month = $7,
-              jalali_day = $8,
-              note = $9
+              occurred_on = $6::date,
+              note = $7
         WHERE user_id = $1 AND id = $2
-    RETURNING id, title, amount, category, jalali_year, jalali_month, jalali_day, note, created_at`,
+    RETURNING id, title, amount, category, occurred_on, note, created_at`,
       [
         userId,
         id,
         dto.title.trim(),
         dto.amount,
         dto.category,
-        dto.jalaliYear,
-        dto.jalaliMonth,
-        dto.jalaliDay,
+        dto.occurredOn,
         dto.note?.trim() || null,
       ],
     );

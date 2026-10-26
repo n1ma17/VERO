@@ -4,6 +4,7 @@ import type { JalaliMonth } from '@/types/bill'
 import type { Expense, ExpenseCategory, NewExpense } from '@/types/expense'
 import { EXPENSE_CATEGORY_ORDER, isExpenseCategory } from '@/utils/expenseCategories'
 import { clampDueDay, currentJalaliMonth, indexToMonth, monthToIndex } from '@/utils/jalali'
+import { expenseFromApi, expenseToApi, type ExpenseApi } from '@/utils/moneyApi'
 
 const VIEW_KEY = 'money-managment:expenses-view-month'
 
@@ -36,8 +37,13 @@ function normalize(input: NewExpense): NewExpense {
 const expenses = ref<Expense[]>([])
 const viewMonth = ref<JalaliMonth>(loadViewMonth())
 
-export function replaceExpenses(next: Expense[]): void {
-  expenses.value = next
+export async function loadExpenses(): Promise<void> {
+  const rows = await api<ExpenseApi[]>('/api/expenses')
+  expenses.value = rows.map(expenseFromApi)
+}
+
+export function clearExpenses(): void {
+  expenses.value = []
 }
 
 export function getExpensesSnapshot(): Expense[] {
@@ -96,19 +102,21 @@ export function useExpenses() {
   }
 
   async function addExpense(input: NewExpense): Promise<Expense> {
-    const expense = await api<Expense>('/api/expenses', {
+    const row = await api<ExpenseApi>('/api/expenses', {
       method: 'POST',
-      body: JSON.stringify(normalize(input)),
+      body: JSON.stringify(expenseToApi(normalize(input))),
     })
+    const expense = expenseFromApi(row)
     expenses.value = [expense, ...expenses.value]
     return expense
   }
 
   async function updateExpense(id: string, input: NewExpense): Promise<Expense | null> {
-    const updated = await api<Expense>(`/api/expenses/${id}`, {
+    const row = await api<ExpenseApi>(`/api/expenses/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify(normalize(input)),
+      body: JSON.stringify(expenseToApi(normalize(input))),
     })
+    const updated = expenseFromApi(row)
     expenses.value = expenses.value.map((expense) => (expense.id === id ? updated : expense))
     return updated
   }

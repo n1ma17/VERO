@@ -2,18 +2,20 @@
 import { computed } from 'vue'
 import JalaliMonthNavigatorBar from '@/components/shared/JalaliMonthNavigatorBar.vue'
 import { useBankDeposits } from '@/composables/useBankDeposits'
+import { useBills } from '@/composables/useBills'
 import { useExpenses } from '@/composables/useExpenses'
 import { useInstallments } from '@/composables/useInstallments'
 import { useLedger } from '@/composables/useLedger'
 import { formatJalaliMonth, nextJalaliMonth, previousJalaliMonth } from '@/utils/jalali'
 
-export type ViewMonthNavigatorContext = 'expenses' | 'installments' | 'deposits' | 'ledger'
+export type ViewMonthNavigatorContext = 'expenses' | 'installments' | 'deposits' | 'ledger' | 'bills'
 
 const props = defineProps<{
   context: ViewMonthNavigatorContext
 }>()
 
 const expenses = useExpenses()
+const bills = useBills()
 const installments = useInstallments()
 const deposits = useBankDeposits()
 const ledger = useLedger()
@@ -35,6 +37,8 @@ const monthLabel = computed(() => {
       return ledger.viewLabel.value
     case 'expenses':
       return formatJalaliMonth(expenses.viewMonth.value.year, expenses.viewMonth.value.month)
+    case 'bills':
+      return formatJalaliMonth(bills.viewMonth.value.year, bills.viewMonth.value.month)
     case 'installments':
       return formatJalaliMonth(
         installments.viewMonth.value.year,
@@ -49,6 +53,8 @@ const isCurrentMonth = computed(() => {
   switch (props.context) {
     case 'expenses':
       return expenses.isCurrentMonth.value
+    case 'bills':
+      return bills.isCurrentMonth.value
     case 'ledger':
       return ledger.isCurrentMonth.value
     default:
@@ -66,12 +72,17 @@ const disableNext = computed(() => {
   return false
 })
 
-const showBackLink = computed(() => props.context === 'expenses' || props.context === 'ledger')
+const showBackLink = computed(
+  () => props.context === 'expenses' || props.context === 'ledger' || props.context === 'bills',
+)
 
 function onPrevious() {
   switch (props.context) {
     case 'expenses':
       expenses.shiftViewMonth(-1)
+      break
+    case 'bills':
+      bills.shiftViewMonth(-1)
       break
     case 'ledger':
       ledger.shiftViewMonth(-1)
@@ -100,6 +111,9 @@ function onNext() {
     case 'expenses':
       expenses.shiftViewMonth(1)
       break
+    case 'bills':
+      bills.shiftViewMonth(1)
+      break
     case 'ledger':
       ledger.shiftViewMonth(1)
       break
@@ -124,6 +138,7 @@ function onNext() {
 
 function onBackToCurrent() {
   if (props.context === 'expenses') expenses.goToCurrentMonth()
+  if (props.context === 'bills') bills.goToCurrentMonth()
   if (props.context === 'ledger') ledger.goToCurrentMonth()
 }
 </script>
