@@ -1,1 +1,6 @@
-export type ReceiptPrinterStage = 'idle' | 'processing' | 'printing' | 'complete'
+export type ReceiptPrinterStage =
+  | 'idle'
+  | 'processing'
+  | 'retracting'
+  | 'printing'
+  | 'complete'

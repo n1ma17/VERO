@@ -15,6 +15,7 @@ const { stage, snapshot } = useExpenseEntryFlow()
 const statusLabels: Record<ReceiptPrinterStage, string> = {
   idle: 'Ready to record',
   processing: 'Saving purchase',
+  retracting: 'Retracting receipt',
   printing: 'Printing your receipt',
   complete: 'Purchase recorded',
 }

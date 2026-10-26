@@ -14,6 +14,7 @@ const { stage, snapshot } = useBillDefinitionFlow()
 const statusLabels: Record<ReceiptPrinterStage, string> = {
   idle: 'Ready to issue',
   processing: 'Saving bill',
+  retracting: 'Retracting receipt',
   printing: 'Printing your receipt',
   complete: 'Bill issued',
 }

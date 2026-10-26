@@ -16,6 +16,7 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 - Page files are named `<Name>Page.vue`; their component folder is `components/<Name>/` (without the `Page` suffix).
 - Shared reactive state lives in composables as module-level refs (simple singleton store). No Pinia yet — add it only if state grows complex.
 - Data is stored in `localStorage` until a backend exists.
+- Auth is local-only until a backend exists: users + session in `localStorage`, password SHA-256 (not salted). Login/register UI is an admission ticket; success stamps the stub then redirects; failure stamps REJECTED and shows Try again.
 - Installment status is never stored: `overdue` is derived from `dueDate` + `paidAt`. Only `paidAt` is persisted.
 - Installments list is read-only; status is changed only on the detail page (user requirement).
 - Paying happens through the receipt printer on the detail page: the printer prints first, then the installment is marked paid and the left card updates.
@@ -33,6 +34,10 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 
 ## Task log
 <!-- Newest first. Format: - YYYY-MM-DD — summary (files touched) -->
+- 2026-10-26 — Landing: content in `max-w-5xl px-4`; bank hero uses `LandingBankCard` (deposits-style mandala card). (`LandingScreen`, `LandingBankCard`, `LandingHeroVisual`).
+- 2026-10-26 — Landing at `/` (gradient hero, floating receipt/card, CTA → login or dashboard); dashboard moved to `/dashboard`; tokens `landing-hero-*`, `on-hero*`. (`LandingPage`, `Landing/*`, router, `App.vue`, `appNav`, `theme.css`).
+- 2026-10-26 — Auth: removed stub tear animation; success = stamp + brief pause + redirect. (`AuthTicket.vue`).
+- 2026-10-26 — Auth gate: `/login` ticket with login/register, SUCCESS/REJECT stamps, stub tear, router guard, Sign out. (`AuthPage`, `Auth/*`, `useAuth`, `hashSecret`, router, `App.vue`, `AppNavbar`, `ReceiptBarcode` → shared).
 - 2026-10-25 — Bottom nav: `max-w-5xl px-4` wrapper (aligned with main + AppNavbar); bar `width: 100%`.
 - 2026-10-25 — Unified month navigator: `ViewMonthNavigator` + `JalaliMonthNavigatorBar` (shared); removed 4 page-specific navigators.
 - 2026-10-25 — Theme simplified to background, primary, accent, success/danger/warning, text (+ surface white); removed chart/nav/printer/bank hex tokens; migrated components to core tokens + opacity (`theme.css`, bulk class renames, `expenseCategories.ts`).

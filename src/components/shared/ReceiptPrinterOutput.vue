@@ -8,11 +8,15 @@ const { stage } = useReceiptPrinter('ReceiptPrinterOutput')
 const feedClasses: Record<ReceiptPrinterStage, string> = {
   idle: '-translate-y-full opacity-0',
   processing: '-translate-y-full opacity-0',
+  retracting: 'animate-receipt-retract opacity-100 motion-reduce:animate-none',
   printing: 'animate-receipt-feed opacity-100 motion-reduce:animate-none',
-  complete: 'opacity-100',
+  complete: 'translate-y-0 opacity-100',
 }
 
-const isPaperVisible = computed(() => stage.value === 'printing' || stage.value === 'complete')
+const isPaperVisible = computed(
+  () =>
+    stage.value === 'retracting' || stage.value === 'printing' || stage.value === 'complete',
+)
 </script>
 
 <template>
@@ -23,7 +27,7 @@ const isPaperVisible = computed(() => stage.value === 'printing' || stage.value 
       class="pointer-events-none absolute inset-x-2 -top-1 z-20 h-2 bg-primary-slot/75 blur-md"
     />
     <div
-      class="relative transition-opacity duration-150"
+      class="relative will-change-transform"
       :class="feedClasses[stage]"
       :aria-hidden="stage !== 'complete'"
     >

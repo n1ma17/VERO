@@ -7,15 +7,24 @@
 
   --color-background: #dbdddc;
   --color-primary: #10202d;
+  --color-secondary: #1a3042;
   --color-accent: #c8a667;
   --color-success: #4a7d6a;
   --color-danger: #c45c4e;
   --color-warning: #c49a5a;
   --color-text: #10202d;
+  --color-black: #000000;
+  --color-white: #ffffff;
   --color-text-muted: color-mix(in oklab, var(--color-text) 48%, var(--color-background));
 
   /* White cards — not a brand hue */
   --color-surface: #ffffff;
+
+  /* Welcome screen gradient (success sage → deep primary) */
+  --color-landing-hero-top: color-mix(in oklab, var(--color-success) 58%, var(--color-background));
+  --color-landing-hero-bottom: var(--color-primary);
+  --color-on-hero: var(--color-white);
+  --color-on-hero-muted: color-mix(in oklab, var(--color-on-hero) 72%, var(--color-landing-hero-bottom));
 
   --bank-card-perspective: 68rem;
   --bank-card-tilt-x: 0deg;

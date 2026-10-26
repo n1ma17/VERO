@@ -10,6 +10,7 @@ const props = defineProps<{
 const defaultLabels: Record<ReceiptPrinterStage, string> = {
   idle: 'Ready',
   processing: 'Processing',
+  retracting: 'Retracting receipt',
   printing: 'Printing your receipt',
   complete: 'Complete',
 }

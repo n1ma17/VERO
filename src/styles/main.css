@@ -4,9 +4,41 @@
 @theme {
   /* Paper feeding out of the receipt printer one line at a time. */
   --animate-receipt-feed: receipt-feed 1.75s linear both;
+  --animate-receipt-retract: receipt-feed 1.4s linear reverse both;
   --animate-receipt-celebrate: receipt-celebrate 0.9s ease-out both;
   /* Dashboard sections rising into place; pair with [animation-delay:…] for stagger. */
   --animate-fade-up: fade-up 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-ticket-shake: ticket-shake 0.45s ease-in-out both;
+  --animate-landing-float: landing-float 5s ease-in-out infinite;
+
+  @keyframes landing-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes ticket-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    20% {
+      transform: translateX(-7px);
+    }
+    40% {
+      transform: translateX(7px);
+    }
+    60% {
+      transform: translateX(-4px);
+    }
+    80% {
+      transform: translateX(4px);
+    }
+  }
 
   @keyframes fade-up {
     from {

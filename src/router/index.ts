@@ -1,10 +1,24 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
+import '@/types/router'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
+      name: 'landing',
+      component: () => import('@/pages/LandingPage.vue'),
+      meta: { public: true, hideChrome: true, fullBleed: true },
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/pages/AuthPage.vue'),
+      meta: { public: true, hideChrome: true },
+    },
+    {
+      path: '/dashboard',
       name: 'dashboard',
       component: () => import('@/pages/DashboardPage.vue'),
     },
@@ -44,6 +58,23 @@ const router = createRouter({
       component: () => import('@/pages/InstallmentDetailPage.vue'),
     },
   ],
+})
+
+router.beforeEach((to) => {
+  const { isAuthenticated } = useAuth()
+
+  if (to.meta.public) {
+    if (isAuthenticated.value && (to.name === 'login' || to.name === 'landing')) {
+      return { name: 'dashboard' }
+    }
+    return true
+  }
+
+  if (!isAuthenticated.value) {
+    return { name: 'login', query: { redirect: to.fullPath } }
+  }
+
+  return true
 })
 
 export default router

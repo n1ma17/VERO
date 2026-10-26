@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import ReceiptBarcode from '@/components/InstallmentDetail/ReceiptBarcode.vue'
+import ReceiptBarcode from '@/components/shared/ReceiptBarcode.vue'
 import ApprovedStamp from '@/components/shared/ApprovedStamp.vue'
 import BillLogoImage from '@/components/shared/BillLogoImage.vue'
 import InstallmentStatusBadge from '@/components/shared/InstallmentStatusBadge.vue'

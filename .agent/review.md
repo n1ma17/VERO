@@ -17,6 +17,7 @@ Run this checklist before finishing every task. Then log anything left unresolve
 
 ## Open issues / tech debt
 <!-- Format: - [area] description (found YYYY-MM-DD) -->
+- [auth] Users and session live in localStorage; passwords are unsalted SHA-256. Fine for a local demo, not for a real backend. (found 2026-10-26)
 - [i18n] UI text is hard-coded in English; no RTL/Persian support yet. (found 2026-10-24)
 - [data] Old `money-managment:transactions` localStorage key is orphaned (legacy USD data); harmless, could be cleared on load. (found 2026-10-24)
 - [dashboard] `useDashboard` captures "today" when the component mounts; leaving the tab open past midnight shows yesterday until reload. (found 2026-10-24)

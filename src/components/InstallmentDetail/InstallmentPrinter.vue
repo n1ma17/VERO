@@ -21,6 +21,7 @@ const PRINTING_MS = 1800
 const statusLabels: Record<ReceiptPrinterStage, string> = {
   idle: 'Ready to pay',
   processing: 'Processing payment',
+  retracting: 'Retracting receipt',
   printing: 'Printing your receipt',
   complete: 'Payment complete',
 }

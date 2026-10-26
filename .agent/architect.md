@@ -12,7 +12,9 @@ Keep this file in sync with the code. It should let an agent understand the proj
 ## Routes
 | Path | Name | Page |
 | --- | --- | --- |
-| `/` | `dashboard` | `pages/DashboardPage.vue` |
+| `/` | `landing` | `pages/LandingPage.vue` (public; `hideChrome`, `fullBleed`) |
+| `/login` | `login` | `pages/AuthPage.vue` (public; `hideChrome`) |
+| `/dashboard` | `dashboard` | `pages/DashboardPage.vue` |
 | `/transactions` | `transactions` | `pages/TransactionsPage.vue` |
 | `/deposits` | `deposits` | `pages/DepositsPage.vue` |
 | `/bills`, `/bills/:id` | `bills` | `pages/BillsPage.vue` (optional `id` = edit bill) |
@@ -21,7 +23,19 @@ Keep this file in sync with the code. It should let an agent understand the proj
 | `/expenses` | `expenses` | `pages/ExpensesPage.vue` |
 | `/expenses/entry`, `/expenses/entry/:id` | `expense-entry` | `pages/ExpenseEntryPage.vue` (optional `id` = edit expense) |
 
+Guest routes (`meta.public`) skip the auth guard. All other routes require a session; unauthenticated visits redirect to `/login?redirect=…`. Logged-in visits to `/login` or `/` go to dashboard. `App.vue` hides navbar + bottom nav when `hideChrome` or logged out; `meta.fullBleed` removes main padding (landing).
+
 ## Pages and their components
+### LandingPage → `components/Landing/`
+MoBank-style welcome: sage→primary gradient, floating receipt + card hero, headline, circular continue CTA. Continue → login, or dashboard if already signed in (`LandingScreen.vue`).
+
+### AuthPage → `components/Auth/`
+Admission-ticket login / register. No `PageHeader`. Form lives in the top half; perforated stub below.
+- `AuthTicketPrinter.vue` — receipt printer shell; tab switch runs retract → swap → print (`useAuthTicketPrinter`)
+- `AuthTicket.vue` — flat ticket (no card shadow/radius); owns submit, stamp, try-again
+- `AuthTicketForm.vue` — Login / Register tabs, fields, local validation
+- `AuthTicketStamp.vue` — SUCCESS / REJECTED rubber stamp (`tone: success | rejected`)
+
 ### DashboardPage → `components/Dashboard/`
 Current Jalali month overview, all from `useDashboard()`. No `PageHeader` (hero replaces it). Sections use `animate-fade-up` with staggered `[animation-delay:…]`.
 - `DashboardHero.vue` — dark gradient hero: Jalali date + greeting, remaining balance (red-on-dark when negative), net pill, quick actions, 6-month balance sparkline, month-progress bar
@@ -71,11 +85,10 @@ Monthly ledger (Toman, Jalali) built from deposits (income, by `booked` month), 
 Layout: back link on top; 2-column grid on `lg` — left: receipt card + actions, right: printer.
 - `BackToInstallments.vue` — back link
 - `InstallmentReceipt.vue` — left card: full receipt (rows, total, stamp row if paid, barcode); "not found" fallback
-- `ReceiptBarcode.vue` — decorative barcode; prop `code`
 - `InstallmentStatusActions.vue` — "Edit bill" → `/bills/:billId`; "Mark as unpaid" when paid, otherwise hint to use printer
 - `InstallmentPrinter.vue` — right side; owns printer `stage`. Pay button → `processing` (1.2s) → `printing` (1.8s) → `complete` + `setPaid(id, true)`. Already-paid installments start at `complete`; stage resets when id/paidAt changes.
 ## Shared components (`components/shared/`)
-- `AppNavbar.vue` — slim top bar: app title + Jalali date (no page links)
+- `AppNavbar.vue` — slim top bar: app title + Jalali date + Sign out
 - `AppBottomNav.vue` — pill bottom bar + sliding light/beam; 6 tabs (`appNav.ts`, `AppNavIcon`); styles `.app-bottom-nav*` in `main.css`
 - `AppToastHost.vue` — global success toasts via `useToast()` (Teleport to body)
 - `PageHeader.vue` — props `title`, `subtitle?`
@@ -86,6 +99,7 @@ Layout: back link on top; 2-column grid on `lg` — left: receipt card + actions
 - `ApprovedStamp.vue` — rotated double-border "APPROVED" stamp; props `paidAt?`, `size: sm|lg`
 - `InstallmentStatusBadge.vue` — pill with dot; prop `status`
 - `ReceiptDivider.vue` — dashed line with side notches (notches use `bg-background`, parent needs `overflow-hidden`)
+- `ReceiptBarcode.vue` — decorative barcode; prop `code` (moved from InstallmentDetail; used by receipt + auth ticket)
 - `ReceiptEdge.vue` — scalloped bottom edge; prop `teeth` (default 16); parent needs `relative overflow-hidden` + bottom padding
 - `JalaliDatePicker.vue` — popover full Jalali date picker; props `year`, `month`, `day`, `label?`, `disabled?`. Popover is teleported, measures its height and flips above the trigger when there is not enough space below; min width 320px
 - `JalaliCalendarPanel.vue` — themed month grid + weekday day grid + year controls
@@ -100,6 +114,8 @@ Layout: back link on top; 2-column grid on `lg` — left: receipt card + actions
   - `ReceiptPrinterPaper.vue` — white paper with `ReceiptEdge` bottom
 
 ## Composables (`composables/`)
+- `useAuthTicketPrinter.ts` — `requestModeChange` + `isExchanging`; drives `retracting` / `printing` printer stages
+- `useAuth.ts` — local users + session (`money-managment:users`, `money-managment:session`). `login` / `register` / `logout`; passwords stored as SHA-256 (`hashSecret`). No backend.
 - `useDashboard.ts` — current-month overview (no state of its own): balance, net, savings rate, KPI counts, overdue, `upcomingBills`, `cashFlow` (12 mo), `balanceTrend` (6 mo), `spendingBreakdown`, `recentActivity`. Net = deposits − bills − expenses.
 - `useInstallments.ts` — **computed from bills** via `buildInstallmentsFromBills`; payment flags in `money-managment:installment-payments` (`billId:YYYY-MM` → paidAt ISO). Returns `installments`, `setPaid(id, paid)` where `id` is `encodeInstallmentId`.
 - `useBillLogos.ts` — in-memory cache + `persistBillLogo` / `loadBillLogo` (IndexedDB).
@@ -115,7 +131,9 @@ Layout: back link on top; 2-column grid on `lg` — left: receipt card + actions
 - `useLedger.ts` — `money-managment:transactions-view-month`. Combines deposits + `allInstallments` + expenses; returns month totals (`monthIncome/Bills/Expenses/Spending/Net`), `openingBalance`, `closingBalance` (cumulative, may be negative), `entries` with running balance, `chartSeries` (6 months), nav helpers.
 
 ## Types (`types/`)
-- `receiptPrinter.ts` — `ReceiptPrinterStage = 'idle' | 'processing' | 'printing' | 'complete'`
+- `auth.ts` — `AuthUser`, `AuthSession`, `AuthMode`, `AuthOutcome`
+- `router.ts` — Vue Router `RouteMeta` (`public`, `hideChrome`, `fullBleed`)
+- `receiptPrinter.ts` — `ReceiptPrinterStage` incl. `retracting` (auth tab switch)
 - `bill.ts` — `JalaliMonth`, `Bill` (includes `dueDay`), `NewBill`
 - `installment.ts` — `Installment` from a bill month occurrence: `billId`, Jalali `dueYear/Month/Day`, `dueDate` (Gregorian for status), `logoKey`, `paidAt`
 - `bankDeposit.ts` — `BankDeposit`, `NewBankDeposit`
@@ -123,6 +141,7 @@ Layout: back link on top; 2-column grid on `lg` — left: receipt card + actions
 - `expense.ts` — `ExpenseCategory` (food, groceries, home, clothing, entertainment, transport, car, motorcycle, beauty, health, other), `Expense`, `NewExpense`
 
 ## Utils (`utils/`)
+- `hashSecret.ts` — SHA-256 hex via Web Crypto
 - `formatToman.ts` — `formatToman`, `formatTomanNumber` (no unit), `formatTomanCompact` (chart axes, `12.5M`), deprecated `formatTomanPersian`
 - `ledger.ts` — `buildMonthTotals(deposits, installments, expenses)` → `{income, bills, expenses}` per month index, `monthNet`, `balanceThrough(totals, index)`; shared by `useLedger` + `useDashboard`
 - `expenseCategories.ts` — `EXPENSE_CATEGORY_ORDER`, `expenseCategories` (label + full class strings `tile`/`dot`/`fill`/`stroke`/`strip`), `isExpenseCategory`
@@ -144,7 +163,9 @@ Minimal palette (default Tailwind palette disabled). Variants use opacity: `text
 | `success`, `danger`, `warning` | Deposits, bills, expenses + status |
 | `text`, `text-muted` | Copy on light `surface` cards |
 | `surface` | White cards (structural, not a brand hue) |
+| `landing-hero-top`, `landing-hero-bottom` | Welcome screen gradient |
+| `on-hero`, `on-hero-muted` | Copy on landing gradient |
 
 On `bg-primary`: `text-background`, `text-background/70`. Charts & expense categories rotate the five brand hues. Bank card 3D: `--bank-card-perspective`, `--bank-card-tilt-*` in `theme.css`.
 
-Animations (`styles/main.css` `@theme`): `animate-receipt-feed` — stepped paper feed, 1.75s; `animate-receipt-celebrate`; `animate-fade-up` — section entrance (use `[animation-delay:…]` to stagger).
+Animations (`styles/main.css` `@theme`): `animate-receipt-feed`; `animate-receipt-retract` (reverse feed, auth tab switch) — stepped paper feed, 1.75s; `animate-receipt-celebrate`; `animate-fade-up` — section entrance (use `[animation-delay:…]` to stagger); `animate-ticket-shake` — rejected login ticket; `animate-landing-float` — welcome hero cards.

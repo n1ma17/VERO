@@ -20,7 +20,14 @@ export interface AppNavItem {
 }
 
 export const APP_NAV_ITEMS: AppNavItem[] = [
-  { to: '/', label: 'Dashboard', shortLabel: 'Home', icon: 'home', activePrefix: '/', exact: true },
+  {
+    to: '/dashboard',
+    label: 'Dashboard',
+    shortLabel: 'Home',
+    icon: 'home',
+    activePrefix: '/dashboard',
+    exact: true,
+  },
   {
     to: '/transactions',
     label: 'Transactions',
