@@ -11,17 +11,17 @@ const balanceNumber = computed(() => formatTomanNumber(totalBalance.value))
 
 <template>
   <article
-    class="rounded-3xl px-4 pb-0 mb-0 pt-10 sm:px-8"
+    class="mb-0 overflow-visible rounded-3xl px-2 pb-2 pt-8 sm:px-6 sm:pt-10 md:px-8"
     aria-label="Bank balance card"
   >
-    <div class="flex items-baseline justify-center gap-2 sm:gap-3">
-      <p class="text-4xl font-extrabold tracking-tight text-accent sm:text-5xl md:text-6xl">
+    <div class="flex min-w-0 items-baseline justify-center gap-2 px-2 sm:gap-3">
+      <p class="break-all text-3xl font-extrabold tracking-tight text-accent sm:text-5xl md:text-6xl">
         {{ balanceNumber }}
       </p>
-      <span class="text-sm font-semibold text-primary sm:text-sm">Toman</span>
+      <span class="shrink-0 text-sm font-semibold text-primary">Toman</span>
     </div>
 
-    <div class="mt-[-40px] overflow-visible ">
+    <div class="mt-[-28px] overflow-visible sm:mt-[-36px] md:mt-[-40px]">
       <BankCardPlastic />
     </div>
   </article>

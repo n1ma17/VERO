@@ -21,17 +21,20 @@ function signOut() {
 
 <template>
   <header
-    class="sticky top-0 z-40 border-b border-background/15 bg-primary"
+    class="sticky top-0 z-40 border-b border-background/15 bg-primary pt-[env(safe-area-inset-top)]"
   >
     <div class="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-      <RouterLink to="/dashboard" class="text-base font-bold text-background sm:text-lg">
+      <RouterLink
+        to="/dashboard"
+        class="min-w-0 truncate text-base font-bold text-background sm:text-lg"
+      >
         Money Management
       </RouterLink>
       <div class="flex min-w-0 items-center gap-3">
         <p class="hidden truncate text-xs text-background/70 sm:block sm:text-sm">{{ todayLabel }}</p>
         <button
           type="button"
-          class="shrink-0 rounded-full border border-background/20 px-3 py-1 text-xs font-medium text-background/80 transition hover:bg-background/10 hover:text-background"
+          class="inline-flex min-h-11 shrink-0 items-center rounded-full border border-background/20 px-3 text-xs font-medium text-background/80 transition hover:bg-background/10 hover:text-background"
           :title="currentUser?.email"
           @click="signOut"
         >

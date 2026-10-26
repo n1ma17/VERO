@@ -9,7 +9,7 @@ const { chartSeries, viewMonth, setViewMonth } = useLedger()
 
 const WIDTH = 640
 const HEIGHT = 260
-const PAD_LEFT = 56
+const PAD_LEFT = 44
 const PAD_RIGHT = 16
 const PAD_TOP = 16
 const PAD_BOTTOM = 32
@@ -106,7 +106,7 @@ function selectMonth(year: number, month: number) {
 
     <dl
       v-if="activeGroup"
-      class="mt-4 grid grid-cols-2 gap-3 rounded-2xl bg-primary/10 px-4 py-3 text-sm sm:grid-cols-5"
+      class="mt-4 grid grid-cols-2 gap-3 rounded-2xl bg-primary/10 px-3 py-3 text-sm sm:grid-cols-5 sm:px-4"
     >
       <div>
         <dt class="text-xs text-text-muted">Month</dt>

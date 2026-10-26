@@ -18,7 +18,7 @@ function subtitle(item: ActivityItem) {
 
 <template>
   <section
-    class="flex min-w-0 animate-fade-up flex-col overflow-hidden rounded-3xl bg-surface p-6 text-text shadow-lg [animation-delay:480ms] motion-reduce:animate-none"
+    class="flex min-w-0 animate-fade-up flex-col overflow-hidden rounded-3xl bg-surface p-4 text-text shadow-lg [animation-delay:480ms] motion-reduce:animate-none sm:p-6"
   >
     <div class="flex items-baseline justify-between">
       <h2 class="text-lg font-semibold">Recent activity</h2>

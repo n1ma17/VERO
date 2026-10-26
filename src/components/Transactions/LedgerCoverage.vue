@@ -35,7 +35,7 @@ const verdict = computed(() => {
 </script>
 
 <template>
-  <section class="flex flex-col rounded-3xl bg-surface p-6 text-text shadow-lg">
+  <section class="flex min-w-0 flex-col rounded-3xl bg-surface p-4 text-text shadow-lg sm:p-6">
     <h2 class="text-lg font-semibold">Spending coverage</h2>
     <p class="mt-0.5 text-xs text-text-muted">Share of deposits used by bills and expenses</p>
 

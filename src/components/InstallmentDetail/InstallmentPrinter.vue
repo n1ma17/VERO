@@ -139,8 +139,8 @@ const payLabel = computed(() => {
       </ReceiptPrinterPaper>
     </ReceiptPrinterOutput>
 
-    <div class="relative z-10 mt-6 flex w-full justify-center">
-      <BaseButton :disabled="stage !== 'idle'" @click="pay">{{ payLabel }}</BaseButton>
+    <div class="relative z-10 mt-6 flex w-full justify-center px-2">
+      <BaseButton class="w-full max-w-sm" :disabled="stage !== 'idle'" @click="pay">{{ payLabel }}</BaseButton>
     </div>
   </ReceiptPrinterRoot>
 </template>

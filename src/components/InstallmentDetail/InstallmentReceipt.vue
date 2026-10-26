@@ -73,7 +73,7 @@ const isPaid = computed(() => status.value === 'paid')
       :class="statusStripClasses[status]"
     />
 
-    <header class="px-8 pb-6 pt-7 text-center">
+    <header class="px-5 pb-5 pt-6 text-center sm:px-8 sm:pb-6 sm:pt-7">
       <div class="mb-3 flex justify-center">
         <BillLogoImage :logo-key="installment.logoKey" size="md" />
       </div>
@@ -88,7 +88,7 @@ const isPaid = computed(() => status.value === 'paid')
 
     <ReceiptDivider />
 
-    <dl class="space-y-3 px-8 py-6 font-mono text-sm">
+    <dl class="space-y-3 px-5 py-5 font-mono text-sm sm:px-8 sm:py-6">
       <div v-for="row in staticRows" :key="row.label" class="flex justify-between gap-4">
         <dt class="text-text-muted">{{ row.label }}</dt>
         <dd class="text-right">{{ row.value }}</dd>
@@ -119,9 +119,9 @@ const isPaid = computed(() => status.value === 'paid')
 
     <ReceiptDivider />
 
-    <div class="flex items-baseline justify-between px-8 py-6 font-mono">
+    <div class="flex items-baseline justify-between gap-3 px-5 py-5 font-mono sm:px-8 sm:py-6">
       <span class="text-sm uppercase tracking-widest text-text-muted">Total</span>
-      <span class="text-3xl font-bold transition-transform duration-500 ease-out motion-reduce:transition-none" :class="isPaid ? 'scale-105' : 'scale-100'">
+      <span class="break-all text-right text-2xl font-bold transition-transform duration-500 ease-out motion-reduce:transition-none sm:text-3xl" :class="isPaid ? 'scale-105' : 'scale-100'">
         {{ amount }}
       </span>
     </div>
@@ -151,7 +151,7 @@ const isPaid = computed(() => status.value === 'paid')
       </div>
     </div>
 
-    <ReceiptBarcode :code="installment.id" class="px-8 pb-4" />
+    <ReceiptBarcode :code="installment.id" class="px-5 pb-4 sm:px-8" />
 
     <ReceiptEdge :teeth="24" />
   </article>

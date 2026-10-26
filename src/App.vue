@@ -12,8 +12,8 @@ const { isAuthenticated } = useAuth()
 const hideChrome = computed(() => route.meta.hideChrome === true || !isAuthenticated.value)
 const fullBleed = computed(() => route.meta.fullBleed === true)
 const mainPad = {
-  guest: 'mx-auto min-w-0 max-w-5xl px-4 py-6',
-  app: 'mx-auto min-w-0 max-w-5xl px-4 py-8 pb-28',
+  guest: 'mx-auto min-w-0 max-w-5xl px-4 py-5 sm:py-6',
+  app: 'mx-auto min-w-0 max-w-5xl px-4 py-5 pb-[calc(7.5rem+env(safe-area-inset-bottom))] sm:py-8',
   bleed: 'min-w-0',
 } as const
 const mainClass = computed(() => {

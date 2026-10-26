@@ -24,7 +24,7 @@ const date = computed(() =>
   >
     <div class="h-1.5" :class="category.strip" />
 
-    <header class="flex items-start gap-3 px-6 pb-4 pt-5">
+    <header class="flex items-start gap-3 px-4 pb-4 pt-5 sm:px-6">
       <span
         class="flex size-12 shrink-0 items-center justify-center rounded-xl text-lg font-bold"
         :class="category.tile"
@@ -44,7 +44,7 @@ const date = computed(() =>
 
     <ReceiptDivider />
 
-    <dl class="space-y-2 px-6 pt-4 font-mono text-sm">
+    <dl class="space-y-2 px-4 pt-4 font-mono text-sm sm:px-6">
       <div class="flex justify-between gap-4">
         <dt class="text-text-muted">Date</dt>
         <dd>{{ date }}</dd>

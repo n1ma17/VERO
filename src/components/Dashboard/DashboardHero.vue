@@ -97,7 +97,7 @@ const actions = [
           Remaining balance
         </p>
         <p
-          class="mt-2 break-words font-mono text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl"
+          class="mt-2 break-words font-mono text-2xl font-bold tracking-tight sm:text-4xl md:text-5xl"
           :class="balanceClasses[balanceTone]"
         >
           {{ formatToman(balance) }}
@@ -116,12 +116,12 @@ const actions = [
           </span>
         </div>
 
-        <div class="mt-8 flex flex-wrap gap-2">
+        <div class="mt-8 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
           <RouterLink
             v-for="action in actions"
             :key="action.to"
             :to="action.to"
-            class="rounded-full px-4 py-2 text-sm font-semibold transition sm:px-5 sm:py-2.5"
+            class="inline-flex min-h-11 items-center justify-center rounded-full px-3 py-2 text-center text-sm font-semibold transition sm:px-5 sm:py-2.5"
             :class="actionClasses[action.tone]"
           >
             {{ action.label }}

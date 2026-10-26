@@ -26,7 +26,7 @@ const trigger = ref<HTMLButtonElement | null>(null)
 const popover = ref<HTMLElement | null>(null)
 
 const VIEWPORT_GAP = 8
-const POPOVER_MIN_WIDTH = 320
+const POPOVER_MIN_WIDTH = 280
 
 const popoverStyle = ref({
   top: '0px',
@@ -157,7 +157,7 @@ onUnmounted(() => {
     <button
       ref="trigger"
       type="button"
-      class="flex w-full items-center justify-between gap-2 rounded-2xl border border-primary/20 bg-surface px-4 py-3 text-sm text-text transition hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 disabled:cursor-not-allowed disabled:opacity-50"
+      class="flex min-h-11 w-full items-center justify-between gap-2 rounded-2xl border border-primary/20 bg-surface px-4 py-3 text-base text-text transition hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 disabled:cursor-not-allowed disabled:opacity-50"
       :aria-expanded="open"
       :disabled="disabled"
       @click.stop="toggle"

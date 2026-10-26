@@ -61,7 +61,7 @@ function showsDifferentBankMonth(deposit: BankDeposit) {
             Counted in {{ formatJalaliMonth(deposit.bookedYear, deposit.bookedMonth) }}
           </p>
         </div>
-        <div class="flex shrink-0 flex-col gap-1 sm:flex-row">
+        <div class="flex w-full shrink-0 flex-col gap-1 sm:w-auto sm:flex-row">
           <BaseButton type="button" variant="ghost" @click="startEditingDeposit(deposit.id)">
             Edit
           </BaseButton>
@@ -71,7 +71,7 @@ function showsDifferentBankMonth(deposit: BankDeposit) {
     </ul>
 
     <p v-else class="mt-5 text-center text-sm text-text-muted">
-      No deposits counted in this month. Use Previous to browse earlier months.
+      No deposits counted in this month. Use Prev to browse earlier months.
     </p>
   </section>
 </template>

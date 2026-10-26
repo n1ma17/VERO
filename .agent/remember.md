@@ -34,6 +34,8 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 
 ## Task log
 <!-- Newest first. Format: - YYYY-MM-DD — summary (files touched) -->
+- 2026-10-26 — Deposits bank card: drop-shadow on tilted plate (not floor blur), larger scene on sm/md/lg, visible overflow so card isn’t clipped. (`BankCardPlastic`, `BankBalanceCard`, `main.css`).
+- 2026-10-26 — Mobile-first pass: safe-area shell, stacked statement cards, landing/bank-card overflow, 16px inputs, full-width page CTAs, cash-flow tooltip below chart on small screens. (`App.vue`, navbar/nav, `LedgerTable`, landing, deposits card, forms, receipts, `theme`/`main.css`).
 - 2026-10-26 — Bottom nav: removed Bills tab (5 tabs); Installments “Define a bill” → `/bills`; Due tab highlights on `/bills`. (`appNav.ts`, `InstallmentsDefineBillAction`, `InstallmentsPage`, `main.css`).
 - 2026-10-26 — Auth ticket tab switch: `pinSlotOpen` keeps slot expanded; smooth `min-height` on login↔register; removed mouth `drop-shadow` (box-shadow + sheet padding for divider notches). (`ReceiptPrinterRoot`, `useAuthTicketPrinter`, `AuthTicketPrinter`, `main.css`, `AuthTicket`).
 - 2026-10-26 — Replaced receipt printer chrome with user’s ICprint 3D thermal printer (glossy body, slot, LED, scalloped paper). Stages unchanged; paper feed is 2s ease. (`ReceiptPrinter*`, printer consumers, `theme.css` `printer` token, `main.css`).

@@ -6,9 +6,9 @@ import InstallmentStatusActions from '@/components/InstallmentDetail/Installment
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="min-w-0 space-y-6">
     <BackToInstallments />
-    <div class="grid items-start gap-10 lg:grid-cols-2">
+    <div class="grid min-w-0 items-start gap-6 lg:grid-cols-2 lg:gap-10">
       <div class="space-y-6">
         <InstallmentReceipt />
         <InstallmentStatusActions />

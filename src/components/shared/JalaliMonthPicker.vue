@@ -34,7 +34,7 @@ function changeYear(delta: number) {
       <div class="flex items-center justify-between gap-2">
         <button
           type="button"
-          class="rounded-[8px] text-accent border border-accent px-3 py-1 text-sm transition hover:bg-accent"
+          class="inline-flex min-h-11 items-center rounded-[8px] border border-accent px-3 text-sm text-accent transition hover:bg-accent"
           aria-label="Year minus"
           @click="changeYear(-1)"
         >
@@ -43,7 +43,7 @@ function changeYear(delta: number) {
         <span class="font-mono text-sm font-semibold">{{ monthLabel() }}</span>
         <button
           type="button"
-          class="rounded-[8px] text-accent border border-accent px-3 py-1 text-sm transition hover:bg-accent"
+          class="inline-flex min-h-11 items-center rounded-[8px] border border-accent px-3 text-sm text-accent transition hover:bg-accent"
           aria-label="Year plus"
           @click="changeYear(1)"
         >
@@ -55,7 +55,7 @@ function changeYear(delta: number) {
           v-for="(name, index) in JALALI_MONTH_NAMES"
           :key="name"
           type="button"
-          class="rounded-[8px] px-1 py-2 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
+          class="min-h-11 rounded-[8px] px-1 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
           :class="
             month === index + 1
               ? 'bg-accent text-primary shadow-sm'

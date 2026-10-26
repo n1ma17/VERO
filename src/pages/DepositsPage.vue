@@ -11,7 +11,7 @@ import PageHeader from '@/components/shared/PageHeader.vue'
     title="Deposits"
     subtitle="Bank date vs. counted month — browse past months with the navigator"
   />
-  <div class="space-y-8">
+  <div class="min-w-0 space-y-8">
     <BankBalanceCard />
     <ViewMonthNavigator context="deposits" />
     <div class="grid items-start gap-6 lg:grid-cols-2 lg:gap-10">

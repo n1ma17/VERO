@@ -97,7 +97,7 @@ const dateLabel = computed(() => formatJalaliDate(form.year, form.month, form.da
 const amountLabel = computed(() => (form.amount && form.amount > 0 ? formatToman(form.amount) : '—'))
 
 const inputClasses =
-  'w-full rounded-2xl border border-primary/20 bg-surface px-3 py-2.5 text-sm text-text outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-accent/60 disabled:opacity-50'
+  'w-full rounded-2xl border border-primary/20 bg-surface px-3 py-3 text-base text-text outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-accent/60 disabled:opacity-50'
 
 const chipClasses = {
   active: 'border-transparent ring-2 ring-primary ring-offset-1 ring-offset-surface',
@@ -153,7 +153,7 @@ function deleteExpense() {
   >
     <div class="h-2" :class="expenseCategories[form.category].strip" />
 
-    <header class="px-6 pb-4 pt-6 text-center">
+    <header class="px-4 pb-4 pt-6 text-center sm:px-6">
       <p class="text-xs font-medium uppercase tracking-widest text-text-muted">
         Purchase
       </p>
@@ -163,7 +163,7 @@ function deleteExpense() {
 
     <ReceiptDivider />
 
-    <form class="space-y-4 px-6 py-5" @submit.prevent="submit">
+    <form class="space-y-4 px-4 py-5 sm:px-6" @submit.prevent="submit">
       <div>
         <label class="mb-1.5 block text-xs text-text-muted">What did you buy?</label>
         <input
@@ -184,7 +184,7 @@ function deleteExpense() {
             v-for="category in EXPENSE_CATEGORY_ORDER"
             :key="category"
             type="button"
-            class="flex items-center gap-2 rounded-2xl border px-2.5 py-2 text-left text-xs font-medium transition disabled:opacity-50"
+            class="flex min-h-11 items-center gap-2 rounded-2xl border px-2.5 py-2 text-left text-xs font-medium transition disabled:opacity-50"
             :class="form.category === category ? chipClasses.active : chipClasses.idle"
             :aria-pressed="form.category === category"
             @click="form.category = category"

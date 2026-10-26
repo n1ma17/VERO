@@ -27,7 +27,7 @@ const counts = computed(() => {
       class="grid min-w-0 flex-1 grid-cols-3 divide-x divide-primary/15 overflow-hidden rounded-3xl bg-surface py-4 text-text"
     >
       <div v-for="status in order" :key="status" class="min-w-0 px-2 text-center sm:px-4">
-        <dt class="text-xs font-medium uppercase tracking-widest text-text-muted">
+        <dt class="text-[10px] font-medium uppercase tracking-wide text-text-muted sm:text-xs sm:tracking-widest">
           {{ installmentStatusLabels[status] }}
         </dt>
         <dd class="mt-1 font-mono text-2xl font-bold" :class="valueClasses[status]">

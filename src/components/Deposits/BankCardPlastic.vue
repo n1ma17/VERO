@@ -1,14 +1,11 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div class="bank-card-scene relative mx-auto w-full max-w-lg px-2 pb-10 pt-4" aria-hidden="true">
-    <div
-      class="pointer-events-none absolute inset-x-12 bottom-6 h-12 rounded-full bg-primary/30 blur-2xl"
-    />
-
-    <div
-      class="bank-card-plate relative overflow-hidden rounded-2xl bg-primary shadow-[0_32px_56px_-16px] shadow-primary/50"
-    >
+  <div
+    class="bank-card-scene relative mx-auto w-full max-w-[22rem] sm:max-w-md md:max-w-lg lg:max-w-xl"
+    aria-hidden="true"
+  >
+    <div class="bank-card-plate relative overflow-hidden rounded-2xl bg-primary">
       <div
         class="absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-primary to-primary"
       />
@@ -55,7 +52,7 @@
         </g>
       </svg>
 
-      <div class="relative flex aspect-8/5 flex-col justify-between px-7 py-6 sm:px-8">
+      <div class="relative flex aspect-8/5 flex-col justify-between px-5 py-5 sm:px-8 sm:py-6">
         <div class="flex items-center gap-2 text-background">
           <span
             class="grid size-6 place-items-center rounded-sm border border-background/25 bg-background/10"

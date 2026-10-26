@@ -58,9 +58,10 @@ Monthly ledger (Toman, Jalali) built from deposits (income, by `booked` month), 
 - `LedgerSummaryCards.vue` — 3+2 grid: deposits, bills (paid/open), expenses, net, remaining balance (red card when negative)
 - `LedgerChart.vue` — SVG chart, last 6 months: deposit/bill/expense bars + cumulative balance line; nice round ticks incl. 0; hover shows values, click opens month
 - `LedgerCoverage.vue` — "Spending coverage": % of deposits used by bills + expenses (stacked SVG bar)
-- `LedgerTable.vue` — statement: carried-in row, entries with running balance, filter All/Deposits/Bills/Expenses; bill rows link to installment detail, expense rows to `expense-entry`
+- `LedgerTable.vue` — statement: carried-in row, entries with running balance, filter All/Deposits/Bills/Expenses; stacked cards below `md`, table from `md`; bill rows link to installment detail, expense rows to `expense-entry`
 
 ### ExpensesPage → `components/Expenses/` (list, like Installments)
+Add expense lives in `PageHeader` `#actions` (full-width on mobile).
 - `ExpenseSummary.vue` — month total + count, per-category bars with share %
 - `ExpenseList.vue` — grid of cards for the view month (newest first) + empty state
 - `ExpenseReceiptCard.vue` — receipt-style card (category strip, tile, date, note, amount); `RouterLink` to `expense-entry` edit
@@ -89,8 +90,8 @@ Layout: back link on top; 2-column grid on `lg` — left: receipt card + actions
 - `InstallmentStatusActions.vue` — "Edit bill" → `/bills/:billId`; "Mark as unpaid" when paid, otherwise hint to use printer
 - `InstallmentPrinter.vue` — right side; owns printer `stage`. Pay button sits below the machine. Pay → `processing` (1.2s) → `printing` (2s) → `complete` + `setPaid(id, true)`. Already-paid installments start at `complete`; stage resets when id/paidAt changes.
 ## Shared components (`components/shared/`)
-- `AppNavbar.vue` — slim top bar: app title + Jalali date + Sign out
-- `AppBottomNav.vue` — pill bottom bar + sliding light/beam; 5 tabs (`appNav.ts`, `AppNavIcon`); styles `.app-bottom-nav*` in `main.css`. Bills (`/bills`) not in nav — entry via Installments (`InstallmentsDefineBillAction`); Due tab stays active on `/bills`.
+- `AppNavbar.vue` — slim top bar: app title + Jalali date (from `sm`) + Sign out; `safe-area-inset-top`
+- `AppBottomNav.vue` — pill bottom bar + sliding light/beam; 5 tabs (`appNav.ts`, `AppNavIcon`); styles `.app-bottom-nav*` in `main.css` (tighter pad/icons on mobile). Bills (`/bills`) not in nav — entry via Installments (`InstallmentsDefineBillAction`); Due tab stays active on `/bills`. Main content uses `pb-[calc(7.5rem+env(safe-area-inset-bottom))]`.
 - `AppToastHost.vue` — global success toasts via `useToast()` (Teleport to body)
 - `PageHeader.vue` — props `title`, `subtitle?`; optional `#actions` slot (same row as title)
 - `JalaliMonthNavigatorBar.vue` — UI: Previous / caption / Jalali month / Next (+ optional back link)

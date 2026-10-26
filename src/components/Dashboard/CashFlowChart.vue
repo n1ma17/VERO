@@ -9,7 +9,7 @@ const { cashFlow } = useDashboard()
 
 const WIDTH = 720
 const HEIGHT = 260
-const PAD_LEFT = 52
+const PAD_LEFT = 40
 const PAD_RIGHT = 16
 const PAD_TOP = 12
 const PAD_BOTTOM = 30
@@ -85,7 +85,7 @@ const activePoint = computed(() => cashFlow.value[activeIndex.value])
         <h2 class="text-lg font-semibold">Cash flow</h2>
         <p class="mt-0.5 text-xs text-text-muted">Deposits vs. bills and expenses, last 12 months</p>
       </div>
-      <div class="flex flex-wrap gap-6 text-right">
+      <div class="flex flex-wrap gap-x-4 gap-y-2 text-left sm:gap-6 sm:text-right">
         <div>
           <p class="flex items-center justify-end gap-1.5 text-xs text-text-muted">
             <span class="size-2 rounded-full bg-success" /> Deposits
@@ -110,7 +110,7 @@ const activePoint = computed(() => cashFlow.value[activeIndex.value])
     <div class="relative mt-4">
       <div
         v-if="activePoint"
-        class="pointer-events-none absolute right-0 top-0 z-10 rounded-2xl border border-primary/20 bg-surface/95 px-3 py-2 text-xs shadow-md"
+        class="mb-3 rounded-2xl border border-primary/20 bg-surface px-3 py-2 text-xs shadow-md sm:absolute sm:right-0 sm:top-0 sm:z-10 sm:mb-0 sm:bg-surface/95"
       >
         <p class="font-semibold">{{ formatJalaliMonth(activePoint.year, activePoint.month) }}</p>
         <p class="mt-1 font-mono text-success">+{{ formatToman(activePoint.income) }}</p>
@@ -212,7 +212,7 @@ const activePoint = computed(() => cashFlow.value[activeIndex.value])
           class="text-[10px]"
           :class="index === activeIndex ? 'fill-text font-semibold' : 'fill-text-muted'"
         >
-          {{ point.label }}
+          {{ index === 0 || index === cashFlow.length - 1 || index % 2 === 0 ? point.label : '' }}
         </text>
 
         <rect

@@ -11,8 +11,8 @@ const props = withDefaults(
 )
 
 const sizeClasses = {
-  sm: { box: 'px-3 py-1', title: 'text-base', date: 'text-xs' },
-  lg: { box: 'px-5 py-2', title: 'text-3xl', date: 'text-sm' },
+  sm: { box: 'px-3 py-1', title: 'text-sm sm:text-base', date: 'text-[10px] sm:text-xs' },
+  lg: { box: 'px-4 py-2 sm:px-5', title: 'text-2xl sm:text-3xl', date: 'text-xs sm:text-sm' },
 }
 
 const classes = computed(() => sizeClasses[props.size])

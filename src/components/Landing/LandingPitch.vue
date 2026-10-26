@@ -2,7 +2,7 @@
 
 <template>
   <div>
-    <h1 class="text-3xl font-bold leading-tight text-on-hero sm:text-4xl">
+    <h1 class="text-2xl font-bold leading-tight text-on-hero sm:text-3xl md:text-4xl">
       Everyday money made simple
     </h1>
     <p class="mt-3 max-w-xs text-sm leading-relaxed text-on-hero-muted sm:text-base">

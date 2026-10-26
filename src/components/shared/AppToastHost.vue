@@ -7,7 +7,7 @@ const { toasts, dismiss } = useToast()
 <template>
   <Teleport to="body">
     <div
-      class="pointer-events-none fixed inset-x-0 top-4 z-[300] flex flex-col items-center gap-2 px-4"
+      class="pointer-events-none fixed inset-x-0 top-[max(1rem,env(safe-area-inset-top))] z-[300] flex flex-col items-center gap-2 px-4"
       aria-live="polite"
     >
       <TransitionGroup

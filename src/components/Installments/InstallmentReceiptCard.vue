@@ -34,7 +34,7 @@ const amount = computed(() => formatToman(props.installment.amount))
   >
     <div class="h-1.5" :class="statusStripClasses[status]" />
 
-    <header class="flex items-start justify-between gap-3 px-6 pb-4 pt-5">
+    <header class="flex items-start justify-between gap-3 px-4 pb-4 pt-5 sm:px-6">
       <div class="flex min-w-0 gap-3">
         <BillLogoImage :logo-key="installment.logoKey" size="md" />
         <div class="min-w-0">
@@ -49,7 +49,7 @@ const amount = computed(() => formatToman(props.installment.amount))
 
     <ReceiptDivider />
 
-    <dl class="space-y-2 px-6 pt-4 font-mono text-sm">
+    <dl class="space-y-2 px-4 pt-4 font-mono text-sm sm:px-6">
       <div class="flex justify-between">
         <dt class="text-text-muted">Due date</dt>
         <dd>{{ dueDate }}</dd>
@@ -67,7 +67,7 @@ const amount = computed(() => formatToman(props.installment.amount))
     <ApprovedStamp
       v-if="status === 'paid'"
       :paid-at="installment.paidAt"
-      class="absolute right-6 top-12"
+      class="absolute right-4 top-12 sm:right-6"
     />
 
     <ReceiptEdge />

@@ -40,7 +40,7 @@ const monthLabel = formatJalaliMonth(today.year, today.month)
 
 <template>
   <section
-    class="animate-fade-up min-w-0 overflow-hidden rounded-3xl bg-surface p-6 text-text shadow-lg [animation-delay:420ms] motion-reduce:animate-none"
+    class="animate-fade-up min-w-0 overflow-hidden rounded-3xl bg-surface p-4 text-text shadow-lg [animation-delay:420ms] motion-reduce:animate-none sm:p-6"
   >
     <div class="flex items-baseline justify-between gap-3">
       <h2 class="text-lg font-semibold">Where money goes</h2>

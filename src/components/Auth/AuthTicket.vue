@@ -111,7 +111,7 @@ async function onRequestMode(next: AuthMode) {
       <div class="isolate bg-surface text-text">
         <div class="h-1.5" :class="mode === 'login' ? 'bg-accent' : 'bg-success'" />
 
-        <header class="px-6 pb-2 pt-3 text-center">
+        <header class="px-4 pb-2 pt-3 text-center sm:px-6">
           <h1 class="text-xl font-bold">
             {{ mode === 'login' ? 'Sign in' : 'Create account' }}
           </h1>
@@ -140,18 +140,18 @@ async function onRequestMode(next: AuthMode) {
 
         <div class="relative overflow-hidden pb-8 pt-1">
           <div
-            class="flex items-center justify-between px-6 font-mono text-[10px] uppercase tracking-[0.25em] text-text-muted"
+            class="flex items-center justify-between px-4 font-mono text-[10px] uppercase tracking-[0.2em] text-text-muted sm:px-6 sm:tracking-[0.25em]"
           >
             <span>Stub</span>
             <span>{{ issuedLabel }}</span>
           </div>
           <p
-            class="px-6 pt-2 text-center text-xs font-medium uppercase tracking-widest text-text-muted"
+            class="px-4 pt-2 text-center text-xs font-medium uppercase tracking-widest text-text-muted sm:px-6"
           >
             {{ stubCaption }}
           </p>
-          <p v-if="failHint" class="px-6 pt-1 text-center text-xs text-danger">{{ failHint }}</p>
-          <div class="px-6 pt-3">
+          <p v-if="failHint" class="px-4 pt-1 text-center text-xs text-danger sm:px-6">{{ failHint }}</p>
+          <div class="px-4 pt-3 sm:px-6">
             <ReceiptBarcode :code="ticketCode" />
           </div>
 

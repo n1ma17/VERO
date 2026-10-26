@@ -58,7 +58,7 @@ watch(activeIndex, () => {
 
 <template>
   <nav class="app-bottom-nav-dock" aria-label="Main navigation">
-    <div class="mx-auto w-full max-w-5xl px-4">
+    <div class="mx-auto w-full max-w-5xl px-3 sm:px-4">
       <div
         ref="navRoot"
         class="app-bottom-nav"

@@ -9,7 +9,7 @@ import PageHeader from '@/components/shared/PageHeader.vue'
     title="Record expense"
     subtitle="Purchases like food, clothes or fun — deducted from the month of the purchase date"
   />
-  <div class="grid items-start gap-10 lg:grid-cols-2">
+  <div class="grid min-w-0 items-start gap-6 lg:grid-cols-2 lg:gap-10">
     <ExpenseEntryForm />
     <ExpensePrinter />
   </div>

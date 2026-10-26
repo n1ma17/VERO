@@ -92,13 +92,14 @@ async function confirmImport() {
           and bill logos. Import a file to replace local data after a loss.
         </p>
       </div>
-      <div class="flex flex-wrap gap-2">
-        <BaseButton type="button" :disabled="exporting || importing" @click="exportExcel">
+      <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
+        <BaseButton type="button" class="w-full sm:w-auto" :disabled="exporting || importing" @click="exportExcel">
           {{ exporting ? 'Exporting…' : 'Export Excel' }}
         </BaseButton>
         <BaseButton
           type="button"
           variant="ghost"
+          class="w-full sm:w-auto"
           :disabled="exporting || importing"
           @click="openImportPicker"
         >

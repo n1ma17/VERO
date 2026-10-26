@@ -32,15 +32,15 @@ function onContinue() {
     />
 
     <div
-      class="relative z-10 mx-auto flex w-full min-w-0 max-w-5xl flex-1 flex-col px-4 pb-10 pt-12 sm:pt-14"
+      class="relative z-10 mx-auto flex w-full min-w-0 max-w-5xl flex-1 flex-col px-4 pb-[max(2.5rem,calc(env(safe-area-inset-bottom)+1.25rem))] pt-[max(3rem,calc(env(safe-area-inset-top)+1.5rem))] sm:pt-14"
     >
       <LandingBrand class="shrink-0" />
 
-      <div class="flex flex-1 flex-col justify-center py-8 sm:py-10">
+      <div class="flex min-h-0 flex-1 flex-col justify-center py-6 sm:py-10">
         <LandingHeroVisual />
       </div>
 
-      <div class="relative z-10 flex shrink-0 items-end justify-between gap-6">
+      <div class="relative z-10 flex shrink-0 items-end justify-between gap-4 sm:gap-6">
         <LandingPitch class="min-w-0 flex-1 pb-2" />
         <LandingContinueButton @continue="onContinue" />
       </div>

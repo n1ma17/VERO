@@ -22,7 +22,7 @@ const confirmPassword = ref('')
 const formError = ref<string | null>(null)
 
 const inputClasses =
-  'w-full rounded-2xl border border-primary/20 bg-surface px-3 py-2.5 text-sm text-text outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-accent/60 disabled:opacity-60'
+  'w-full rounded-2xl border border-primary/20 bg-surface px-3 py-3 text-base text-text outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-accent/60 disabled:opacity-60'
 
 const tabClasses = {
   active: 'bg-primary text-background',
@@ -78,11 +78,11 @@ function submit() {
 </script>
 
 <template>
-  <form class="space-y-4 px-6 py-5" @submit.prevent="submit">
+  <form class="space-y-4 px-4 py-4 sm:px-6 sm:py-5" @submit.prevent="submit">
     <div class="flex gap-1 rounded-full border border-primary/20 p-1">
       <button
         type="button"
-        class="flex-1 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition"
+        class="flex-1 rounded-full px-3 py-2.5 text-xs font-semibold uppercase tracking-wider transition"
         :class="mode === 'login' ? tabClasses.active : tabClasses.idle"
         :disabled="disabled"
         @click="setMode('login')"
@@ -91,7 +91,7 @@ function submit() {
       </button>
       <button
         type="button"
-        class="flex-1 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition"
+        class="flex-1 rounded-full px-3 py-2.5 text-xs font-semibold uppercase tracking-wider transition"
         :class="mode === 'register' ? tabClasses.active : tabClasses.idle"
         :disabled="disabled"
         @click="setMode('register')"
