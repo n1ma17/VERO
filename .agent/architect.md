@@ -77,6 +77,7 @@ Monthly ledger (Toman, Jalali) built from deposits (income, by `booked` month), 
 - `BillLogoUpload.vue` — used by definition form
 
 ### InstallmentsPage → `components/Installments/` (read-only list)
+- `InstallmentsDefineBillAction.vue` — CTA link to `/bills` (define bill)
 - `InstallmentSummary.vue` — paid / unpaid / overdue counts
 - `InstallmentList.vue` — grid of receipt cards, sorted by due date
 - `InstallmentReceiptCard.vue` — receipt-style card (status strip, perforated divider, scalloped edge, stamp if paid); whole card is a `RouterLink` to `installment-detail`
@@ -86,12 +87,12 @@ Layout: back link on top; 2-column grid on `lg` — left: receipt card + actions
 - `BackToInstallments.vue` — back link
 - `InstallmentReceipt.vue` — left card: full receipt (rows, total, stamp row if paid, barcode); "not found" fallback
 - `InstallmentStatusActions.vue` — "Edit bill" → `/bills/:billId`; "Mark as unpaid" when paid, otherwise hint to use printer
-- `InstallmentPrinter.vue` — right side; owns printer `stage`. Pay button → `processing` (1.2s) → `printing` (1.8s) → `complete` + `setPaid(id, true)`. Already-paid installments start at `complete`; stage resets when id/paidAt changes.
+- `InstallmentPrinter.vue` — right side; owns printer `stage`. Pay button sits below the machine. Pay → `processing` (1.2s) → `printing` (2s) → `complete` + `setPaid(id, true)`. Already-paid installments start at `complete`; stage resets when id/paidAt changes.
 ## Shared components (`components/shared/`)
 - `AppNavbar.vue` — slim top bar: app title + Jalali date + Sign out
-- `AppBottomNav.vue` — pill bottom bar + sliding light/beam; 6 tabs (`appNav.ts`, `AppNavIcon`); styles `.app-bottom-nav*` in `main.css`
+- `AppBottomNav.vue` — pill bottom bar + sliding light/beam; 5 tabs (`appNav.ts`, `AppNavIcon`); styles `.app-bottom-nav*` in `main.css`. Bills (`/bills`) not in nav — entry via Installments (`InstallmentsDefineBillAction`); Due tab stays active on `/bills`.
 - `AppToastHost.vue` — global success toasts via `useToast()` (Teleport to body)
-- `PageHeader.vue` — props `title`, `subtitle?`
+- `PageHeader.vue` — props `title`, `subtitle?`; optional `#actions` slot (same row as title)
 - `JalaliMonthNavigatorBar.vue` — UI: Previous / caption / Jalali month / Next (+ optional back link)
 - `ViewMonthNavigator.vue` — prop `context`: `expenses` | `installments` | `deposits` | `ledger`; wires the right composable
 - `BaseCard.vue` — surface container; prop `title?`, default slot
@@ -105,13 +106,13 @@ Layout: back link on top; 2-column grid on `lg` — left: receipt card + actions
 - `JalaliCalendarPanel.vue` — themed month grid + weekday day grid + year controls
 - `JalaliMonthPicker.vue` — month-only picker
 - `TomanAmountInput.vue` — grouped-digits Toman input (bills, deposits, expenses)
-- Receipt printer primitives (Vue port of a React/motion component; share `stage` via provide/inject), used by bills, installment detail, expense entry:
-  - `ReceiptPrinterRoot.vue` — prop `stage`, provides context
-  - `ReceiptPrinterMachine.vue` — device body + paper slot
-  - `ReceiptPrinterScreen.vue` — dark screen container
+- Receipt printer primitives (ICprint-style 3D thermal printer; share `stage` via provide/inject), used by bills, installment detail, expense entry, auth:
+  - `ReceiptPrinterRoot.vue` — prop `stage`, provides context; `.receipt-printer` chassis + `is-open` when paper is out
+  - `ReceiptPrinterMachine.vue` — nameplate “ICprint”, blinking LED, LCD slot
+  - `ReceiptPrinterScreen.vue` — dark LCD on the printer face
   - `ReceiptPrinterStatus.vue` — icon + label per stage with `<Transition>`; prop `labels?`
-  - `ReceiptPrinterOutput.vue` — clips the paper; `printing` uses `animate-receipt-feed`
-  - `ReceiptPrinterPaper.vue` — white paper with `ReceiptEdge` bottom
+  - `ReceiptPrinterOutput.vue` — paper mouth/slot; `printing` uses `animate-receipt-feed` (2s ease)
+  - `ReceiptPrinterPaper.vue` — white paper with scalloped CSS mask (not `ReceiptEdge`)
 
 ## Composables (`composables/`)
 - `useAuthTicketPrinter.ts` — `requestModeChange` + `isExchanging`; drives `retracting` / `printing` printer stages
@@ -158,14 +159,15 @@ Minimal palette (default Tailwind palette disabled). Variants use opacity: `text
 | Token | Use |
 | --- | --- |
 | `background` | Page shell |
-| `primary` | Dark brand (header, bottom nav, hero, printer, bank card) |
+| `primary` | Dark brand (header, bottom nav, hero, bank card) |
 | `accent` | Highlights / CTAs |
 | `success`, `danger`, `warning` | Deposits, bills, expenses + status |
 | `text`, `text-muted` | Copy on light `surface` cards |
 | `surface` | White cards (structural, not a brand hue) |
 | `landing-hero-top`, `landing-hero-bottom` | Welcome screen gradient |
 | `on-hero`, `on-hero-muted` | Copy on landing gradient |
+| `printer` | Thermal printer body (silver) |
 
-On `bg-primary`: `text-background`, `text-background/70`. Charts & expense categories rotate the five brand hues. Bank card 3D: `--bank-card-perspective`, `--bank-card-tilt-*` in `theme.css`.
+On `bg-primary`: `text-background`, `text-background/70`. Charts & expense categories rotate the five brand hues. Bank card 3D: `--bank-card-perspective`, `--bank-card-tilt-*` in `theme.css`. Printer body: `printer` (silver mix of text + surface).
 
-Animations (`styles/main.css` `@theme`): `animate-receipt-feed`; `animate-receipt-retract` (reverse feed, auth tab switch) — stepped paper feed, 1.75s; `animate-receipt-celebrate`; `animate-fade-up` — section entrance (use `[animation-delay:…]` to stagger); `animate-ticket-shake` — rejected login ticket; `animate-landing-float` — welcome hero cards.
+Animations (`styles/main.css` `@theme`): `animate-receipt-feed` / `animate-receipt-retract` — paper slides 2s ease (1.4s reverse); `animate-printer-signal` — LED blink; `animate-receipt-celebrate`; `animate-fade-up` — section entrance (use `[animation-delay:…]` to stagger); `animate-ticket-shake` — rejected login ticket; `animate-landing-float` — welcome hero cards. Printer chrome (`.receipt-printer*`) lives in `@layer components` in `main.css`.

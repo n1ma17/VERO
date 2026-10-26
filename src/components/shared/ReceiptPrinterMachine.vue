@@ -1,12 +1,22 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useReceiptPrinter } from '@/composables/useReceiptPrinter'
+
+const { stage } = useReceiptPrinter('ReceiptPrinterMachine')
+
+const signalState = computed(() => {
+  if (stage.value === 'complete') return 'complete'
+  if (stage.value === 'idle') return 'idle'
+  return 'working'
+})
+</script>
+
 <template>
-  <div
-    class="relative isolate w-full overflow-hidden rounded-3xl border border-primary bg-primary p-3 pb-8 shadow-2xl"
-  >
-    <div aria-hidden="true" class="absolute inset-x-6 top-0 h-px bg-accent/50" />
-    <slot />
-    <div
-      aria-hidden="true"
-      class="absolute inset-x-6 bottom-3 z-40 h-2 rounded border border-accent/20 bg-accent/20 shadow-inner"
-    />
+  <div class="receipt-printer-machine">
+    <p class="receipt-printer-name">ICprint</p>
+    <span class="receipt-printer-signal" :data-state="signalState" aria-hidden="true" />
+    <div class="receipt-printer-lcd">
+      <slot />
+    </div>
   </div>
 </template>

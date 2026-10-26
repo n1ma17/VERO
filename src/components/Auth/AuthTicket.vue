@@ -108,7 +108,7 @@ async function onRequestMode(next: AuthMode) {
       :class="ticketMotionClasses[outcome]"
       aria-live="polite"
     >
-      <div class="bg-surface text-text">
+      <div class="isolate bg-surface text-text">
         <div class="h-1.5" :class="mode === 'login' ? 'bg-accent' : 'bg-success'" />
 
         <header class="px-6 pb-2 pt-3 text-center">

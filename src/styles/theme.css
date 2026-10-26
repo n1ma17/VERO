@@ -29,4 +29,7 @@
   --bank-card-perspective: 68rem;
   --bank-card-tilt-x: 0deg;
   --bank-card-tilt-z: 0deg;
+
+  /* Glossy thermal printer body (light silver on the page shell) */
+  --color-printer: color-mix(in oklab, var(--color-text) 26%, var(--color-surface));
 }

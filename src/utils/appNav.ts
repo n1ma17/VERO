@@ -17,6 +17,8 @@ export interface AppNavItem {
   /** Path prefix used to mark the tab active (also matches nested routes). */
   activePrefix: string
   exact?: boolean
+  /** Other routes that should keep this tab highlighted (e.g. bill definition off Installments). */
+  alsoActiveOn?: string[]
 }
 
 export const APP_NAV_ITEMS: AppNavItem[] = [
@@ -42,13 +44,13 @@ export const APP_NAV_ITEMS: AppNavItem[] = [
     icon: 'deposits',
     activePrefix: '/deposits',
   },
-  { to: '/bills', label: 'Bills', shortLabel: 'Bills', icon: 'bills', activePrefix: '/bills' },
   {
     to: '/installments',
     label: 'Installments',
     shortLabel: 'Due',
     icon: 'installments',
     activePrefix: '/installments',
+    alsoActiveOn: ['/bills'],
   },
   {
     to: '/expenses',
@@ -59,10 +61,13 @@ export const APP_NAV_ITEMS: AppNavItem[] = [
   },
 ]
 
+function pathMatchesNavItem(path: string, item: AppNavItem): boolean {
+  if (item.exact) return path === item.to
+  const prefixes = [item.activePrefix, ...(item.alsoActiveOn ?? [])]
+  return prefixes.some((prefix) => path === prefix || path.startsWith(`${prefix}/`))
+}
+
 export function appNavActiveIndex(route: RouteLocationNormalizedLoaded): number {
-  const index = APP_NAV_ITEMS.findIndex((item) => {
-    if (item.exact) return route.path === item.to
-    return route.path === item.activePrefix || route.path.startsWith(`${item.activePrefix}/`)
-  })
+  const index = APP_NAV_ITEMS.findIndex((item) => pathMatchesNavItem(route.path, item))
   return index >= 0 ? index : 0
 }

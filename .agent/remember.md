@@ -20,7 +20,7 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 - Installment status is never stored: `overdue` is derived from `dueDate` + `paidAt`. Only `paidAt` is persisted.
 - Installments list is read-only; status is changed only on the detail page (user requirement).
 - Paying happens through the receipt printer on the detail page: the printer prints first, then the installment is marked paid and the left card updates.
-- When porting React components the user provides: React context → provide/inject composable, `motion` → Tailwind keyframes + `<Transition>`, icon libs → inline SVG, foreign color tokens → new `theme.css` tokens, texture images dropped.
+- When porting React/HTML+CSS the user provides: Vue primitives + `theme.css` tokens; complex 3D/::before chrome goes in `main.css` `@layer components` (same pattern as bank card / bottom nav). Receipt printer is the ICprint thermal body; print still follows `idle → processing → printing → complete` (not click-to-toggle).
 - Receipt look: white card, colored status strip on top, notched dashed dividers, scalloped bottom, monospace values, "APPROVED" stamp on paid ones. Keep the stamp off data rows (on detail it has its own row).
 
 - Ledger balance = all deposits (by counted month) minus all bill installments (by due month, paid or not) minus all expenses (by purchase month); cumulative, can be negative.
@@ -34,6 +34,9 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 
 ## Task log
 <!-- Newest first. Format: - YYYY-MM-DD — summary (files touched) -->
+- 2026-10-26 — Bottom nav: removed Bills tab (5 tabs); Installments “Define a bill” → `/bills`; Due tab highlights on `/bills`. (`appNav.ts`, `InstallmentsDefineBillAction`, `InstallmentsPage`, `main.css`).
+- 2026-10-26 — Auth ticket tab switch: `pinSlotOpen` keeps slot expanded; smooth `min-height` on login↔register; removed mouth `drop-shadow` (box-shadow + sheet padding for divider notches). (`ReceiptPrinterRoot`, `useAuthTicketPrinter`, `AuthTicketPrinter`, `main.css`, `AuthTicket`).
+- 2026-10-26 — Replaced receipt printer chrome with user’s ICprint 3D thermal printer (glossy body, slot, LED, scalloped paper). Stages unchanged; paper feed is 2s ease. (`ReceiptPrinter*`, printer consumers, `theme.css` `printer` token, `main.css`).
 - 2026-10-26 — Landing: content in `max-w-5xl px-4`; bank hero uses `LandingBankCard` (deposits-style mandala card). (`LandingScreen`, `LandingBankCard`, `LandingHeroVisual`).
 - 2026-10-26 — Landing at `/` (gradient hero, floating receipt/card, CTA → login or dashboard); dashboard moved to `/dashboard`; tokens `landing-hero-*`, `on-hero*`. (`LandingPage`, `Landing/*`, router, `App.vue`, `appNav`, `theme.css`).
 - 2026-10-26 — Auth: removed stub tear animation; success = stamp + brief pause + redirect. (`AuthTicket.vue`).

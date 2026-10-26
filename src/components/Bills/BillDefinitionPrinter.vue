@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import ReceiptPrinterMachine from '@/components/shared/ReceiptPrinterMachine.vue'
 import ReceiptPrinterOutput from '@/components/shared/ReceiptPrinterOutput.vue'
 import ReceiptPrinterPaper from '@/components/shared/ReceiptPrinterPaper.vue'
@@ -18,41 +17,13 @@ const statusLabels: Record<ReceiptPrinterStage, string> = {
   printing: 'Printing your receipt',
   complete: 'Bill issued',
 }
-
-const screenTitle = computed(() => snapshot.value?.title ?? 'New bill')
-const screenSubtitle = computed(() =>
-  snapshot.value ? `Due ${snapshot.value.firstDueLabel}` : 'Fill the form and save',
-)
-const screenAmount = computed(() => snapshot.value?.amountLabel ?? '—')
 </script>
 
 <template>
   <ReceiptPrinterRoot :stage="stage" class="mx-auto lg:mx-0 lg:ml-auto">
     <ReceiptPrinterMachine>
-      <div class="relative z-10 flex h-11 items-start justify-between">
-        <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" class="size-6 text-accent">
-          <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            d="M5 2h14v20l-2.5-1.5L14 22l-2-1.5L10 22l-2.5-1.5L5 22V2Zm3 5v2h8V7H8Zm0 4v2h8v-2H8Zm0 4v2h5v-2H8Z"
-          />
-        </svg>
-        <span class="rounded-full bg-primary/80 px-3 py-1 text-xs font-medium text-text-muted">
-          {{ stage === 'idle' ? 'Waiting' : 'Issuing…' }}
-        </span>
-      </div>
-
       <ReceiptPrinterScreen>
-        <div class="space-y-4">
-          <div class="flex items-start justify-between gap-4">
-            <div class="min-w-0">
-              <p class="truncate text-text-muted font-medium">{{ screenTitle }}</p>
-              <p class="mt-0.5 text-xs text-text-muted">{{ screenSubtitle }}</p>
-            </div>
-            <strong class="font-mono text-accent text-lg">{{ screenAmount }}</strong>
-          </div>
-          <ReceiptPrinterStatus :labels="statusLabels" />
-        </div>
+        <ReceiptPrinterStatus :labels="statusLabels" />
       </ReceiptPrinterScreen>
     </ReceiptPrinterMachine>
 

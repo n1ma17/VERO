@@ -23,7 +23,6 @@ Run this checklist before finishing every task. Then log anything left unresolve
 - [dashboard] `useDashboard` captures "today" when the component mounts; leaving the tab open past midnight shows yesterday until reload. (found 2026-10-24)
 - [installments] `InstallmentPrinter` paid-on date is Gregorian (`formatDate`); rest of app is Jalali. (found 2026-10-24)
 - [tooling] No ESLint/Prettier or tests configured yet. (found 2026-10-24)
-- [nav] Six tabs on a narrow phone make labels like "Deposits" tight; short labels already used. (found 2026-10-24)
 - [dashboard] Cash-flow tooltip shows "−0 Toman" for empty months. (found 2026-10-24)
 - [theme] Groceries uses `chart-1` (= success hex), so its dot looks like a deposit dot in Recent activity. (found 2026-10-24)
 - [backup] Import replaces all local data (no merge). View-month localStorage keys are not in the Excel file. (found 2026-10-24)

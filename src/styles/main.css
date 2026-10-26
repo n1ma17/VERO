@@ -2,9 +2,10 @@
 @import './theme.css';
 
 @theme {
-  /* Paper feeding out of the receipt printer one line at a time. */
-  --animate-receipt-feed: receipt-feed 1.75s linear both;
-  --animate-receipt-retract: receipt-feed 1.4s linear reverse both;
+  /* Paper sliding out of the thermal printer slot. */
+  --animate-receipt-feed: receipt-feed 2s ease both;
+  --animate-receipt-retract: receipt-feed 1.4s ease reverse both;
+  --animate-printer-signal: printer-signal 1s linear infinite;
   --animate-receipt-celebrate: receipt-celebrate 0.9s ease-out both;
   /* Dashboard sections rising into place; pair with [animation-delay:…] for stagger. */
   --animate-fade-up: fade-up 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
@@ -70,47 +71,22 @@
   }
 
   @keyframes receipt-feed {
-    0% {
-      transform: translateY(calc(-100% + 2px));
+    from {
+      transform: translateY(-110%);
     }
-    7.5%,
-    10.5% {
-      transform: translateY(-91%);
+    to {
+      transform: translateY(0);
     }
-    18%,
-    21% {
-      transform: translateY(-81%);
-    }
-    28.5%,
-    31.5% {
-      transform: translateY(-70%);
-    }
-    39%,
-    42% {
-      transform: translateY(-58%);
-    }
-    49.5%,
-    52.5% {
-      transform: translateY(-45%);
-    }
-    60%,
-    63% {
-      transform: translateY(-32%);
-    }
-    70.5%,
-    73.5% {
-      transform: translateY(-20%);
+  }
+
+  @keyframes printer-signal {
+    0%,
+    80% {
+      background: var(--color-black);
     }
     81%,
-    84% {
-      transform: translateY(-10%);
-    }
-    91.5%,
-    94.5% {
-      transform: translateY(-3%);
-    }
     100% {
-      transform: translateY(0%);
+      background: var(--color-success);
     }
   }
 }
@@ -194,12 +170,9 @@
     --nav-tab-accent: var(--color-warning);
   }
   .app-bottom-nav[data-index='3'] {
-    --nav-tab-accent: var(--color-danger);
-  }
-  .app-bottom-nav[data-index='4'] {
     --nav-tab-accent: var(--color-accent);
   }
-  .app-bottom-nav[data-index='5'] {
+  .app-bottom-nav[data-index='4'] {
     --nav-tab-accent: var(--color-success);
   }
 
@@ -295,6 +268,220 @@
     .app-bottom-nav__link,
     .app-bottom-nav__icon {
       transition: none;
+    }
+  }
+}
+
+/*
+ * Thermal receipt printer (3D glossy body + paper slot).
+ * Stacking matches the source: chassis behind paper, face in front of the slot.
+ */
+@layer components {
+  .receipt-printer {
+    --printer-box-height: 5rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(100%, 24rem);
+  }
+
+  .receipt-printer::before,
+  .receipt-printer::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: var(--printer-box-height);
+    background: var(--color-printer);
+    pointer-events: none;
+  }
+
+  .receipt-printer::after {
+    border-radius: 12px;
+    z-index: 2;
+    box-shadow:
+      inset 0 10px 5px color-mix(in oklab, var(--color-black) 30%, transparent),
+      inset 0 20px 8px var(--color-white),
+      inset 0 40px 20px color-mix(in oklab, var(--color-black) 10%, transparent),
+      0 1px 1px color-mix(in oklab, var(--color-black) 50%, transparent);
+  }
+
+  .receipt-printer::before {
+    border-radius: 15px 15px 10px 10px;
+    height: calc(var(--printer-box-height) + 1.25rem);
+    z-index: 0;
+    box-shadow:
+      inset 5px 0 5px color-mix(in oklab, var(--color-black) 30%, transparent),
+      inset -5px 0 5px color-mix(in oklab, var(--color-black) 30%, transparent),
+      10px 20px 20px color-mix(in oklab, var(--color-black) 40%, transparent);
+  }
+
+  .receipt-printer-machine {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    height: var(--printer-box-height);
+    flex-shrink: 0;
+  }
+
+  .receipt-printer-name {
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    margin: 0;
+    font-size: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: color-mix(in oklab, var(--color-black) 50%, transparent);
+  }
+
+  .receipt-printer-signal {
+    position: absolute;
+    left: 10px;
+    top: calc(var(--printer-box-height) + 0.5rem);
+    z-index: 3;
+    width: 3px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--color-black);
+    animation: var(--animate-printer-signal);
+  }
+
+  .receipt-printer-signal[data-state='complete'] {
+    animation: none;
+    background: var(--color-success);
+  }
+
+  .receipt-printer-lcd {
+    position: absolute;
+    inset: 1.35rem 0.6rem 0.7rem;
+  }
+
+  .receipt-printer-screen {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 0.35rem;
+    color: var(--color-background);
+    padding: 0.35rem 0.5rem;
+  }
+
+  .receipt-printer-mouth {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-rows: 0fr;
+    width: calc(100% - 2.5rem);
+    min-height: 1.35rem;
+    margin-top: -0.3rem;
+    overflow: hidden;
+    border-top: 5px solid var(--color-black);
+    border-radius: 4px;
+    /* box-shadow: 0 10px 22px -14px color-mix(in oklab, var(--color-black) 38%, transparent); */
+    transition: grid-template-rows 0.5s ease-out;
+  }
+
+  .receipt-printer.is-open .receipt-printer-mouth {
+    grid-template-rows: 1fr;
+  }
+
+  .receipt-printer--pin-slot .receipt-printer-mouth {
+    grid-template-rows: 1fr;
+    transition: none;
+  }
+
+  .receipt-printer--pin-slot .receipt-printer-mouth-inner {
+    min-height: var(--printer-ticket-min-height, auto);
+    transition: min-height 0.38s ease;
+  }
+
+  .receipt-printer--pin-slot .receipt-printer-sheet {
+    
+  }
+
+  .receipt-printer-mouth::before {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    z-index: 20;
+    height: 5px;
+    border-radius: 0 0 5px 5px;
+    background: var(--color-black);
+    pointer-events: none;
+  }
+
+  .receipt-printer-mouth-inner {
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    padding-top: 5px;
+  }
+
+  .receipt-printer-sheet {
+    width: 100%;
+    will-change: transform;
+  }
+
+  .receipt-printer-sheet.is-hidden {
+    transform: translateY(-110%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .receipt-printer--pin-slot .receipt-printer-sheet.is-hidden,
+  .receipt-printer--pin-slot .receipt-printer-sheet.is-retracting {
+    opacity: 1;
+  }
+
+  .receipt-printer-sheet.is-printing {
+    animation: var(--animate-receipt-feed);
+  }
+
+  .receipt-printer-sheet.is-retracting {
+    animation: var(--animate-receipt-retract);
+  }
+
+  .receipt-printer-sheet.is-out {
+    transform: translateY(0);
+  }
+
+  .receipt-printer-paper {
+    background: var(--color-surface);
+    color: var(--color-text);
+    padding: 1.25rem 1.25rem 1.75rem;
+    font-size: 0.875rem;
+    mask-image: radial-gradient(circle at bottom, transparent 0.5rem, black 0.5rem);
+    mask-size: 10% 100%;
+    mask-repeat: repeat-x;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .receipt-printer-mouth {
+      transition: none;
+    }
+
+    .receipt-printer-sheet.is-printing,
+    .receipt-printer-sheet.is-retracting {
+      animation: none;
+    }
+
+    .receipt-printer-sheet.is-printing,
+    .receipt-printer-sheet.is-out {
+      transform: translateY(0);
+    }
+
+    .receipt-printer-sheet.is-hidden,
+    .receipt-printer-sheet.is-retracting {
+      transform: translateY(-110%);
+    }
+
+    .receipt-printer-signal {
+      animation: none;
+      background: var(--color-success);
     }
   }
 }

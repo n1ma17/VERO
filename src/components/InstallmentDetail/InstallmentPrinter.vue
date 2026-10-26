@@ -15,8 +15,8 @@ import { formatJalaliDate } from '@/utils/jalali'
 import { scrollToReceiptPrinter } from '@/utils/scrollToReceiptPrinter'
 
 const PROCESSING_MS = 1200
-/** Matches the 1.75s `animate-receipt-feed` duration in `main.css`. */
-const PRINTING_MS = 1800
+/** Matches the 2s `animate-receipt-feed` duration in `main.css`. */
+const PRINTING_MS = 2000
 
 const statusLabels: Record<ReceiptPrinterStage, string> = {
   idle: 'Ready to pay',
@@ -93,28 +93,8 @@ const payLabel = computed(() => {
 <template>
   <ReceiptPrinterRoot v-if="installment" :stage="stage" class="mx-auto">
     <ReceiptPrinterMachine>
-      <div class="relative z-10 flex h-11 items-start justify-between">
-        <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" class="size-6 text-accent">
-          <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            d="M5 2h14v20l-2.5-1.5L14 22l-2-1.5L10 22l-2.5-1.5L5 22V2Zm3 5v2h8V7H8Zm0 4v2h8v-2H8Zm0 4v2h5v-2H8Z"
-          />
-        </svg>
-        <BaseButton :disabled="stage !== 'idle'" @click="pay">{{ payLabel }}</BaseButton>
-      </div>
-
       <ReceiptPrinterScreen>
-        <div class="space-y-4">
-          <div class="flex items-start justify-between gap-4">
-            <div class="min-w-0">
-              <p class="truncate font-medium">{{ installment.title }}</p>
-              <p class="mt-0.5 text-xs text-text-muted">Due {{ dueDate }}</p>
-            </div>
-            <strong class="font-mono text-lg">{{ amount }}</strong>
-          </div>
-          <ReceiptPrinterStatus :labels="statusLabels" />
-        </div>
+        <ReceiptPrinterStatus :labels="statusLabels" />
       </ReceiptPrinterScreen>
     </ReceiptPrinterMachine>
 
@@ -158,5 +138,9 @@ const payLabel = computed(() => {
         </p>
       </ReceiptPrinterPaper>
     </ReceiptPrinterOutput>
+
+    <div class="relative z-10 mt-6 flex w-full justify-center">
+      <BaseButton :disabled="stage !== 'idle'" @click="pay">{{ payLabel }}</BaseButton>
+    </div>
   </ReceiptPrinterRoot>
 </template>

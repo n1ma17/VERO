@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import ReceiptPrinterMachine from '@/components/shared/ReceiptPrinterMachine.vue'
 import ReceiptPrinterOutput from '@/components/shared/ReceiptPrinterOutput.vue'
 import ReceiptPrinterPaper from '@/components/shared/ReceiptPrinterPaper.vue'
@@ -19,43 +18,13 @@ const statusLabels: Record<ReceiptPrinterStage, string> = {
   printing: 'Printing your receipt',
   complete: 'Purchase recorded',
 }
-
-const screenTitle = computed(() => snapshot.value?.title ?? 'New expense')
-const screenSubtitle = computed(() =>
-  snapshot.value
-    ? `${expenseCategories[snapshot.value.category].label} · ${snapshot.value.dateLabel}`
-    : 'Fill the form and save',
-)
-const screenAmount = computed(() => snapshot.value?.amountLabel ?? '—')
 </script>
 
 <template>
   <ReceiptPrinterRoot :stage="stage" class="mx-auto lg:mx-0 lg:ml-auto">
     <ReceiptPrinterMachine>
-      <div class="relative z-10 flex h-11 items-start justify-between">
-        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-6 text-accent">
-          <path
-            d="M6 6h15l-1.5 9h-12L6 6Zm0 0L5 3H2m6 18a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-        <span class="rounded-full bg-primary/80 px-3 py-1 text-xs font-medium text-text-muted">
-          {{ stage === 'idle' ? 'Waiting' : 'Recording…' }}
-        </span>
-      </div>
-
       <ReceiptPrinterScreen>
-        <div class="space-y-4">
-          <div class="flex items-start justify-between gap-4">
-            <div class="min-w-0">
-              <p class="truncate font-medium">{{ screenTitle }}</p>
-              <p class="mt-0.5 truncate text-xs text-text-muted">{{ screenSubtitle }}</p>
-            </div>
-            <strong class="font-mono text-lg">{{ screenAmount }}</strong>
-          </div>
-          <ReceiptPrinterStatus :labels="statusLabels" />
-        </div>
+        <ReceiptPrinterStatus :labels="statusLabels" />
       </ReceiptPrinterScreen>
     </ReceiptPrinterMachine>
 
