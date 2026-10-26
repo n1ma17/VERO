@@ -2,12 +2,62 @@
 
 Keep this file in sync with the code. It should let an agent understand the project without opening every file.
 
-## Stack
+## Repo layout
+- `front-end/` — Vue app. Talks to Nest over HTTP (`VITE_API_URL`, default `http://localhost:3000`). View-month UI state stays in `localStorage`.
+- `back-end/` — NestJS 12 API (Express). PostgreSQL via `pg` pool, Better Auth, Arcjet.
+- `database/` — PostgreSQL schema (`sql/001_calendar.sql` … `004_better_auth.sql`, `scripts/apply.sh`). Local database `app_money` on PostgreSQL 18 (`127.0.0.1:5432`). Cluster data directory is `F:\database`; do not put project SQL there.
+- `.agent/` — agent memory (this file, `remember.md`, `review.md`). Canonical copy at repo root.
+- `AGENTS.md` — mandatory start/end-of-task workflow. Vue rules: `front-end/AGENTS.md`. Nest rules: `back-end/AGENTS.md`.
+
+## Database (`app_money`)
+Amounts are integer Toman. Each money row has `user_id`. Auth tables use Better Auth camelCase; money tables stay snake_case.
+
+| Object | Role |
+| --- | --- |
+| `users`, `sessions`, `accounts`, `verifications` | Better Auth identity (plural names, `usePlural: true`) |
+| `bills` | Definition only: start month, due day, duration 1–60 |
+| `bill_logos` | Optional image, max 128 KB (API: JPEG/PNG/WebP/GIF only) |
+| `installment_payments` | Only `paid_at` for one bill month |
+| `bank_deposits` | Arrival Jalali date plus booked month |
+| `expenses` | Purchase, category enum, Jalali date |
+| `v_installments` | Expanded bill months. Id `billId__YYYY-MM`. Status paid / unpaid / overdue |
+| `v_month_totals` | Income, bills, expenses, net, cumulative balance |
+| `v_ledger_entries` | Statement lines with running balance |
+
+Jalali conversion matches `jalaali-js` 2.0.1. Overdue uses the date in `Asia/Tehran`. Bills count in the ledger whether or not they are paid.
+
+## Backend stack (`back-end/`)
+- NestJS 12, Express, `bodyParser: false` (Better Auth reads raw bodies)
+- Global prefix `api` except `GET /`
+- `@thallesp/nestjs-better-auth` + `kyselyAdapter` on the shared `pg.Pool` (`usePlural: true`)
+- Arcjet Shield + fixed window (120/min; `ARCJET_MODE=DRY_RUN` locally)
+- Feature modules in `src/module/`: `users`, `bills`, `deposits`, `expenses`, `installments`, `ledger`, `dashboard`, `wallet`
+- Infra in `src/lib/`: `database` (`PgModule`), `auth`, `arcjet`
+- Scripts: `npm run db:migrate` (applies `database/sql`), `npm run db:seed` (admin user + default wallet from repo-root `money-management-backup-2026-10-26.xlsx`, override with `ADMIN_BACKUP_XLSX`)
+
+### HTTP (session cookie required except `GET /` and `/api/auth/*`)
+| Method | Path | Role |
+| --- | --- | --- |
+| POST/GET | `/api/auth/*` | Better Auth (sign-up, sign-in, sign-out, session) |
+| GET/PATCH | `/api/users/me` | Profile (vin-style; name + username only on PATCH) |
+| GET | `/api/users/:id` | Own profile only |
+| GET/POST/PATCH | `/api/bills`, `/api/bills/:id` | Bill CRUD; `logoUrl` data URL on write |
+| GET | `/api/bills/:id/logo` | Logo bytes |
+| GET/POST/PATCH/DELETE | `/api/deposits` | Bank deposits |
+| GET/POST/PATCH/DELETE | `/api/expenses` | Expenses |
+| GET/PATCH | `/api/installments`, `/api/installments/:id/paid` | View rows + set `paid_at` |
+| GET | `/api/ledger?year=&month=` | Month statement from views |
+| GET | `/api/dashboard` | Current-month collections |
+| GET/PUT | `/api/wallet` | Hydrate all collections / replace from Excel backup |
+
+## Frontend stack
 - Vue 3.5 (`<script setup lang="ts">`), TypeScript 6, Vite 8
 - Tailwind CSS 4 via `@tailwindcss/vite` (no `tailwind.config.js`; config lives in CSS)
 - Vue Router 5 (`createWebHistory`, lazy-loaded pages)
-- Path alias: `@` → `src` (set in `vite.config.ts` and `tsconfig.app.json`)
-- Persistence: `localStorage` + IndexedDB bill logos (no backend yet). Excel backup via `xlsx` (lazy-loaded on dashboard chunk).
+- Path alias: `@` → `src`
+- `better-auth/vue` client (`src/api/authClient.ts`); REST helper `src/api/http.ts` (`credentials: 'include'`)
+- On boot / login: `GET /api/wallet` fills composable caches. Mutations hit REST then update local refs. Dashboard + ledger still compute in the client from that cache.
+- Excel backup reads the in-memory cache and `PUT /api/wallet` on import.
 
 ## Routes
 | Path | Name | Page |
@@ -23,152 +73,23 @@ Keep this file in sync with the code. It should let an agent understand the proj
 | `/expenses` | `expenses` | `pages/ExpensesPage.vue` |
 | `/expenses/entry`, `/expenses/entry/:id` | `expense-entry` | `pages/ExpenseEntryPage.vue` (optional `id` = edit expense) |
 
-Guest routes (`meta.public`) skip the auth guard. All other routes require a session; unauthenticated visits redirect to `/login?redirect=…`. Logged-in visits to `/login` or `/` go to dashboard. `App.vue` hides navbar + bottom nav when `hideChrome` or logged out; `meta.fullBleed` removes main padding (landing).
+Guest routes (`meta.public`) skip the auth guard. All other routes require a Better Auth session (`ensureAuthReady` then `useAuth`). Unauthenticated visits redirect to `/login?redirect=…`. Logged-in visits to `/login` or `/` go to dashboard. `App.vue` hides navbar + bottom nav when `hideChrome` or logged out; `meta.fullBleed` removes main padding (landing).
 
 ## Pages and their components
-### LandingPage → `components/Landing/`
-MoBank-style welcome: sage→primary gradient, floating receipt + card hero, headline, circular continue CTA. Continue → login, or dashboard if already signed in (`LandingScreen.vue`).
+Unchanged from the Vue UI map: `Landing/`, `Auth/`, `Dashboard/`, `Deposits/`, `Transactions/`, `Expenses/`, `ExpenseEntry/`, `Bills/`, `Installments/`, `InstallmentDetail/`, `components/shared/`. See previous architecture notes for component lists.
 
-### AuthPage → `components/Auth/`
-Admission-ticket login / register. No `PageHeader`. Form lives in the top half; perforated stub below.
-- `AuthTicketPrinter.vue` — receipt printer shell; tab switch runs retract → swap → print (`useAuthTicketPrinter`)
-- `AuthTicket.vue` — flat ticket (no card shadow/radius); owns submit, stamp, try-again
-- `AuthTicketForm.vue` — Login / Register tabs, fields, local validation
-- `AuthTicketStamp.vue` — SUCCESS / REJECTED rubber stamp (`tone: success | rejected`)
+## Composables (`front-end/src/composables/`)
+- `useAuth.ts` — Better Auth email/password (`login` / `register` / `logout`); session in memory. `ensureAuthReady()` hydrates session + wallet before routing.
+- `useWallet.ts` — `hydrateWallet` / `clearWallet` around `GET /api/wallet`.
+- `useBills.ts` — REST bills; `replaceBills` for hydrate. Logos uploaded as `logoUrl` data URLs.
+- `useBillLogos.ts` — in-memory cache; `loadBillLogo` fetches `/api/bills/:id/logo` as a blob URL.
+- `useBankDeposits.ts` / `useExpenses.ts` — REST CRUD; view-month in `localStorage`.
+- `useInstallments.ts` — rows from `v_installments` via API; `setPaid` → `PATCH /api/installments/:id/paid`.
+- `useDashboard.ts` / `useLedger.ts` — still derived on the client from the hydrated collections.
+- Other UI composables (`useToast`, printer flows, etc.) unchanged.
 
-### DashboardPage → `components/Dashboard/`
-Current Jalali month overview, all from `useDashboard()`. No `PageHeader` (hero replaces it). Sections use `animate-fade-up` with staggered `[animation-delay:…]`.
-- `DashboardHero.vue` — dark gradient hero: Jalali date + greeting, remaining balance (red-on-dark when negative), net pill, quick actions, 6-month balance sparkline, month-progress bar
-- `DashboardKpis.vue` — 3+2 grid: deposits, bills, expenses (links to `/expenses`), bills-paid ring, overdue (red alert card, links to installments)
-- `CashFlowChart.vue` — 12-month smooth area chart (deposits vs bills vs expenses), hover tooltip, avg deposits / avg spending / best-month strip
-- `UpcomingBills.vue` — next 5 unpaid installments with logo/initial, days-left badge, links to detail
-- `SpendingBreakdown.vue` — "Where money goes" donut: one slice per expense category + one "Bills & installments" slice (danger)
-- `RecentActivity.vue` — timeline of last 6 deposits + expenses (expenses link to edit)
-- `DashboardDataBackup.vue` — Export / Import Excel (`appBackupExcel.ts`): bills, deposits, expenses, installment payments, bill logos (chunked in `LogoChunks` sheet)
-
-### DepositsPage → `components/Deposits/`
-Bank deposits in Toman for the **current Jalali month**; total balance = sum of all deposits.
-- `BankBalanceCard.vue` — `bank-balance-backdrop`: large balance + small unit (like reference $), then 3D card
-- `BankCardPlastic.vue` — two-tone card (`primary` top / `bank-card-to` bottom), corner mandalas, `money` + VISA only, 3D tilt
-- `DepositForm.vue` — amount (Toman) + optional note → `addDeposit`
-- `DepositList.vue` — current month’s deposits, remove row
-
-### TransactionsPage → `components/Transactions/`
-Monthly ledger (Toman, Jalali) built from deposits (income, by `booked` month), bill installments (by due month) and expenses (by purchase month). All read `useLedger()`.
-- `LedgerSummaryCards.vue` — 3+2 grid: deposits, bills (paid/open), expenses, net, remaining balance (red card when negative)
-- `LedgerChart.vue` — SVG chart, last 6 months: deposit/bill/expense bars + cumulative balance line; nice round ticks incl. 0; hover shows values, click opens month
-- `LedgerCoverage.vue` — "Spending coverage": % of deposits used by bills + expenses (stacked SVG bar)
-- `LedgerTable.vue` — statement: carried-in row, entries with running balance, filter All/Deposits/Bills/Expenses; stacked cards below `md`, table from `md`; bill rows link to installment detail, expense rows to `expense-entry`
-
-### ExpensesPage → `components/Expenses/` (list, like Installments)
-Add expense lives in `PageHeader` `#actions` (full-width on mobile).
-- `ExpenseSummary.vue` — month total + count, per-category bars with share %
-- `ExpenseList.vue` — grid of cards for the view month (newest first) + empty state
-- `ExpenseReceiptCard.vue` — receipt-style card (category strip, tile, date, note, amount); `RouterLink` to `expense-entry` edit
-
-### ExpenseEntryPage → `components/ExpenseEntry/`
-2-column on `lg` like Bills: left form, right printer. `/expenses/entry/:id` pre-fills for edit.
-- `ExpenseEntryForm.vue` — title, amount, category chips, purchase date (Jalali), note; add/update → `useExpenseEntryFlow().startIssue`; edit mode has two-step delete; after reset navigates to `/expenses` when editing
-- `ExpensePrinter.vue` — printer + receipt paper for the saved expense
-
-### BillsPage → `components/Bills/`
-2-column on `lg` (like installment detail): left definition form, right receipt printer. Route `/bills/:id?` pre-fills form for edit.
-- `BillDefinitionReceipt.vue` — form; `addBill` / `updateBill`; triggers `useBillDefinitionFlow().startIssue`
-- `BillDefinitionPrinter.vue` — issue animation (processing → printing → complete); after 3s resets form + printer (navigates to `/bills` if was editing)
-- `BillLogoUpload.vue` — used by definition form
-
-### InstallmentsPage → `components/Installments/` (read-only list)
-- `InstallmentsDefineBillAction.vue` — CTA link to `/bills` (define bill)
-- `InstallmentSummary.vue` — paid / unpaid / overdue counts
-- `InstallmentList.vue` — grid of receipt cards, sorted by due date
-- `InstallmentReceiptCard.vue` — receipt-style card (status strip, perforated divider, scalloped edge, stamp if paid); whole card is a `RouterLink` to `installment-detail`
-
-### InstallmentDetailPage → `components/InstallmentDetail/`
-Layout: back link on top; 2-column grid on `lg` — left: receipt card + actions, right: printer.
-- `BackToInstallments.vue` — back link
-- `InstallmentReceipt.vue` — left card: full receipt (rows, total, stamp row if paid, barcode); "not found" fallback
-- `InstallmentStatusActions.vue` — "Edit bill" → `/bills/:billId`; "Mark as unpaid" when paid, otherwise hint to use printer
-- `InstallmentPrinter.vue` — right side; owns printer `stage`. Pay button sits below the machine. Pay → `processing` (1.2s) → `printing` (2s) → `complete` + `setPaid(id, true)`. Already-paid installments start at `complete`; stage resets when id/paidAt changes.
-## Shared components (`components/shared/`)
-- `AppNavbar.vue` — slim top bar: app title + Jalali date (from `sm`) + Sign out; `safe-area-inset-top`
-- `AppBottomNav.vue` — pill bottom bar + sliding light/beam; 5 tabs (`appNav.ts`, `AppNavIcon`); styles `.app-bottom-nav*` in `main.css` (tighter pad/icons on mobile). Bills (`/bills`) not in nav — entry via Installments (`InstallmentsDefineBillAction`); Due tab stays active on `/bills`. Main content uses `pb-[calc(7.5rem+env(safe-area-inset-bottom))]`.
-- `AppToastHost.vue` — global success toasts via `useToast()` (Teleport to body)
-- `PageHeader.vue` — props `title`, `subtitle?`; optional `#actions` slot (same row as title)
-- `JalaliMonthNavigatorBar.vue` — UI: Previous / caption / Jalali month / Next (+ optional back link)
-- `ViewMonthNavigator.vue` — prop `context`: `expenses` | `installments` | `deposits` | `ledger`; wires the right composable
-- `BaseCard.vue` — surface container; prop `title?`, default slot
-- `BaseButton.vue` — props `variant: primary|danger|ghost`, `type: button|submit`
-- `ApprovedStamp.vue` — rotated double-border "APPROVED" stamp; props `paidAt?`, `size: sm|lg`
-- `InstallmentStatusBadge.vue` — pill with dot; prop `status`
-- `ReceiptDivider.vue` — dashed line with side notches (notches use `bg-background`, parent needs `overflow-hidden`)
-- `ReceiptBarcode.vue` — decorative barcode; prop `code` (moved from InstallmentDetail; used by receipt + auth ticket)
-- `ReceiptEdge.vue` — scalloped bottom edge; prop `teeth` (default 16); parent needs `relative overflow-hidden` + bottom padding
-- `JalaliDatePicker.vue` — popover full Jalali date picker; props `year`, `month`, `day`, `label?`, `disabled?`. Popover is teleported, measures its height and flips above the trigger when there is not enough space below; min width 320px
-- `JalaliCalendarPanel.vue` — themed month grid + weekday day grid + year controls
-- `JalaliMonthPicker.vue` — month-only picker
-- `TomanAmountInput.vue` — grouped-digits Toman input (bills, deposits, expenses)
-- Receipt printer primitives (ICprint-style 3D thermal printer; share `stage` via provide/inject), used by bills, installment detail, expense entry, auth:
-  - `ReceiptPrinterRoot.vue` — prop `stage`, provides context; `.receipt-printer` chassis + `is-open` when paper is out
-  - `ReceiptPrinterMachine.vue` — nameplate “ICprint”, blinking LED, LCD slot
-  - `ReceiptPrinterScreen.vue` — dark LCD on the printer face
-  - `ReceiptPrinterStatus.vue` — icon + label per stage with `<Transition>`; prop `labels?`
-  - `ReceiptPrinterOutput.vue` — paper mouth/slot; `printing` uses `animate-receipt-feed` (2s ease)
-  - `ReceiptPrinterPaper.vue` — white paper with scalloped CSS mask (not `ReceiptEdge`)
-
-## Composables (`composables/`)
-- `useAuthTicketPrinter.ts` — `requestModeChange` + `isExchanging`; drives `retracting` / `printing` printer stages
-- `useAuth.ts` — local users + session (`money-managment:users`, `money-managment:session`). `login` / `register` / `logout`; passwords stored as SHA-256 (`hashSecret`). No backend.
-- `useDashboard.ts` — current-month overview (no state of its own): balance, net, savings rate, KPI counts, overdue, `upcomingBills`, `cashFlow` (12 mo), `balanceTrend` (6 mo), `spendingBreakdown`, `recentActivity`. Net = deposits − bills − expenses.
-- `useInstallments.ts` — **computed from bills** via `buildInstallmentsFromBills`; payment flags in `money-managment:installment-payments` (`billId:YYYY-MM` → paidAt ISO). Returns `installments`, `setPaid(id, paid)` where `id` is `encodeInstallmentId`.
-- `useBillLogos.ts` — in-memory cache + `persistBillLogo` / `loadBillLogo` (IndexedDB).
-- `useCurrentInstallment.ts` — reads `route.params.id`; returns `installment`, `status`, `setPaid`.
-- `useReceiptPrinter.ts` — `provideReceiptPrinter(stage)` / `useReceiptPrinter(componentName)` (inject, throws outside Root).
-- `useToast.ts` — module-level toast queue; `showSuccess(text)`, `dismiss(id)`.
-- `usePrinterFlow.ts` — `createPrinterFlow<Snapshot>()` factory: singleton save → print → reset flow (`stage`, `snapshot`, `formResetTick`, `startIssue`, `cancelFlow`); `PRINTER_RESET_MS` = 3s.
-- `useBillDefinitionFlow.ts` — `BillReceiptSnapshot` + `createPrinterFlow` instance for bills.
-- `useExpenseEntryFlow.ts` — `ExpenseReceiptSnapshot` + `createPrinterFlow` instance for expenses.
-- `useExpenses.ts` — `money-managment:expenses` (+ `expenses-view-month`). Returns `expenses`, view-month nav, `expensesInViewMonth`, `monthTotal`, `categoryTotals`, `getExpenseById`, `addExpense`, `updateExpense`, `removeExpense`.
-- `useBills.ts` — `localStorage` key `money-managment:bills`. Returns `bills`, `getBillById`, `addBill`, `updateBill`.
-- `useBankDeposits.ts` — `money-managment:bank-deposits` (+ `deposits-view-month`). Deposit has bank date (`jalaliYear/Month/Day`) and counted month (`bookedYear/Month`). Returns `totalBalance`, `monthTotal`, `currentMonthTotal`, `depositsInViewMonth`, view-month nav, add/update/remove + editing state.
-- `useLedger.ts` — `money-managment:transactions-view-month`. Combines deposits + `allInstallments` + expenses; returns month totals (`monthIncome/Bills/Expenses/Spending/Net`), `openingBalance`, `closingBalance` (cumulative, may be negative), `entries` with running balance, `chartSeries` (6 months), nav helpers.
-
-## Types (`types/`)
-- `auth.ts` — `AuthUser`, `AuthSession`, `AuthMode`, `AuthOutcome`
-- `router.ts` — Vue Router `RouteMeta` (`public`, `hideChrome`, `fullBleed`)
-- `receiptPrinter.ts` — `ReceiptPrinterStage` incl. `retracting` (auth tab switch)
-- `bill.ts` — `JalaliMonth`, `Bill` (includes `dueDay`), `NewBill`
-- `installment.ts` — `Installment` from a bill month occurrence: `billId`, Jalali `dueYear/Month/Day`, `dueDate` (Gregorian for status), `logoKey`, `paidAt`
-- `bankDeposit.ts` — `BankDeposit`, `NewBankDeposit`
-- `ledger.ts` — `LedgerEntry` (`expenseId`, `category` for expenses), `LedgerEntryKind` (`deposit|bill|expense`), `LedgerMonthPoint`
-- `expense.ts` — `ExpenseCategory` (food, groceries, home, clothing, entertainment, transport, car, motorcycle, beauty, health, other), `Expense`, `NewExpense`
-
-## Utils (`utils/`)
-- `hashSecret.ts` — SHA-256 hex via Web Crypto
-- `formatToman.ts` — `formatToman`, `formatTomanNumber` (no unit), `formatTomanCompact` (chart axes, `12.5M`), deprecated `formatTomanPersian`
-- `ledger.ts` — `buildMonthTotals(deposits, installments, expenses)` → `{income, bills, expenses}` per month index, `monthNet`, `balanceThrough(totals, index)`; shared by `useLedger` + `useDashboard`
-- `expenseCategories.ts` — `EXPENSE_CATEGORY_ORDER`, `expenseCategories` (label + full class strings `tile`/`dot`/`fill`/`stroke`/`strip`), `isExpenseCategory`
-- `chart.ts` — `niceScale` (round ticks incl. 0), `smoothPath` (no-overshoot Catmull-Rom), `areaPath`
-- `jalali.ts` — Jalali month math/names, `jalaliToIsoDate`, `isBillActiveInMonth`, … (`jalaali-js`)
-- `billInstallments.ts` — `buildInstallmentsFromBills`, `encodeInstallmentId` / `parseInstallmentId`, `installmentPaymentKey`
-- `billLogoStore.ts` — IndexedDB `bill-logos` store on device
-- `date.ts` — `toIsoDate`, `addDays`, `daysBetween`, `formatDate` (Gregorian; installments)
-- `installmentStatus.ts` — `getInstallmentStatus` (paid if `paidAt`, overdue if `dueDate` < today, else unpaid), `installmentStatusLabels`
+## Types / utils
+Same Vue types as before (`bill.ts`, `expense.ts`, `installment.ts`, `ledger.ts`, `bankDeposit.ts`). `AuthUser` no longer stores a password hash. Jalali helpers and receipt/chart utils unchanged.
 
 ## Theme tokens (`styles/theme.css`)
-Minimal palette (default Tailwind palette disabled). Variants use opacity: `text-text/60`, `bg-success/15`, `border-primary/20`.
-
-| Token | Use |
-| --- | --- |
-| `background` | Page shell |
-| `primary` | Dark brand (header, bottom nav, hero, bank card) |
-| `accent` | Highlights / CTAs |
-| `success`, `danger`, `warning` | Deposits, bills, expenses + status |
-| `text`, `text-muted` | Copy on light `surface` cards |
-| `surface` | White cards (structural, not a brand hue) |
-| `landing-hero-top`, `landing-hero-bottom` | Welcome screen gradient |
-| `on-hero`, `on-hero-muted` | Copy on landing gradient |
-| `printer` | Thermal printer body (silver) |
-
-On `bg-primary`: `text-background`, `text-background/70`. Charts & expense categories rotate the five brand hues. Bank card 3D: `--bank-card-perspective`, `--bank-card-tilt-*` in `theme.css`. Printer body: `printer` (silver mix of text + surface).
-
-Animations (`styles/main.css` `@theme`): `animate-receipt-feed` / `animate-receipt-retract` — paper slides 2s ease (1.4s reverse); `animate-printer-signal` — LED blink; `animate-receipt-celebrate`; `animate-fade-up` — section entrance (use `[animation-delay:…]` to stagger); `animate-ticket-shake` — rejected login ticket; `animate-landing-float` — welcome hero cards. Printer chrome (`.receipt-printer*`) lives in `@layer components` in `main.css`.
+Unchanged. Minimal palette; variants use opacity. See previous token table.

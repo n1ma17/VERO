@@ -1,0 +1,23 @@
+---
+description: Always read .agent memory before work and write remember.md after every task.
+alwaysApply: true
+---
+
+# .agent memory (mandatory)
+
+Before any work, read these files at the **repo root** — do not scan the whole project first:
+
+1. `.agent/architect.md` — current structure
+2. `.agent/remember.md` — preferences, decisions, gotchas, recent work
+3. `.agent/review.md` — open issues + finish checklist
+
+Then open only the files you need (app code is in `front-end/`).
+
+After every task, do not skip:
+
+1. Follow `.agent/review.md` (including `npm run build` in `front-end/`)
+2. Update `.agent/architect.md` if structure changed
+3. Append a task-log line to `.agent/remember.md` and record new decisions/gotchas
+4. Update open issues in `.agent/review.md`
+
+Canonical memory is root `.agent/`, not `front-end/.agent/`. Vue coding rules: `front-end/AGENTS.md`.

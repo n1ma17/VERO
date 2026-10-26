@@ -1,22 +1,22 @@
-# Logs
-logs
+# Dependencies and build output
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# Secrets — keep local env files off the remote
+.env
+.env.*
+!.env.example
+
+# Logs and temp
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+.temp
+.tmp
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# OS / editor
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
