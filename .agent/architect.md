@@ -3,6 +3,7 @@
 Keep this file in sync with the code. It should let an agent understand the project without opening every file.
 
 ## Repo layout
+- Git remote: `origin` → `https://github.com/n1ma17/VERO.git` (branch `master`). One repo for the whole project; do not add nested `.git` under `front-end/` or `back-end/`.
 - `front-end/` — Vue app. Talks to Nest over HTTP (`VITE_API_URL`, default `http://localhost:3000`). View-month UI state stays in `localStorage`.
 - `back-end/` — NestJS 12 API (Express). PostgreSQL via `pg` pool, Better Auth, Arcjet.
 - `database/` — PostgreSQL schema (`sql/001_calendar.sql` … `004_better_auth.sql`, `scripts/apply.sh`). Local database `app_money` on PostgreSQL 18 (`127.0.0.1:5432`). Cluster data directory is `F:\database`; do not put project SQL there.

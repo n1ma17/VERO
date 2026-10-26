@@ -31,6 +31,7 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 - Color language: deposits = success (green), bills = danger (red), expenses = warning (amber).
 - Printer pages share `createPrinterFlow` (`usePrinterFlow.ts`); editing reuses the entry page with an optional `:id` route param.
 - Charts are hand-written SVG with `fill-*`/`stroke-*` theme classes; no chart library. Dynamic sizes go in SVG attributes, never inline `style`.
+- GitHub remote is `https://github.com/n1ma17/VERO.git` on `master`. The Vue app used to sit at the VERO root; it now lives under `front-end/` with `back-end/` and `database/` beside it.
 
 ## Gotchas
 - Tailwind cannot see dynamically built class names; use lookup objects with full class strings.
@@ -38,10 +39,11 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 - On this PC, `bash` launched from Windows Python is WSL and does not start. Apply SQL with `psql.exe`, Git Bash via `database/scripts/apply.sh`, or `npm run db:migrate` from `back-end/`.
 - `@arcjet/nest` 1.14 peer range is Nest 10/11; this repo uses Nest 12 with `legacy-peer-deps=true` (same as vin).
 - `bg-white`, `text-black`, `bg-gray-*` etc. do not exist (palette disabled). Use `bg-surface`, `text-content`, ...
+- Nested `.git` folders in `front-end/` or `back-end/` make the root repo skip those trees. Keep a single `.git` at the repo root.
 
 ## Task log
 <!-- Newest first. Format: - YYYY-MM-DD — summary (files touched) -->
-- 2026-10-26 — Initialized git at repo root and published to `https://github.com/n1ma17/VERO.git`. Root `.gitignore` excludes `.env`, `node_modules`, and `dist`. Local secrets stay in `back-end/.env` / `front-end/.env` (`.gitignore`, `.env.example`).
+- 2026-10-26 — Published the full monorepo to `https://github.com/n1ma17/VERO.git` (`master` @ `fb86318`). Vue moved under `front-end/`; Nest + Postgres schema added. Root `.gitignore` keeps `.env`, `node_modules`, and `dist` off the remote.
 - 2026-10-26 — Bottom nav overlap on sm+: `sm:py-8` reset main `pb`; use `sm:pt-8` only (`App.vue`).
 - 2026-10-26 — Admin seed loads `money-management-backup-2026-10-26.xlsx` via `npm run db:seed` (`scripts/lib/backup-xlsx.ts`, `import-wallet-snapshot.ts`, `seed.ts`).
 - 2026-10-26 — Nest backend on local `app_money`: Better Auth + Arcjet, vin-style users module, money APIs, Vue wired to REST. Admin Nima Abbasi seeded. (`back-end/`, `front-end/src/api/`, composables, `database/sql/004_better_auth.sql`)
@@ -63,4 +65,4 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 - 2026-10-25 — Bottom nav: nav-light pattern (sliding top bar + beam, per-tab glow, `nav-tab-*` tokens); replaced scooped raised circle (`AppBottomNav`, `main.css`, `theme.css`, `App.vue` pb).
 - 2026-10-25 — Deposits card 3D: Tailwind `rotate-x-*` was 2D `rotate` not `rotateX`; fixed with `.bank-card-scene` + `.bank-card-plate` in `main.css` (`bank-card-tilt-x/z`).
 - 2026-10-25 — Deposits hero restyled closer to reference: light `bank-balance-backdrop`, balance + muted unit, mandala card (`BankBalanceCard`, `BankCardPlastic`).
-- 2026-10-24 — Foundation through the first full money app: Vite/Vue/Tailwind, auth ticket, Jalali bills with derived installments, deposits, ledger, dashboard, expenses, Excel backup, receipt printer, bottom nav. Data in localStorage + IndexedDB. Remote `origin` set to the VERO repo.
+- 2026-10-24 — Foundation through the first full money app: Vite/Vue/Tailwind, auth ticket, Jalali bills with derived installments, deposits, ledger, dashboard, expenses, Excel backup, receipt printer, bottom nav. Data in localStorage + IndexedDB.
