@@ -19,7 +19,7 @@ const categoryPalette: Omit<ExpenseCategoryMeta, 'label'>[] = [
     strip: 'bg-success',
   },
   {
-    tile: 'bg-accent text-text',
+    tile: 'bg-accent text-on-accent',
     dot: 'bg-accent',
     fill: 'fill-accent',
     stroke: 'stroke-accent',

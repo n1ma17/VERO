@@ -45,7 +45,7 @@ function dueText(bill: UpcomingBill): string {
           <BillLogoImage v-if="bill.logoKey" :logo-key="bill.logoKey" />
           <span
             v-else
-            class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold uppercase text-background"
+            class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-sm font-bold uppercase text-foreground"
           >
             {{ bill.title.slice(0, 1) }}
           </span>

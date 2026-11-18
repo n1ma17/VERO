@@ -13,7 +13,6 @@ const signalState = computed(() => {
 
 <template>
   <div class="receipt-printer-machine">
-    <p class="receipt-printer-name">ICprint</p>
     <span class="receipt-printer-signal" :data-state="signalState" aria-hidden="true" />
     <div class="receipt-printer-lcd">
       <slot />

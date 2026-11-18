@@ -1,8 +1,8 @@
 -- Derived reads. These match the Vue ledger:
 --   deposits count in the booked month
---   bill installments count in the due month, paid or not
+--   bill installments count only when paid, in the Jalali month of payment (Asia/Tehran)
 --   expenses count in the purchase month
---   balance = cumulative deposits - bills - expenses, and may be negative
+--   balance = cumulative deposits - paid bills - expenses, and may be negative
 -- Dates are stored Gregorian; grouping is by the Jalali month of that date.
 -- Overdue uses the calendar date in Asia/Tehran.
 
@@ -68,12 +68,13 @@ WITH lines AS (
   UNION ALL
   SELECT
     user_id,
-    due_year,
-    due_month,
+    jalali_year((timezone('Asia/Tehran', paid_at))::date),
+    jalali_month((timezone('Asia/Tehran', paid_at))::date),
     0::bigint,
     amount,
     0::bigint
   FROM v_installments
+  WHERE paid_at IS NOT NULL
   UNION ALL
   SELECT
     user_id,
@@ -114,7 +115,7 @@ SELECT
 FROM grouped;
 
 COMMENT ON VIEW v_month_totals IS
-  'Sparse Jalali months that have activity. closing_balance matches balanceThrough. Bills count whether paid or not.';
+  'Sparse Jalali months that have activity. closing_balance matches balanceThrough. Bills count only when paid (payment month in Asia/Tehran).';
 
 CREATE OR REPLACE VIEW v_ledger_entries AS
 WITH lines AS (
@@ -151,21 +152,31 @@ WITH lines AS (
     'bill-' || i.id,
     'bill',
     i.title,
-    NULL,
+    CASE
+      WHEN jalali_year(pay.paid_on) = i.due_year
+       AND jalali_month(pay.paid_on) = i.due_month THEN NULL
+      ELSE 'Due ' || jalali_month_name(i.due_month) || ' ' || i.due_year::text
+    END,
     i.amount,
-    i.due_year,
-    i.due_month,
-    i.due_year,
-    i.due_month,
-    i.due_day,
-    i.due_date,
+    jalali_year(pay.paid_on) AS counted_year,
+    jalali_month(pay.paid_on) AS counted_month,
+    jalali_year(pay.paid_on) AS year,
+    jalali_month(pay.paid_on) AS month,
+    jalali_day(pay.paid_on) AS day,
+    pay.paid_on AS occurred_on,
     i.status,
     i.id,
     NULL::uuid,
     NULL::expense_category,
-    (i.due_year * 10000 + i.due_month * 100 + i.due_day) * 3 + 1,
+    (jalali_year(pay.paid_on) * 10000
+      + jalali_month(pay.paid_on) * 100
+      + jalali_day(pay.paid_on)) * 3 + 1,
     i.bill_id
   FROM v_installments AS i
+  CROSS JOIN LATERAL (
+    SELECT (timezone('Asia/Tehran', i.paid_at))::date AS paid_on
+  ) AS pay
+  WHERE i.paid_at IS NOT NULL
   UNION ALL
   SELECT
     e.user_id,
@@ -216,7 +227,7 @@ SELECT
 FROM lines;
 
 COMMENT ON VIEW v_ledger_entries IS
-  'Transactions statement. Deposits add; bills and expenses subtract. Empty months are omitted.';
+  'Transactions statement. Deposits add; paid bills and expenses subtract. Unpaid installments are omitted.';
 
 INSERT INTO schema_migrations (version)
 VALUES ('001_calendar'), ('002_tables'), ('003_views')

@@ -4,7 +4,7 @@ import { evictBillLogo, persistBillLogo } from '@/composables/useBillLogos'
 import { refreshInstallments } from '@/composables/useInstallments'
 import type { Bill, JalaliMonth, NewBill } from '@/types/bill'
 import { billFromApi, billToApi, type BillApi } from '@/utils/moneyApi'
-import { currentJalaliMonth, indexToMonth, monthToIndex } from '@/utils/jalali'
+import { currentJalaliMonth, indexToMonth, isBillActiveInMonth, monthToIndex } from '@/utils/jalali'
 
 const VIEW_KEY = 'money-managment:bills-view-month'
 
@@ -101,8 +101,14 @@ export function useBills() {
     await refreshInstallments()
   }
 
+  const billsInViewMonth = computed(() => {
+    const { year, month } = viewMonth.value
+    return bills.value.filter((bill) => isBillActiveInMonth(bill, year, month))
+  })
+
   return {
     bills: readonly(bills),
+    billsInViewMonth,
     viewMonth,
     isCurrentMonth,
     getBillById,

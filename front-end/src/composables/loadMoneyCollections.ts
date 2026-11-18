@@ -1,3 +1,4 @@
+import { clearBillLogos } from '@/composables/useBillLogos'
 import { clearBills, loadBills } from '@/composables/useBills'
 import { clearDeposits, loadDeposits } from '@/composables/useBankDeposits'
 import { clearExpenses, loadExpenses } from '@/composables/useExpenses'
@@ -21,4 +22,5 @@ export function clearMoneyCollections(): void {
   clearDeposits()
   clearExpenses()
   clearInstallments()
+  clearBillLogos()
 }

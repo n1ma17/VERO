@@ -16,7 +16,7 @@ const LEAVE_MS = 450
 
 const route = useRoute()
 const router = useRouter()
-const { login, register } = useAuth()
+const { login, register, requestNewPassword } = useAuth()
 const { requestModeChange, isExchanging } = useAuthTicketPrinter()
 
 const mode = ref<AuthMode>('login')
@@ -32,7 +32,10 @@ const issuedLabel = formatJalaliDate(
 const ticketCode = `MM-${currentJalaliDate().year}${String(currentJalaliDate().month).padStart(2, '0')}`
 
 const isBusy = computed(
-  () => outcome.value === 'pending' || outcome.value === 'success' || isExchanging.value,
+  () =>
+    outcome.value === 'pending' ||
+    (outcome.value === 'success' && mode.value !== 'forgot') ||
+    isExchanging.value,
 )
 const showStamp = computed(() => outcome.value === 'success' || outcome.value === 'rejected')
 const stampTone = computed(() => (outcome.value === 'rejected' ? 'rejected' : 'success'))
@@ -45,8 +48,12 @@ const ticketMotionClasses = {
 } as const
 
 const stubCaption = computed(() => {
-  if (outcome.value === 'pending') return 'Checking credentials'
-  if (outcome.value === 'success') return 'Pass punched'
+  if (outcome.value === 'pending') {
+    return mode.value === 'forgot' ? 'Sending password' : 'Checking credentials'
+  }
+  if (outcome.value === 'success') {
+    return mode.value === 'forgot' ? 'Check your email' : 'Pass punched'
+  }
   if (outcome.value === 'rejected') return 'Admission denied'
   return 'Awaiting admission'
 })
@@ -84,6 +91,20 @@ async function onSubmit(payload: { name: string; email: string; password: string
   await router.replace(redirectTarget())
 }
 
+async function onForgot(email: string) {
+  if (isBusy.value || outcome.value === 'rejected') return
+
+  outcome.value = 'pending'
+  const result = await requestNewPassword(email)
+  if (!result.ok) {
+    failHint.value = 'Could not send a new password. Try again.'
+    outcome.value = 'rejected'
+    return
+  }
+
+  outcome.value = 'success'
+}
+
 function tryAgain() {
   outcome.value = 'idle'
   failHint.value = ''
@@ -93,7 +114,7 @@ async function onRequestMode(next: AuthMode) {
   if (next === mode.value || isBusy.value) return
 
   await requestModeChange(next, () => {
-    if (outcome.value === 'rejected') {
+    if (outcome.value === 'rejected' || outcome.value === 'success') {
       tryAgain()
     }
     mode.value = next
@@ -108,18 +129,25 @@ async function onRequestMode(next: AuthMode) {
       :class="ticketMotionClasses[outcome]"
       aria-live="polite"
     >
-      <div class="isolate bg-surface text-text">
-        <div class="h-1.5" :class="mode === 'login' ? 'bg-accent' : 'bg-success'" />
+      <div class="isolate bg-paper text-on-paper">
+        <div
+          class="h-1.5"
+          :class="mode === 'register' ? 'bg-success' : mode === 'forgot' ? 'bg-warning' : 'bg-accent'"
+        />
 
         <header class="px-4 pb-2 pt-3 text-center sm:px-6">
           <h1 class="text-xl font-bold">
-            {{ mode === 'login' ? 'Sign in' : 'Create account' }}
+            {{
+              mode === 'register' ? 'Create account' : mode === 'forgot' ? 'Forgot password' : 'Sign in'
+            }}
           </h1>
           <p class="mt-1 text-xs text-text-muted">
             {{
-              mode === 'login'
-                ? 'Punch this ticket to enter your books'
-                : 'Issue a pass, then keep this device signed in'
+              mode === 'register'
+                ? 'Issue a pass, then keep this device signed in'
+                : mode === 'forgot'
+                  ? 'We will email a new password to this address'
+                  : 'Punch this ticket to enter your books'
             }}
           </p>
         </header>
@@ -133,6 +161,7 @@ async function onRequestMode(next: AuthMode) {
           :rejected="outcome === 'rejected'"
           @request-mode="onRequestMode"
           @submit="onSubmit"
+          @forgot="onForgot"
           @try-again="tryAgain"
         />
 

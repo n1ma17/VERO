@@ -10,7 +10,7 @@ import PageHeader from '@/components/shared/PageHeader.vue'
     <template #actions>
       <RouterLink
         :to="{ name: 'expense-entry' }"
-        class="inline-flex min-h-11 w-full items-center justify-center rounded-[16px] bg-accent px-5 py-2.5 text-sm font-semibold text-text transition hover:bg-accent sm:w-auto"
+        class="inline-flex min-h-11 w-full items-center justify-center rounded-[16px] bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent transition hover:bg-accent/90 sm:w-auto"
       >
         Add expense
       </RouterLink>

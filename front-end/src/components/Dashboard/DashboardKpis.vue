@@ -29,7 +29,7 @@ const ringDash = computed(
 const hasOverdue = computed(() => overdueCount.value > 0)
 
 const overdueCardClasses = {
-  alert: 'bg-danger text-background',
+  alert: 'bg-danger text-foreground',
   clear: 'bg-surface text-text',
 } as const
 

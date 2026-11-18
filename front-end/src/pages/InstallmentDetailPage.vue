@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BackToInstallments from '@/components/InstallmentDetail/BackToInstallments.vue'
+import PageBackLink from '@/components/shared/PageBackLink.vue'
 import InstallmentPrinter from '@/components/InstallmentDetail/InstallmentPrinter.vue'
 import InstallmentReceipt from '@/components/InstallmentDetail/InstallmentReceipt.vue'
 import InstallmentStatusActions from '@/components/InstallmentDetail/InstallmentStatusActions.vue'
@@ -7,7 +7,7 @@ import InstallmentStatusActions from '@/components/InstallmentDetail/Installment
 
 <template>
   <div class="min-w-0 space-y-6">
-    <BackToInstallments />
+    <PageBackLink :to="{ name: 'installments' }" label="Back to installments" />
     <div class="grid min-w-0 items-start gap-6 lg:grid-cols-2 lg:gap-10">
       <div class="space-y-6">
         <InstallmentReceipt />

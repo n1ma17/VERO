@@ -241,7 +241,7 @@ const activePoint = computed(() => cashFlow.value[activeIndex.value])
           {{ formatToman(Math.round(averages.spending)) }}
         </dd>
       </div>
-      <div class="rounded-2xl bg-accent/30 px-4 py-3">
+      <div class="rounded-2xl bg-primary/10 px-4 py-3">
         <dt class="text-xs text-text-muted">Best month</dt>
         <dd v-if="bestMonth" class="mt-1 text-sm font-semibold">
           {{ bestMonth.label }}

@@ -7,18 +7,17 @@ const emit = defineEmits<{
 <template>
   <button
     type="button"
-    class="grid size-16 shrink-0 place-items-center rounded-full bg-surface text-primary shadow-[0_16px_40px_-12px] shadow-primary/45 transition hover:scale-105 active:scale-95 motion-reduce:transition-none motion-reduce:hover:scale-100"
-    aria-label="Continue to sign in"
+    class="group flex min-h-14 items-center justify-between gap-4 rounded-sm bg-accent px-5 text-base font-semibold text-on-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
     @click="emit('continue')"
   >
-    <svg class="size-7" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M5 12h14M13 6l6 6-6 6"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
+    Open your ledger
+    <svg
+      class="size-5 transition-transform group-hover:translate-x-1 motion-reduce:transition-none"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
     </svg>
   </button>
 </template>

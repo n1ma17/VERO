@@ -23,7 +23,7 @@ const formattedDate = computed(() =>
 
 <template>
   <div
-    class="pointer-events-none -rotate-12 select-none rounded-xl border-4 border-double border-success text-center font-mono text-success opacity-80"
+    class="pointer-events-none -rotate-12 select-none rounded-xl border-4 border-double border-stamp-approved text-center font-mono text-stamp-approved opacity-90"
     :class="classes.box"
     aria-label="Approved"
   >

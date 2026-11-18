@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useDashboard } from '@/composables/useDashboard'
 import { JALALI_WEEKDAY_NAMES, formatJalaliDate, jalaliWeekdayIndex } from '@/utils/jalali'
-import { areaPath, smoothPath } from '@/utils/chart'
+import { smoothPath } from '@/utils/chart'
 import { formatToman } from '@/utils/formatToman'
 
 const { today, monthLength, balance, monthNet, savingsRate, balanceTrend } = useDashboard()
@@ -25,15 +25,20 @@ const todayLabel = computed(
 
 const monthProgress = computed(() => Math.round((today.day / monthLength) * 100))
 
-const netTone = computed(() => (monthNet.value < 0 ? 'negative' : 'positive'))
+const netTone = computed(() => {
+  if (monthNet.value < 0) return 'negative'
+  if (monthNet.value > 0) return 'positive'
+  return 'zero'
+})
 
 const netPillClasses = {
-  positive: 'bg-success/20 text-success',
-  negative: 'bg-danger/25 text-danger',
+  positive: 'border border-stamp-approved/40 bg-stamp-approved/25 text-stamp-approved',
+  negative: 'border border-status-overdue/40 bg-status-overdue/25 text-status-overdue',
+  zero: 'border border-status-paid/40 bg-status-paid/25 text-status-paid',
 } as const
 
 const balanceClasses = {
-  positive: 'text-background',
+  positive: 'text-text',
   negative: 'text-danger',
 } as const
 
@@ -59,12 +64,11 @@ const sparkPoints = computed(() => {
 })
 
 const sparkLine = computed(() => smoothPath(sparkPoints.value))
-const sparkArea = computed(() => areaPath(sparkPoints.value, SPARK_HEIGHT))
 const lastPoint = computed(() => sparkPoints.value[sparkPoints.value.length - 1])
 
 const actionClasses = {
-  primary: 'bg-accent text-text hover:bg-accent',
-  secondary: 'border border-background/15 bg-background/10 text-background hover:bg-background/20',
+  primary: 'bg-accent text-on-accent',
+  secondary: 'border border-text/30 text-text hover:border-text',
 } as const
 
 const actions = [
@@ -77,27 +81,16 @@ const actions = [
 
 <template>
   <section
-    class="relative isolate animate-fade-up overflow-hidden rounded-[2rem] bg-primary p-4 text-background shadow-2xl motion-reduce:animate-none sm:p-6 md:p-8"
+    class="animate-fade-up border-y-2 border-text py-6 text-text motion-reduce:animate-none sm:py-8"
   >
-    <div
-      class="pointer-events-none absolute -right-24 -top-28 -z-10 size-80 rounded-full bg-accent/20 blur-3xl"
-      aria-hidden="true"
-    />
-    <div
-      class="pointer-events-none absolute -bottom-32 left-1/4 -z-10 size-80 rounded-full bg-success/10 blur-3xl"
-      aria-hidden="true"
-    />
-
     <div class="grid min-w-0 gap-8 lg:grid-cols-[1.25fr_1fr] lg:items-end">
       <div class="min-w-0">
-        <p class="text-sm text-background/70">{{ todayLabel }}</p>
-        <h1 class="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">{{ greeting }}</h1>
+        <p class="text-sm">{{ todayLabel }}</p>
+        <h1 class="mt-1 text-3xl font-extrabold sm:text-4xl text-accent">{{ greeting }}</h1>
 
-        <p class="mt-8 text-xs font-medium uppercase tracking-[0.25em] text-background/70">
-          Remaining balance
-        </p>
+        <p class="mt-8 text-xs font-medium uppercase tracking-[0.25em]">Remaining balance</p>
         <p
-          class="mt-2 break-words font-mono text-2xl font-bold tracking-tight sm:text-4xl md:text-5xl"
+          class="mt-2 break-words font-display text-4xl font-extrabold leading-none tracking-[-0.03em] tabular-nums sm:text-5xl md:text-6xl"
           :class="balanceClasses[balanceTone]"
         >
           {{ formatToman(balance) }}
@@ -105,13 +98,13 @@ const actions = [
 
         <div class="mt-3 flex flex-wrap items-center gap-2 text-sm">
           <span
-            class="inline-flex items-center rounded-full px-2.5 py-1 font-mono text-xs font-semibold"
+            class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold tabular-nums"
             :class="netPillClasses[netTone]"
           >
             {{ netLabel }}
           </span>
-          <span class="text-background/70">net this month</span>
-          <span v-if="savingsRate !== null" class="text-background/70">
+          <span>net this month</span>
+          <span v-if="savingsRate !== null">
             · {{ savingsRate >= 0 ? `keeping ${savingsRate}%` : 'overspending' }} of deposits
           </span>
         </div>
@@ -121,7 +114,7 @@ const actions = [
             v-for="action in actions"
             :key="action.to"
             :to="action.to"
-            class="inline-flex min-h-11 items-center justify-center rounded-full px-3 py-2 text-center text-sm font-semibold transition sm:px-5 sm:py-2.5"
+            class="inline-flex min-h-11 items-center justify-center rounded-sm px-3 py-2 text-center text-sm font-semibold transition sm:px-5 sm:py-2.5"
             :class="actionClasses[action.tone]"
           >
             {{ action.label }}
@@ -129,10 +122,10 @@ const actions = [
         </div>
       </div>
 
-      <div class="min-w-0 rounded-3xl border border-background/10 bg-background/5 p-4 backdrop-blur-sm sm:p-5">
+      <div class="min-w-0 border-t border-text/20 pt-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
         <div class="flex items-baseline justify-between">
           <p class="text-sm font-medium">Balance trend</p>
-          <p class="text-xs text-background/70">Last 6 months</p>
+          <p class="text-xs">Last 6 months</p>
         </div>
 
         <svg
@@ -141,41 +134,38 @@ const actions = [
           preserveAspectRatio="none"
           aria-hidden="true"
         >
-          <path :d="sparkArea" class="fill-accent/15" />
           <path
             :d="sparkLine"
             fill="none"
-            class="stroke-accent"
-            stroke-width="2.5"
-            stroke-linecap="round"
+            class="stroke-text"
+            stroke-width="2"
             vector-effect="non-scaling-stroke"
           />
           <circle
             v-if="lastPoint"
             :cx="lastPoint.x"
             :cy="lastPoint.y"
-            r="5"
-            class="fill-accent stroke-primary"
-            stroke-width="2"
+            r="4"
+            class="fill-accent"
             vector-effect="non-scaling-stroke"
           />
         </svg>
         <div
-          class="mt-2 grid grid-cols-6 gap-0.5 text-center text-[9px] uppercase tracking-wide text-background/70 sm:text-[10px] sm:tracking-wider"
+          class="mt-2 grid grid-cols-6 gap-0.5 border-t border-text/30 pt-2 text-center text-[9px] uppercase tracking-wide sm:text-[10px] sm:tracking-wider"
         >
           <span v-for="point in balanceTrend" :key="`${point.year}-${point.month}`" class="truncate">
             {{ point.label }}
           </span>
         </div>
 
-        <div class="mt-5 border-t border-background/10 pt-4">
-          <div class="flex justify-between text-xs text-background/70">
+        <div class="mt-5 border-t border-text/20 pt-4">
+          <div class="flex justify-between text-xs">
             <span>Month progress</span>
             <span>Day {{ today.day }} of {{ monthLength }}</span>
           </div>
-          <svg viewBox="0 0 100 4" preserveAspectRatio="none" class="mt-2 h-1.5 w-full" aria-hidden="true">
-            <rect width="100" height="4" rx="2" class="fill-background/10" />
-            <rect :width="monthProgress" height="4" rx="2" class="fill-success" />
+          <svg viewBox="0 0 100 4" preserveAspectRatio="none" class="mt-2 h-1 w-full" aria-hidden="true">
+            <rect width="100" height="4" class="fill-text/20" />
+            <rect :width="monthProgress" height="4" class="fill-text" />
           </svg>
         </div>
       </div>

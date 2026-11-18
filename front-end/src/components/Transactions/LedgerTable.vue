@@ -26,7 +26,7 @@ const visibleEntries = computed(() =>
 
 const filterClasses = {
   active: 'bg-primary text-background',
-  idle: 'text-text-muted hover:bg-accent/50',
+  idle: 'text-text-muted hover:bg-primary/10',
 } as const
 
 const kindBadgeClasses: Record<LedgerEntryKind, string> = {

@@ -1,21 +1,13 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div class="flex items-center justify-center gap-2.5">
-    <span
-      class="grid size-9 place-items-center rounded-full border border-on-hero/25 bg-on-hero/10"
-      aria-hidden="true"
-    >
-      <svg class="size-5 text-on-hero" viewBox="0 0 16 16" fill="none">
-        <path
-          d="M3 12 6 4 9 9 11 6 13 12"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-    </span>
-    <p class="text-lg font-semibold tracking-tight text-on-hero sm:text-xl">Money Management</p>
-  </div>
+  <header class="grid grid-cols-12 items-baseline gap-x-6 border-b border-text/20 pb-4">
+    <p class="col-span-8 flex items-baseline gap-2 font-display text-lg font-extrabold tracking-tight sm:col-span-6">
+      <span class="size-2 shrink-0 translate-y-[-0.1em] bg-accent" aria-hidden="true" />
+      Money Management
+    </p>
+    <p class="col-span-4 text-right text-xs uppercase tracking-[0.18em] sm:col-span-6">
+      Toman<span class="hidden sm:inline"> · Jalali months</span>
+    </p>
+  </header>
 </template>

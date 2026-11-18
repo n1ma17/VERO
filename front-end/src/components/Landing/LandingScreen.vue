@@ -2,8 +2,10 @@
 import { useRouter } from 'vue-router'
 import LandingBrand from '@/components/Landing/LandingBrand.vue'
 import LandingContinueButton from '@/components/Landing/LandingContinueButton.vue'
-import LandingHeroVisual from '@/components/Landing/LandingHeroVisual.vue'
+import LandingFeatures from '@/components/Landing/LandingFeatures.vue'
+import LandingFooter from '@/components/Landing/LandingFooter.vue'
 import LandingPitch from '@/components/Landing/LandingPitch.vue'
+import LandingProductPreview from '@/components/Landing/LandingProductPreview.vue'
 import { useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
@@ -19,31 +21,26 @@ function onContinue() {
 </script>
 
 <template>
-  <div
-    class="relative flex min-h-dvh flex-col overflow-hidden bg-linear-to-b from-landing-hero-top to-landing-hero-bottom text-on-hero"
-  >
+  <div class="min-h-dvh bg-background text-text">
     <div
-      class="pointer-events-none absolute -right-16 top-24 size-56 rounded-full bg-accent/25 blur-3xl"
-      aria-hidden="true"
-    />
-    <div
-      class="pointer-events-none absolute -left-20 bottom-40 size-64 rounded-full bg-success/30 blur-3xl"
-      aria-hidden="true"
-    />
-
-    <div
-      class="relative z-10 mx-auto flex w-full min-w-0 max-w-5xl flex-1 flex-col px-4 pb-[max(2.5rem,calc(env(safe-area-inset-bottom)+1.25rem))] pt-[max(3rem,calc(env(safe-area-inset-top)+1.5rem))] sm:pt-14"
+      class="mx-auto w-full min-w-0 max-w-6xl px-4 pb-[max(2rem,calc(env(safe-area-inset-bottom)+1rem))] pt-[max(1.25rem,calc(env(safe-area-inset-top)+0.75rem))] sm:px-6"
     >
-      <LandingBrand class="shrink-0" />
+      <LandingBrand />
 
-      <div class="flex min-h-0 flex-1 flex-col justify-center py-6 sm:py-10">
-        <LandingHeroVisual />
+      <LandingPitch class="mt-16 sm:mt-24" />
+
+      <div class="mt-10 grid grid-cols-12 gap-x-6">
+        <LandingContinueButton
+          class="col-span-12 sm:col-span-6 lg:col-span-4"
+          @continue="onContinue"
+        />
       </div>
 
-      <div class="relative z-10 flex shrink-0 items-end justify-between gap-4 sm:gap-6">
-        <LandingPitch class="min-w-0 flex-1 pb-2" />
-        <LandingContinueButton @continue="onContinue" />
-      </div>
+      <LandingProductPreview class="mt-20 sm:mt-28" />
+
+      <LandingFeatures class="mt-20 sm:mt-28" />
+
+      <LandingFooter class="mt-20 sm:mt-28" />
     </div>
   </div>
 </template>

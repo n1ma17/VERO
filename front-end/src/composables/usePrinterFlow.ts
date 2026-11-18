@@ -11,7 +11,7 @@ import type { ReceiptPrinterStage } from '@/types/receiptPrinter'
 import { scrollToReceiptPrinter } from '@/utils/scrollToReceiptPrinter'
 
 const PROCESSING_MS = 1200
-/** Matches the 2s `animate-receipt-feed` duration in `main.css`. */
+/** Matches the 2s sheet transform transition in `main.css`. */
 const PRINTING_MS = 2000
 export const PRINTER_RESET_MS = 3_000
 

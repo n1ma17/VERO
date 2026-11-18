@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BillIssuedReceiptBody from '@/components/Bills/BillIssuedReceiptBody.vue'
 import ReceiptPrinterMachine from '@/components/shared/ReceiptPrinterMachine.vue'
 import ReceiptPrinterOutput from '@/components/shared/ReceiptPrinterOutput.vue'
 import ReceiptPrinterPaper from '@/components/shared/ReceiptPrinterPaper.vue'
@@ -29,44 +30,14 @@ const statusLabels: Record<ReceiptPrinterStage, string> = {
 
     <ReceiptPrinterOutput>
       <ReceiptPrinterPaper v-if="snapshot">
-        <header class="text-center">
-          <p class="text-base font-bold uppercase tracking-widest">Money Management</p>
-          <p class="mt-1 text-xs text-text-muted">
-            {{ snapshot.isUpdate ? 'Bill update receipt' : 'Bill definition receipt' }}
-          </p>
-        </header>
-
-        <div class="my-5 border-t-2 border-dashed border-text-muted/40" />
-
-        <dl class="space-y-2">
-          <div class="flex justify-between gap-4">
-            <dt class="text-text-muted">Title</dt>
-            <dd class="truncate text-right">{{ snapshot.title }}</dd>
-          </div>
-          <div class="flex justify-between gap-4">
-            <dt class="text-text-muted">Ref.</dt>
-            <dd class="font-mono text-xs">{{ snapshot.id.slice(0, 8) }}</dd>
-          </div>
-          <div class="flex justify-between gap-4">
-            <dt class="text-text-muted">Period</dt>
-            <dd class="text-right text-xs">{{ snapshot.periodLabel }}</dd>
-          </div>
-          <div class="flex justify-between gap-4">
-            <dt class="text-text-muted">First due</dt>
-            <dd>{{ snapshot.firstDueLabel }}</dd>
-          </div>
-        </dl>
-
-        <div class="my-5 border-t-2 border-dashed border-text-muted/40" />
-
-        <div class="flex items-baseline justify-between">
-          <span class="uppercase tracking-widest">Amount</span>
-          <span class="text-xl font-bold">{{ snapshot.amountLabel }}</span>
-        </div>
-
-        <p class="mt-6 text-center text-xs text-text-muted">
-          Installments will appear on the Installments page.
-        </p>
+        <BillIssuedReceiptBody
+          :kind="snapshot.isUpdate ? 'Bill update' : 'Bill definition'"
+          :meta="`First due ${snapshot.firstDueLabel}`"
+          :title="snapshot.title"
+          :period-label="snapshot.periodLabel"
+          :amount-label="snapshot.amountLabel"
+          :ref-code="snapshot.id.slice(0, 8).toUpperCase()"
+        />
       </ReceiptPrinterPaper>
     </ReceiptPrinterOutput>
   </ReceiptPrinterRoot>

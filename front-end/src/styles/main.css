@@ -2,25 +2,11 @@
 @import './theme.css';
 
 @theme {
-  /* Paper sliding out of the thermal printer slot. */
-  --animate-receipt-feed: receipt-feed 2s ease both;
-  --animate-receipt-retract: receipt-feed 1.4s ease reverse both;
   --animate-printer-signal: printer-signal 1s linear infinite;
   --animate-receipt-celebrate: receipt-celebrate 0.9s ease-out both;
   /* Dashboard sections rising into place; pair with [animation-delay:…] for stagger. */
   --animate-fade-up: fade-up 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   --animate-ticket-shake: ticket-shake 0.45s ease-in-out both;
-  --animate-landing-float: landing-float 5s ease-in-out infinite;
-
-  @keyframes landing-float {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
 
   @keyframes ticket-shake {
     0%,
@@ -53,40 +39,23 @@
   }
 
   @keyframes receipt-celebrate {
-    0% {
-      box-shadow:
-        0 10px 25px -12px color-mix(in oklab, var(--color-text) 18%, transparent),
-        0 0 0 0 color-mix(in oklab, var(--color-success) 0%, transparent);
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 var(--color-accent);
     }
     45% {
-      box-shadow:
-        0 20px 40px -16px color-mix(in oklab, var(--color-success) 28%, transparent),
-        0 0 0 4px color-mix(in oklab, var(--color-success) 32%, transparent);
-    }
-    100% {
-      box-shadow:
-        0 10px 25px -12px color-mix(in oklab, var(--color-text) 18%, transparent),
-        0 0 0 0 color-mix(in oklab, var(--color-success) 0%, transparent);
-    }
-  }
-
-  @keyframes receipt-feed {
-    from {
-      transform: translateY(-110%);
-    }
-    to {
-      transform: translateY(0);
+      box-shadow: 0 0 0 2px var(--color-accent);
     }
   }
 
   @keyframes printer-signal {
     0%,
     80% {
-      background: var(--color-black);
+      background: var(--color-background);
     }
     81%,
     100% {
-      background: var(--color-success);
+      background: var(--color-accent);
     }
   }
 }
@@ -98,8 +67,13 @@
   }
 
   body {
-    @apply min-w-0 overflow-x-clip bg-background text-text antialiased;
+    @apply min-w-0 overflow-x-clip bg-background font-sans text-text antialiased;
     overscroll-behavior-x: none;
+  }
+
+  h1,
+  h2 {
+    @apply font-display tracking-tight;
   }
 
   button,
@@ -134,8 +108,6 @@
     transform: rotateX(55deg) rotateY(0) rotateZ(var(--bank-card-tilt-z));
     transform-origin: center center;
     transform-style: preserve-3d;
-    filter: drop-shadow(0 22px 28px color-mix(in oklab, var(--color-primary) 42%, transparent))
-      drop-shadow(0 10px 18px color-mix(in oklab, var(--color-black) 20%, transparent));
   }
 
   .bank-card-plate__edge {
@@ -161,6 +133,94 @@
 }
 
 /*
+ * Deposit pocket, measured from the user's reference image:
+ * cards (13rem tall) fan out above the pocket with a 3.75rem peek and a slight tilt;
+ * the pocket back starts at the front card's top edge, the front panel covers the rest.
+ * Keep `margin-top` of items and of `__body` equal to -(card height - peek).
+ */
+@layer components {
+  .deposit-pocket {
+    position: relative;
+    padding-top: 0.75rem;
+  }
+
+  .deposit-pocket__stack {
+    position: relative;
+    z-index: 10;
+    margin: 0;
+    padding: 0 1.25rem;
+    list-style: none;
+  }
+
+  .deposit-pocket__item {
+    position: relative;
+  }
+
+  .deposit-pocket__item + .deposit-pocket__item {
+    margin-top: -9.25rem;
+  }
+
+  .deposit-pocket__stack > .deposit-pocket__item--after-lifted {
+    margin-top: 1.5rem;
+  }
+
+  .deposit-pocket__card {
+    transition:
+      rotate 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      translate 0.3s ease;
+  }
+
+  .deposit-pocket__item:nth-last-child(2) .deposit-pocket__card {
+    rotate: 1.5deg;
+  }
+
+  .deposit-pocket__item:nth-last-child(3) .deposit-pocket__card {
+    rotate: -4deg;
+  }
+
+  .deposit-pocket__item:nth-last-child(n + 4) .deposit-pocket__card {
+    rotate: -2deg;
+  }
+
+  .deposit-pocket__item:not(.deposit-pocket__item--lifted) .deposit-pocket__card:hover {
+    translate: 0 -0.35rem;
+  }
+
+  .deposit-pocket__stack > .deposit-pocket__item--lifted .deposit-pocket__card {
+    rotate: 0deg;
+  }
+
+  .deposit-pocket__body {
+    position: relative;
+    margin-top: -9.25rem;
+  }
+
+  .deposit-pocket__body--empty {
+    margin-top: 1.5rem;
+  }
+
+  .deposit-pocket__back {
+    position: absolute;
+    z-index: 0;
+    inset-inline: 0;
+    top: -3.75rem;
+    bottom: 4rem;
+    border-radius: 1.25rem 1.25rem 0 0;
+    background: var(--color-deposit-wallet-back);
+  }
+
+  .deposit-pocket__body--empty .deposit-pocket__back {
+    display: none;
+  }
+
+  .deposit-pocket__front {
+    position: relative;
+    z-index: 20;
+    height: 11rem;
+  }
+}
+
+/*
  * Bottom tab bar: sliding top “light” + beam, per-tab glow (ported from nav-light pattern).
  */
 @layer components {
@@ -169,7 +229,7 @@
     inset-inline: 0;
     bottom: 0;
     z-index: 50;
-    padding: 0.75rem 0 calc(0.75rem + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
     pointer-events: none;
   }
 
@@ -180,15 +240,18 @@
     position: relative;
     display: flex;
     align-items: center;
-    width: 100%;
+    width: 98%;
+    margin-inline: auto;
     height: 5rem;
     padding-inline: 0.75rem;
     overflow: hidden;
-    border-radius: 16px;
-    border: 1px solid color-mix(in oklab, var(--color-background) 18%, transparent);
-    background-color: var(--color-primary);
-    box-shadow: 0 1em 1em color-mix(in oklab, var(--color-primary) 35%, transparent);
-
+    /* border-radius: 16px; */
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+    border: 1px solid color-mix(in oklab, var(--color-text) 18%, transparent);
+    border-bottom: unset;
+    background-color: var(--color-background);
+    box-shadow: -2px -6px 20px 0px var(--color-background);
   }
 
   .app-bottom-nav[data-index='1'] {
@@ -230,7 +293,7 @@
     align-items: center;
     justify-content: center;
     padding-inline: 0.25rem;
-    color: var(--color-background);
+    color: var(--color-secondary);
     opacity: 0.5;
     transition: opacity 0.3s ease;
   }
@@ -312,48 +375,19 @@
 }
 
 /*
- * Thermal receipt printer (3D glossy body + paper slot).
- * Stacking matches the source: chassis behind paper, face in front of the slot.
+ * Receipt printer: slim body on top, paper feeds down out of the slot.
+ * On `complete` the receipt tears off (drops + tilts) and a zigzag stub stays under the slot.
  */
 @layer components {
   .receipt-printer {
-    --printer-box-height: 5rem;
+    --printer-box-height: 4.75rem;
+    --printer-paper-inset: 1.5rem;
+    --receipt-zigzag: 14px;
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: min(100%, 24rem);
-  }
-
-  .receipt-printer::before,
-  .receipt-printer::after {
-    content: '';
-    position: absolute;
-    inset-inline: 0;
-    top: 0;
-    height: var(--printer-box-height);
-    background: var(--color-printer);
-    pointer-events: none;
-  }
-
-  .receipt-printer::after {
-    border-radius: 12px;
-    z-index: 2;
-    box-shadow:
-      inset 0 10px 5px color-mix(in oklab, var(--color-black) 30%, transparent),
-      inset 0 20px 8px var(--color-white),
-      inset 0 40px 20px color-mix(in oklab, var(--color-black) 10%, transparent),
-      0 1px 1px color-mix(in oklab, var(--color-black) 50%, transparent);
-  }
-
-  .receipt-printer::before {
-    border-radius: 15px 15px 10px 10px;
-    height: calc(var(--printer-box-height) + 1.25rem);
-    z-index: 0;
-    box-shadow:
-      inset 5px 0 5px color-mix(in oklab, var(--color-black) 30%, transparent),
-      inset -5px 0 5px color-mix(in oklab, var(--color-black) 30%, transparent),
-      10px 20px 20px color-mix(in oklab, var(--color-black) 40%, transparent);
   }
 
   .receipt-printer-machine {
@@ -362,39 +396,66 @@
     width: 100%;
     height: var(--printer-box-height);
     flex-shrink: 0;
+    border: 1px solid color-mix(in oklab, var(--color-text) 30%, transparent);
+    border-radius: 14px;
+    background: var(--color-background);
   }
 
-  .receipt-printer-name {
+  /* Paper slot */
+  .receipt-printer-machine::before {
+    content: '';
     position: absolute;
-    left: 10px;
-    top: 8px;
-    margin: 0;
-    font-size: 0.5rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    color: color-mix(in oklab, var(--color-black) 50%, transparent);
+    bottom: 0.7rem;
+    inset-inline: calc(var(--printer-paper-inset) - 0.4rem);
+    height: 3px;
+    border-radius: 2px;
+    background: color-mix(in oklab, var(--color-text) 35%, transparent);
+  }
+
+  /* Torn stub left in the slot after the receipt comes off */
+  .receipt-printer-machine::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    inset-inline: var(--printer-paper-inset);
+    height: 7px;
+    background: var(--color-paper);
+    mask:
+      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom /
+      var(--receipt-zigzag) 100% repeat-x;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+
+  .receipt-printer[data-stage='complete'] .receipt-printer-machine::after {
+    opacity: 1;
   }
 
   .receipt-printer-signal {
     position: absolute;
-    left: 10px;
-    top: calc(var(--printer-box-height) + 0.5rem);
-    z-index: 3;
-    width: 3px;
-    height: 3px;
-    border-radius: 2px;
-    background: var(--color-black);
+    right: 1.1rem;
+    top: 1.15rem;
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--color-text) 35%, transparent);
+  }
+
+  .receipt-printer-signal[data-state='working'] {
     animation: var(--animate-printer-signal);
   }
 
   .receipt-printer-signal[data-state='complete'] {
-    animation: none;
-    background: var(--color-success);
+    background: var(--color-accent);
   }
 
   .receipt-printer-lcd {
     position: absolute;
-    inset: 1.35rem 0.6rem 0.7rem;
+    left: 1.1rem;
+    right: 2.5rem;
+    top: 0.75rem;
+    height: 1.5rem;
   }
 
   .receipt-printer-screen {
@@ -402,9 +463,7 @@
     align-items: center;
     height: 100%;
     overflow: hidden;
-    border-radius: 0.35rem;
-    color: var(--color-background);
-    padding: 0.35rem 0.5rem;
+    color: var(--color-text);
   }
 
   .receipt-printer-mouth {
@@ -412,18 +471,17 @@
     z-index: 1;
     display: grid;
     grid-template-rows: 0fr;
-    width: calc(100% - 2.5rem);
-    min-height: 1.35rem;
-    margin-top: -0.3rem;
+    width: calc(100% - 2 * var(--printer-paper-inset));
     overflow: hidden;
-    border-top: 5px solid var(--color-black);
-    border-radius: 4px;
-    /* box-shadow: 0 10px 22px -14px color-mix(in oklab, var(--color-black) 38%, transparent); */
     transition: grid-template-rows 0.5s ease-out;
   }
 
   .receipt-printer.is-open .receipt-printer-mouth {
     grid-template-rows: 1fr;
+  }
+
+  .receipt-printer[data-stage='complete'] .receipt-printer-mouth {
+    overflow: visible;
   }
 
   .receipt-printer--pin-slot .receipt-printer-mouth {
@@ -436,37 +494,32 @@
     transition: min-height 0.38s ease;
   }
 
-  .receipt-printer--pin-slot .receipt-printer-sheet {
-    
-  }
-
-  .receipt-printer-mouth::before {
-    content: '';
-    position: absolute;
-    inset-inline: 0;
-    top: 0;
-    z-index: 20;
-    height: 5px;
-    border-radius: 0 0 5px 5px;
-    background: var(--color-black);
-    pointer-events: none;
-  }
-
   .receipt-printer-mouth-inner {
     min-height: 0;
-    overflow: hidden;
     display: flex;
+    align-items: flex-start;
     justify-content: center;
-    padding-top: 5px;
+    padding-bottom: 1.25rem;
   }
 
+  /* Feed/retract with transitions, not keyframes: interpolating from the
+     current transform avoids the one-frame flash (paper peeks, snaps back,
+     then feeds) when swapping is-hidden → is-printing. */
+  /* Everything printed is steel paper; scope ink tokens so text-*, border-primary/*, bg-surface read on it. */
   .receipt-printer-sheet {
+    --color-text: var(--color-on-paper);
+    --color-text-muted: var(--color-on-paper);
+    --color-primary: var(--color-on-paper);
+    --color-secondary: var(--color-on-paper);
+    --color-surface: var(--color-paper);
     width: 100%;
+    transform: translateY(-110%);
+    transform-origin: 30% 0;
+    transition: transform 2s ease;
     will-change: transform;
   }
 
   .receipt-printer-sheet.is-hidden {
-    transform: translateY(-110%);
     opacity: 0;
     pointer-events: none;
   }
@@ -477,31 +530,114 @@
   }
 
   .receipt-printer-sheet.is-printing {
-    animation: var(--animate-receipt-feed);
-  }
-
-  .receipt-printer-sheet.is-retracting {
-    animation: var(--animate-receipt-retract);
-  }
-
-  .receipt-printer-sheet.is-out {
     transform: translateY(0);
   }
 
+  .receipt-printer-sheet.is-out {
+    transform: translateY(1rem) rotate(2deg);
+    transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .receipt-printer-sheet.is-retracting {
+    transition-duration: 1.4s;
+  }
+
+  /* Auth ticket is an interactive form: it stays seated in the slot, no tear-off. */
+  .receipt-printer--pin-slot .receipt-printer-sheet.is-out {
+    transform: translateY(0);
+  }
+
+  .receipt-printer--pin-slot[data-stage='complete'] .receipt-printer-machine::after {
+    opacity: 0;
+  }
+
+  /* Steel paper + dark ink; zigzag tear edges (printer + list cards). */
+  .receipt-paper,
   .receipt-printer-paper {
-    background: var(--color-surface);
-    color: var(--color-text);
-    padding: 1rem 1rem 1.5rem;
+    --receipt-zigzag: 14px;
+    --color-text: var(--color-on-paper);
+    --color-text-muted: var(--color-on-paper);
+    --color-primary: var(--color-on-paper);
+    --color-secondary: var(--color-on-paper);
+    --color-surface: var(--color-paper);
+    background: var(--color-paper);
+    color: var(--color-on-paper);
+    padding: 1.75rem 1.25rem calc(1.75rem + var(--receipt-zigzag));
     font-size: 0.875rem;
-    mask-image: radial-gradient(circle at bottom, transparent 0.5rem, black 0.5rem);
-    mask-size: 10% 100%;
-    mask-repeat: repeat-x;
+    font-variant-numeric: tabular-nums;
+    mask:
+      conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top /
+        var(--receipt-zigzag) 51% repeat-x,
+      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom /
+        var(--receipt-zigzag) 51% repeat-x;
   }
 
   @media (min-width: 640px) {
+    .receipt-paper,
+    .receipt-paper--card,
     .receipt-printer-paper {
-      padding: 1.25rem 1.25rem 1.75rem;
+      padding: 2rem 1.5rem calc(2rem + var(--receipt-zigzag));
     }
+  }
+
+  /* List cards: room under the bottom zigzag tears */
+  .receipt-paper--card {
+    background: var(--color-paper-elevated);
+    --color-paper: var(--color-paper-elevated);
+    --color-surface: var(--color-paper-elevated);
+    outline: 1px solid color-mix(in oklab, var(--color-paper-elevated) 55%, var(--color-background));
+    outline-offset: 0;
+    padding-top: calc(1.75rem + var(--receipt-zigzag));
+  }
+
+  @media (min-width: 640px) {
+    .receipt-paper--card {
+      padding-top: calc(2rem + var(--receipt-zigzag));
+    }
+  }
+
+  .loading-overlay {
+    background: var(--color-background);
+  }
+
+  .loading-screen {
+    display: flex;
+    width: min(88vw, 22.5rem);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.75rem;
+    text-align: center;
+    color: var(--color-text);
+  }
+
+  .loading-screen__title {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+
+  .loading-screen__bar {
+    display: flex;
+    gap: 0.2rem;
+    border: 1px solid var(--color-text);
+    padding: 0.45rem 0.55rem;
+    min-height: 2.35rem;
+    align-items: stretch;
+  }
+
+  .loading-screen__seg {
+    min-width: 0;
+    flex: 1;
+    transition: background-color 0.12s linear;
+  }
+
+  .loading-screen__subtitle {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -509,9 +645,8 @@
       transition: none;
     }
 
-    .receipt-printer-sheet.is-printing,
-    .receipt-printer-sheet.is-retracting {
-      animation: none;
+    .receipt-printer-sheet {
+      transition: none;
     }
 
     .receipt-printer-sheet.is-printing,
@@ -519,14 +654,13 @@
       transform: translateY(0);
     }
 
-    .receipt-printer-sheet.is-hidden,
-    .receipt-printer-sheet.is-retracting {
-      transform: translateY(-110%);
-    }
-
     .receipt-printer-signal {
       animation: none;
-      background: var(--color-success);
+      background: var(--color-accent);
+    }
+
+    .loading-screen__seg {
+      transition: none;
     }
   }
 }

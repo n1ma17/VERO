@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import AppBottomNav from '@/components/shared/AppBottomNav.vue'
+import AppLoadingOverlay from '@/components/shared/AppLoadingOverlay.vue'
 import AppNavbar from '@/components/shared/AppNavbar.vue'
 import AppToastHost from '@/components/shared/AppToastHost.vue'
 import { useAuth } from '@/composables/useAuth'
@@ -14,7 +15,7 @@ const fullBleed = computed(() => route.meta.fullBleed === true)
 const mainPad = {
   guest: 'mx-auto min-w-0 max-w-5xl px-4 py-5 sm:py-6',
   app:
-    'mx-auto min-w-0 max-w-5xl px-4 pt-5 pb-[calc(7.5rem+env(safe-area-inset-bottom))] sm:pt-8 sm:pb-[calc(7.5rem+env(safe-area-inset-bottom))]',
+    'mx-auto min-w-0 max-w-5xl px-4 pt-5 pb-[calc(5rem+24px+env(safe-area-inset-bottom))] sm:pt-8 sm:pb-[calc(5rem+24px+env(safe-area-inset-bottom))]',
   bleed: 'min-w-0',
 } as const
 const mainClass = computed(() => {
@@ -25,6 +26,7 @@ const mainClass = computed(() => {
 
 <template>
   <div class="min-h-screen min-w-0 overflow-x-clip">
+    <AppLoadingOverlay />
     <AppToastHost />
     <AppNavbar v-if="!hideChrome" />
     <main :class="mainClass">

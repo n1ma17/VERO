@@ -93,7 +93,13 @@ async function confirmImport() {
         </p>
       </div>
       <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
-        <BaseButton type="button" class="w-full sm:w-auto" :disabled="exporting || importing" @click="exportExcel">
+        <BaseButton
+          type="button"
+          variant="secondary"
+          class="w-full sm:w-auto"
+          :disabled="exporting || importing"
+          @click="exportExcel"
+        >
           {{ exporting ? 'Exporting…' : 'Export Excel' }}
         </BaseButton>
         <BaseButton

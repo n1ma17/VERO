@@ -23,6 +23,7 @@ const bookedYear = ref(defaultBooked.year)
 const bookedMonth = ref(defaultBooked.month)
 
 const isEditing = computed(() => editingDeposit.value !== null)
+const formSection = ref<HTMLElement | null>(null)
 
 watch(
   () => [depositYear.value, depositMonth.value],
@@ -42,6 +43,7 @@ watch(
       depositDay.value = deposit.jalaliDay
       bookedYear.value = deposit.bookedYear
       bookedMonth.value = deposit.bookedMonth
+      formSection.value?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
       return
     }
     resetDateToToday()
@@ -107,7 +109,10 @@ function cancel() {
 </script>
 
 <template>
-  <section class="min-w-0 overflow-hidden rounded-3xl bg-surface p-4 text-text shadow-lg sm:p-6">
+  <section
+    ref="formSection"
+    class="min-w-0 scroll-mt-24 overflow-hidden rounded-3xl bg-surface p-4 text-text shadow-lg sm:p-6"
+  >
     <h2 class="text-lg font-semibold">{{ isEditing ? 'Edit deposit' : 'Add deposit' }}</h2>
     <p class="mt-1 text-sm text-text-muted">
       Bank date is when the transfer arrived. Count toward month is which month it belongs to (e.g.

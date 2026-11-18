@@ -250,12 +250,13 @@ WITH lines AS (
   UNION ALL
   SELECT
     user_id,
-    due_year,
-    due_month,
+    jalali_year((timezone('Asia/Tehran', paid_at))::date),
+    jalali_month((timezone('Asia/Tehran', paid_at))::date),
     0::bigint,
     amount,
     0::bigint
   FROM v_installments
+  WHERE paid_at IS NOT NULL
   UNION ALL
   SELECT
     user_id,
@@ -330,21 +331,31 @@ WITH lines AS (
     'bill-' || i.id,
     'bill',
     i.title,
-    NULL,
+    CASE
+      WHEN jalali_year(pay.paid_on) = i.due_year
+       AND jalali_month(pay.paid_on) = i.due_month THEN NULL
+      ELSE 'Due ' || jalali_month_name(i.due_month) || ' ' || i.due_year::text
+    END,
     i.amount,
-    i.due_year,
-    i.due_month,
-    i.due_year,
-    i.due_month,
-    i.due_day,
-    i.due_date,
+    jalali_year(pay.paid_on) AS counted_year,
+    jalali_month(pay.paid_on) AS counted_month,
+    jalali_year(pay.paid_on) AS year,
+    jalali_month(pay.paid_on) AS month,
+    jalali_day(pay.paid_on) AS day,
+    pay.paid_on AS occurred_on,
     i.status,
     i.id,
     NULL::uuid,
     NULL::expense_category,
-    (i.due_year * 10000 + i.due_month * 100 + i.due_day) * 3 + 1,
+    (jalali_year(pay.paid_on) * 10000
+      + jalali_month(pay.paid_on) * 100
+      + jalali_day(pay.paid_on)) * 3 + 1,
     i.bill_id
   FROM v_installments AS i
+  CROSS JOIN LATERAL (
+    SELECT (timezone('Asia/Tehran', i.paid_at))::date AS paid_on
+  ) AS pay
+  WHERE i.paid_at IS NOT NULL
   UNION ALL
   SELECT
     e.user_id,

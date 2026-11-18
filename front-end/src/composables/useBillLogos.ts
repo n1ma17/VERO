@@ -17,6 +17,14 @@ export function evictBillLogo(billId: string): void {
   inflight.delete(billId)
 }
 
+export function clearBillLogos(): void {
+  for (const value of Object.values(cache.value)) {
+    if (value?.startsWith('blob:')) URL.revokeObjectURL(value)
+  }
+  cache.value = {}
+  inflight.clear()
+}
+
 export async function loadBillLogo(key: string): Promise<string | null> {
   if (key in cache.value) return cache.value[key]
 

@@ -5,5 +5,7 @@ declare module 'vue-router' {
     public?: boolean
     hideChrome?: boolean
     fullBleed?: boolean
+    /** Receipt printer pages — skip global loading overlay (router + API). */
+    skipLoadingOverlay?: boolean
   }
 }

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ReceiptPaperFooter from '@/components/shared/ReceiptPaperFooter.vue'
+import ReceiptPaperHeader from '@/components/shared/ReceiptPaperHeader.vue'
 import ReceiptPrinterMachine from '@/components/shared/ReceiptPrinterMachine.vue'
 import ReceiptPrinterOutput from '@/components/shared/ReceiptPrinterOutput.vue'
 import ReceiptPrinterPaper from '@/components/shared/ReceiptPrinterPaper.vue'
@@ -30,48 +32,40 @@ const statusLabels: Record<ReceiptPrinterStage, string> = {
 
     <ReceiptPrinterOutput>
       <ReceiptPrinterPaper v-if="snapshot">
-        <header class="text-center">
-          <p class="text-base font-bold uppercase tracking-widest">Money Management</p>
-          <p class="mt-1 text-xs text-text-muted">
-            {{ snapshot.isUpdate ? 'Expense update receipt' : 'Purchase receipt' }}
-          </p>
-        </header>
+        <ReceiptPaperHeader
+          :kind="snapshot.isUpdate ? 'Expense update' : 'Purchase receipt'"
+          :meta="snapshot.dateLabel"
+        />
 
-        <div class="my-5 border-t-2 border-dashed border-text-muted/40" />
+        <div class="mt-5 border-t border-dashed border-text-muted/60" />
 
-        <dl class="space-y-2">
+        <dl class="mt-4 space-y-1.5">
           <div class="flex justify-between gap-4">
-            <dt class="text-text-muted">Item</dt>
+            <dt>Item</dt>
             <dd class="truncate text-right">{{ snapshot.title }}</dd>
           </div>
           <div class="flex justify-between gap-4">
-            <dt class="text-text-muted">Category</dt>
+            <dt>Category</dt>
             <dd class="text-right">{{ expenseCategories[snapshot.category].label }}</dd>
           </div>
-          <div class="flex justify-between gap-4">
-            <dt class="text-text-muted">Date</dt>
-            <dd>{{ snapshot.dateLabel }}</dd>
-          </div>
           <div v-if="snapshot.note" class="flex justify-between gap-4">
-            <dt class="text-text-muted">Note</dt>
+            <dt>Note</dt>
             <dd class="truncate text-right">{{ snapshot.note }}</dd>
-          </div>
-          <div class="flex justify-between gap-4">
-            <dt class="text-text-muted">Ref.</dt>
-            <dd class="font-mono text-xs">{{ snapshot.id.slice(0, 8) }}</dd>
           </div>
         </dl>
 
-        <div class="my-5 border-t-2 border-dashed border-text-muted/40" />
+        <div class="mt-4 border-t border-dashed border-text-muted/60" />
 
-        <div class="flex items-baseline justify-between">
-          <span class="uppercase tracking-widest">Total</span>
+        <div class="mt-4 flex items-baseline justify-between gap-4">
+          <span class="text-lg font-bold uppercase tracking-[0.12em]">Total</span>
           <span class="text-xl font-bold">{{ snapshot.amountLabel }}</span>
         </div>
 
-        <p class="mt-6 text-center text-xs text-text-muted">
-          Deducted from your balance for this month.
-        </p>
+        <ReceiptPaperFooter
+          status="Recorded"
+          :code="snapshot.id.slice(0, 8).toUpperCase()"
+          note="Deducted from this month"
+        />
       </ReceiptPrinterPaper>
     </ReceiptPrinterOutput>
   </ReceiptPrinterRoot>

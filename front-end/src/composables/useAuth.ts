@@ -77,8 +77,23 @@ export function useAuth() {
     return { ok: true }
   }
 
+  async function requestNewPassword(email: string): Promise<AuthAttemptResult> {
+    const { error } = await authClient.requestPasswordReset({
+      email: email.trim().toLowerCase(),
+      fetchOptions: {
+        signal: AbortSignal.timeout(30_000),
+      },
+    })
+    if (error) return { ok: false, reason: 'invalid' }
+    return { ok: true }
+  }
+
   async function logout() {
-    await authClient.signOut()
+    try {
+      await authClient.signOut()
+    } catch {
+      /* still leave the local session */
+    }
     session.value = null
     clearMoneyCollections()
   }
@@ -89,6 +104,7 @@ export function useAuth() {
     ready,
     login,
     register,
+    requestNewPassword,
     logout,
   }
 }

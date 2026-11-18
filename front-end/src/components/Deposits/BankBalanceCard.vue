@@ -4,9 +4,9 @@ import BankCardPlastic from '@/components/Deposits/BankCardPlastic.vue'
 import { useBankDeposits } from '@/composables/useBankDeposits'
 import { formatTomanNumber } from '@/utils/formatToman'
 
-const { totalBalance } = useBankDeposits()
+const { monthTotal } = useBankDeposits()
 
-const balanceNumber = computed(() => formatTomanNumber(totalBalance.value))
+const balanceNumber = computed(() => formatTomanNumber(monthTotal.value))
 </script>
 
 <template>

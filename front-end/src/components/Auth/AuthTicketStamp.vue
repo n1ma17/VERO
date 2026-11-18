@@ -11,7 +11,7 @@ const copy = {
 } as const
 
 const toneClasses = {
-  success: 'border-success text-success',
+  success: 'border-stamp-approved text-stamp-approved',
   rejected: 'border-danger text-danger',
 } as const
 

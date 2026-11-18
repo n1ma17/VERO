@@ -2,6 +2,7 @@ import type { BankDeposit } from '@/types/bankDeposit'
 import type { Expense } from '@/types/expense'
 import type { Installment } from '@/types/installment'
 import { monthToIndex } from '@/utils/jalali'
+import { toJalaali } from 'jalaali-js'
 
 export interface MonthTotals {
   income: number
@@ -9,14 +10,18 @@ export interface MonthTotals {
   expenses: number
 }
 
+function paymentMonthIndex(paidAt: string): number {
+  const { jy, jm } = toJalaali(new Date(paidAt))
+  return monthToIndex(jy, jm)
+}
+
 /**
- * Income by deposit "counted" month, bills by installment due month, expenses by purchase month.
- * Keyed by `monthToIndex`. Used by the dashboard overview; the Transactions page reads
- * the same totals from `GET /api/ledger`.
+ * Income by deposit "counted" month, paid bills by payment month, expenses by purchase month.
+ * Keyed by `monthToIndex`. Dashboard overview; Transactions reads totals from `GET /api/ledger`.
  */
 export function buildMonthTotals(
   deposits: ReadonlyArray<Pick<BankDeposit, 'amount' | 'bookedYear' | 'bookedMonth'>>,
-  installments: ReadonlyArray<Pick<Installment, 'amount' | 'dueYear' | 'dueMonth'>>,
+  installments: ReadonlyArray<Pick<Installment, 'amount' | 'paidAt'>>,
   expenses: ReadonlyArray<Pick<Expense, 'amount' | 'jalaliYear' | 'jalaliMonth'>>,
 ): Map<number, MonthTotals> {
   const totals = new Map<number, MonthTotals>()
@@ -32,7 +37,8 @@ export function buildMonthTotals(
     bucket(monthToIndex(deposit.bookedYear, deposit.bookedMonth)).income += deposit.amount
   }
   for (const installment of installments) {
-    bucket(monthToIndex(installment.dueYear, installment.dueMonth)).bills += installment.amount
+    if (!installment.paidAt) continue
+    bucket(paymentMonthIndex(installment.paidAt)).bills += installment.amount
   }
   for (const expense of expenses) {
     bucket(monthToIndex(expense.jalaliYear, expense.jalaliMonth)).expenses += expense.amount

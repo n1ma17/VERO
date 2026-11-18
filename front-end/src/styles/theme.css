@@ -1,35 +1,88 @@
 /*
- * Core palette only. Everything else uses these tokens + opacity (e.g. text-text/60).
- * Default Tailwind palette is disabled.
+ * Three colors only. Every other token is an alias of these, or one of them at reduced
+ * opacity for hairlines (e.g. border-text/15). Default Tailwind palette is disabled.
+ *
+ *   60% ink    #19191B  background, cards, receipt ink
+ *   30% steel  #8C8E92  all text, rules, receipt paper
+ *   10% signal #FF5410  the one primary button per screen, overdue/negative, tiny marks
  */
 @theme {
   --color-*: initial;
 
-  --color-background: #dbdddc;
-  --color-primary: #10202d;
-  --color-secondary: #1a3042;
-  --color-accent: #c8a667;
-  --color-success: #4a7d6a;
-  --color-danger: #c45c4e;
-  --color-warning: #c49a5a;
-  --color-text: #10202d;
-  --color-black: #000000;
-  --color-white: #ffffff;
-  --color-text-muted: color-mix(in oklab, var(--color-text) 48%, var(--color-background));
+  --color-background: #19191b;
+  --color-text: #8c8e92;
+  --color-accent: #ff5410;
 
-  /* White cards — not a brand hue */
-  --color-surface: #ffffff;
+  --color-text-muted: var(--color-text);
+  --color-primary: var(--color-text);
+  --color-secondary: var(--color-text);
+  --color-foreground: var(--color-background);
+  --color-on-accent: var(--color-background);
+  --color-surface: var(--color-background);
+  --color-black: var(--color-background);
+  --color-white: var(--color-text);
 
-  /* Welcome screen gradient (success sage → deep primary) */
-  --color-landing-hero-top: color-mix(in oklab, var(--color-success) 58%, var(--color-background));
-  --color-landing-hero-bottom: var(--color-primary);
-  --color-on-hero: var(--color-white);
-  --color-on-hero-muted: color-mix(in oklab, var(--color-on-hero) 72%, var(--color-landing-hero-bottom));
+  --color-success: var(--color-text);
+  --color-warning: var(--color-text);
+  --color-danger: var(--color-accent);
+
+  /* Pastel green ink on receipts (Approved stamp only; rest of UI stays 3-color). */
+  --color-stamp-approved: #a8dfc4;
+
+  /* Installment status badges */
+  --color-status-paid: #a8c9e8;
+  --color-status-unpaid: #f5c49a;
+  --color-status-overdue: #e8a8a8;
+
+  /* Deposit pocket cards (wallet sleeve uses deposit-wallet tokens) */
+  --color-deposit-card-sky: #635bff;
+  --color-deposit-card-mint: #9bd86a;
+  --color-deposit-card-peach: #ffffff;
+  --color-deposit-card-lilac: #b48cff;
+  --color-deposit-card-rose: #ff8fab;
+  --color-deposit-card-ink-blue: #253b80;
+  --color-deposit-wallet: var(--color-text);
+  --color-deposit-wallet-back: #6f7175;
+  --color-deposit-wallet-stitch: #5f6165;
+  --color-deposit-wallet-ink: #ffffff;
+  --color-deposit-wallet-eye: #22c55e;
+
+  --color-paper: var(--color-text);
+  /* Receipt cards on the dark shell: a hair lighter so they read off #19191B. */
+  --color-paper-elevated: var(--color-text);
+  --color-on-paper: var(--color-background);
+
+  --color-printer: var(--color-text);
+
+
+  /* One display face for headlines and big numbers, one plain face for everything else. */
+  --font-display: 'Archivo Variable', 'Arial Narrow', sans-serif;
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: var(--font-sans);
+
+  /* Flat UI: every shadow-* utility draws a 1px hairline outline, never a blur. */
+  --shadow-*: initial;
+  --shadow-2xs: 0 0 0 1px color-mix(in oklab, var(--color-text) 18%, transparent);
+  --shadow-xs: var(--shadow-2xs);
+  --shadow-sm: var(--shadow-2xs);
+  --shadow-md: var(--shadow-2xs);
+  --shadow-lg: var(--shadow-2xs);
+  --shadow-xl: var(--shadow-2xs);
+  --shadow-2xl: var(--shadow-2xs);
+  --drop-shadow-*: initial;
+  --blur-*: initial;
+
+  /* Tight corners. rounded-full stays round for pills and dots. */
+  --radius-xs: 1px;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --radius-2xl: 4px;
+  --radius-3xl: 4px;
+  --radius-4xl: 4px;
 
   --bank-card-perspective: 68rem;
   --bank-card-tilt-x: 0deg;
   --bank-card-tilt-z: 0deg;
-
-  /* Glossy thermal printer body (light silver on the page shell) */
-  --color-printer: color-mix(in oklab, var(--color-text) 26%, var(--color-surface));
 }

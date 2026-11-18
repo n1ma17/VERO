@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import ReceiptPaperFooter from '@/components/shared/ReceiptPaperFooter.vue'
+import ReceiptPaperHeader from '@/components/shared/ReceiptPaperHeader.vue'
 import ReceiptPrinterMachine from '@/components/shared/ReceiptPrinterMachine.vue'
 import ReceiptPrinterOutput from '@/components/shared/ReceiptPrinterOutput.vue'
 import ReceiptPrinterPaper from '@/components/shared/ReceiptPrinterPaper.vue'
@@ -14,7 +16,7 @@ import { formatJalaliDate, formatTimestampAsJalali } from '@/utils/jalali'
 import { scrollToReceiptPrinter } from '@/utils/scrollToReceiptPrinter'
 
 const PROCESSING_MS = 1200
-/** Matches the 2s `animate-receipt-feed` duration in `main.css`. */
+/** Matches the 2s sheet transform transition in `main.css`. */
 const PRINTING_MS = 2000
 
 const statusLabels: Record<ReceiptPrinterStage, string> = {
@@ -101,42 +103,33 @@ const payLabel = computed(() => {
 
     <ReceiptPrinterOutput>
       <ReceiptPrinterPaper>
-        <header class="text-center">
-          <p class="text-base font-bold uppercase tracking-widest">Money Management</p>
-          <p class="mt-1 text-xs text-text-muted">Installment payment receipt</p>
-        </header>
+        <ReceiptPaperHeader kind="Installment payment" :meta="`Paid ${paidOn}`" />
 
-        <div class="my-5 border-t-2 border-dashed border-text-muted/40" />
+        <div class="mt-5 border-t border-dashed border-text-muted/60" />
 
-        <dl class="space-y-2">
+        <dl class="mt-4 space-y-1.5">
           <div class="flex justify-between gap-4">
-            <dt class="text-text-muted">Item</dt>
+            <dt>Item</dt>
             <dd class="truncate text-right">{{ installment.title }}</dd>
           </div>
           <div class="flex justify-between gap-4">
-            <dt class="text-text-muted">Ref.</dt>
-            <dd>{{ installment.billId.slice(0, 8) }}</dd>
-          </div>
-          <div class="flex justify-between gap-4">
-            <dt class="text-text-muted">Due</dt>
+            <dt>Due</dt>
             <dd>{{ dueDate }}</dd>
-          </div>
-          <div class="flex justify-between gap-4">
-            <dt class="text-text-muted">Paid</dt>
-            <dd>{{ paidOn }}</dd>
           </div>
         </dl>
 
-        <div class="my-5 border-t-2 border-dashed border-text-muted/40" />
+        <div class="mt-4 border-t border-dashed border-text-muted/60" />
 
-        <div class="flex items-baseline justify-between">
-          <span class="uppercase tracking-widest">Total paid</span>
+        <div class="mt-4 flex items-baseline justify-between gap-4">
+          <span class="text-lg font-bold uppercase tracking-[0.12em]">Total</span>
           <span class="text-xl font-bold">{{ amount }}</span>
         </div>
 
-        <p class="mt-6 text-center text-xs text-text-muted">
-          Thank you for your payment.
-        </p>
+        <ReceiptPaperFooter
+          status="Approved"
+          :code="installment.billId.slice(0, 8).toUpperCase()"
+          note="Thank you · Paid in full"
+        />
       </ReceiptPrinterPaper>
     </ReceiptPrinterOutput>
 

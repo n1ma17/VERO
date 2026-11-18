@@ -1,12 +1,15 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div>
-    <h1 class="text-2xl font-bold leading-tight text-on-hero sm:text-3xl md:text-4xl">
-      Everyday money made simple
+  <div class="grid grid-cols-12 gap-x-6">
+    <h1
+      class="col-span-12 font-display text-[2.75rem] font-extrabold leading-[0.92] tracking-[-0.035em] sm:text-7xl lg:col-span-11 lg:text-[6.75rem]"
+    >
+      Bills, deposits, spending. One statement.
     </h1>
-    <p class="mt-3 max-w-xs text-sm leading-relaxed text-on-hero-muted sm:text-base">
-      Bills, deposits, expenses, and your ledger in one place — on your device.
+    <p class="col-span-12 mt-8 text-base leading-relaxed sm:col-span-8 lg:col-span-5">
+      A ledger for people paid in Toman who plan by the Jalali month. Define a bill once, log what
+      you spend, and see what is left before the month runs out.
     </p>
   </div>
 </template>

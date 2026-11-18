@@ -55,7 +55,7 @@ function clearLogo() {
           @change="onFileChange"
         />
         <div class="flex flex-wrap gap-2">
-          <BaseButton type="button" @click="openPicker">
+          <BaseButton type="button" variant="secondary" @click="openPicker">
             {{ logoUrl ? 'Change logo' : 'Upload logo' }}
           </BaseButton>
           <BaseButton v-if="logoUrl" type="button" variant="ghost" @click="clearLogo">

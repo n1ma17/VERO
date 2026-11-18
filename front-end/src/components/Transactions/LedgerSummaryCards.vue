@@ -17,17 +17,28 @@ const {
   unpaidBillsTotal,
 } = useLedger()
 
+const netCardClasses = {
+  positive: 'border border-stamp-approved/40 bg-stamp-approved/15',
+  negative: 'border border-status-overdue/40 bg-status-overdue/15',
+  zero: 'border border-status-paid/40 bg-status-paid/15',
+} as const
+
 const signedTextClasses = {
-  positive: 'text-success',
-  negative: 'text-danger',
+  positive: 'text-stamp-approved',
+  negative: 'text-status-overdue',
+  zero: 'text-status-paid',
 } as const
 
 const balanceCardClasses = {
-  positive: 'bg-primary text-background',
-  negative: 'bg-danger text-background',
+  positive: 'bg-success text-on-accent',
+  negative: 'bg-danger text-foreground',
 } as const
 
-const netTone = computed(() => (monthNet.value < 0 ? 'negative' : 'positive'))
+const netTone = computed(() => {
+  if (monthNet.value < 0) return 'negative'
+  if (monthNet.value > 0) return 'positive'
+  return 'zero'
+})
 const balanceTone = computed(() => (closingBalance.value < 0 ? 'negative' : 'positive'))
 
 function signed(value: number) {
@@ -70,7 +81,10 @@ function signed(value: number) {
       <p class="mt-1 text-xs text-text-muted">{{ expenseCount }} purchase(s)</p>
     </article>
 
-    <article class="min-w-0 rounded-3xl bg-surface p-4 text-text shadow-lg sm:p-5 lg:col-span-3">
+    <article
+      class="min-w-0 rounded-3xl p-4 text-text shadow-lg sm:p-5 lg:col-span-3"
+      :class="netCardClasses[netTone]"
+    >
       <p class="text-xs font-medium uppercase tracking-wider text-text-muted">
         Net this month
       </p>

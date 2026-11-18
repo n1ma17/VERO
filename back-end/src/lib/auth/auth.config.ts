@@ -1,9 +1,11 @@
 import { betterAuth } from 'better-auth';
+import { hashPassword } from 'better-auth/crypto';
 import { kyselyAdapter } from '@better-auth/kysely-adapter';
 import { Kysely, PostgresDialect } from 'kysely';
 import type { ConfigService } from '@nestjs/config';
 import type { PgService } from '../database/pg.service.js';
 import type { AuthMailService } from './auth-mail.service.js';
+import { generateTemporaryPassword } from './temporary-password.js';
 
 export function createAuth(
   pg: PgService,
@@ -77,8 +79,25 @@ export function createAuth(
       enabled: true,
       minPasswordLength: 8,
       requireEmailVerification,
-      sendResetPassword: async ({ user, url }) => {
-        await mail.sendResetPasswordEmail(user.email, url);
+      sendResetPassword: async ({ user }) => {
+        const password = generateTemporaryPassword();
+        const { rows } = await pg.query<{ username: string | null; name: string }>(
+          `SELECT username, name FROM users WHERE id = $1`,
+          [user.id],
+        );
+        const profile = rows[0];
+        await mail.sendNewPasswordEmail(user.email, {
+          name: profile?.name ?? user.name,
+          username: profile?.username ?? null,
+          password,
+        });
+        const passwordHash = await hashPassword(password);
+        await pg.query(
+          `UPDATE accounts
+              SET password = $1, "updatedAt" = NOW()
+            WHERE "userId" = $2 AND "providerId" = 'credential'`,
+          [passwordHash, user.id],
+        );
       },
     },
     emailVerification: {

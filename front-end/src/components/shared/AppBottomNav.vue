@@ -58,10 +58,10 @@ watch(activeIndex, () => {
 
 <template>
   <nav class="app-bottom-nav-dock" aria-label="Main navigation">
-    <div class="mx-auto w-full max-w-5xl px-3 sm:px-4">
-      <div
-        ref="navRoot"
-        class="app-bottom-nav"
+    <div class="mx-auto w-full max-w-5xl px-4">
+    <div
+      ref="navRoot"
+      class="app-bottom-nav"
       :data-index="activeIndex"
       :style="{ '--nav-light-left': `${lightLeftPx}px` }"
     >
@@ -86,7 +86,7 @@ watch(activeIndex, () => {
         </li>
       </ul>
       <div ref="lightRef" class="app-bottom-nav__light" aria-hidden="true" />
-      </div>
+    </div>
     </div>
   </nav>
 </template>

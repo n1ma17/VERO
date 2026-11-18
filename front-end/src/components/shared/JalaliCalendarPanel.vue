@@ -29,7 +29,7 @@ const dayCells = computed(() => buildMonthDayGrid(props.year, props.month))
 const dayCellClasses = {
   base:
     'flex size-9 items-center justify-center rounded-xl text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70',
-  default: 'text-text hover:bg-accent/50',
+  default: 'text-text hover:bg-primary/10',
   today: 'ring-2 ring-primary/40 ring-offset-1 ring-offset-surface',
   selected: 'bg-primary text-background shadow-sm hover:bg-primary',
   muted: 'pointer-events-none opacity-0',
@@ -72,7 +72,7 @@ function selectMonth(month: number) {
       <div class="flex items-center justify-between gap-2">
         <button
           type="button"
-          class="rounded-full border border-primary/20 px-3 py-1 text-sm transition hover:bg-accent"
+          class="rounded-full border border-primary/20 px-3 py-1 text-sm transition hover:bg-primary/10"
           aria-label="Previous month"
           @click="shiftMonth(-1)"
         >
@@ -86,7 +86,7 @@ function selectMonth(month: number) {
         </div>
         <button
           type="button"
-          class="rounded-full border border-primary/20 px-3 py-1 text-sm transition hover:bg-accent"
+          class="rounded-full border border-primary/20 px-3 py-1 text-sm transition hover:bg-primary/10"
           aria-label="Next month"
           @click="shiftMonth(1)"
         >
@@ -104,7 +104,7 @@ function selectMonth(month: number) {
         :class="
           index + 1 === month
             ? 'bg-primary text-background'
-            : 'text-text-muted hover:bg-accent/40'
+            : 'text-text-muted hover:bg-primary/10'
         "
         @click="selectMonth(index + 1)"
       >
@@ -140,7 +140,7 @@ function selectMonth(month: number) {
       <div class="mt-3 flex items-center justify-between gap-2 border-t border-dashed border-primary/20 pt-3">
         <button
           type="button"
-          class="rounded-full border border-primary/20 px-3 py-1 text-xs transition hover:bg-accent"
+          class="rounded-full border border-primary/20 px-3 py-1 text-xs transition hover:bg-primary/10"
           @click="emit('update:year', year - 1)"
         >
           Year −
@@ -148,7 +148,7 @@ function selectMonth(month: number) {
         <span class="font-mono text-sm font-semibold">{{ year }}</span>
         <button
           type="button"
-          class="rounded-full border border-primary/20 px-3 py-1 text-xs transition hover:bg-accent"
+          class="rounded-full border border-primary/20 px-3 py-1 text-xs transition hover:bg-primary/10"
           @click="emit('update:year', year + 1)"
         >
           Year +

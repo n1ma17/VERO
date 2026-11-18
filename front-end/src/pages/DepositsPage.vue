@@ -9,7 +9,7 @@ import PageHeader from '@/components/shared/PageHeader.vue'
 <template>
   <PageHeader
     title="Deposits"
-    subtitle="Bank date vs. counted month — browse past months with the navigator"
+    subtitle="Bank date vs. counted month — use Counted in to view past or future booked months"
   />
   <div class="min-w-0 space-y-8">
     <BankBalanceCard />

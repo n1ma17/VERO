@@ -52,7 +52,7 @@ export class LedgerService {
     const index = monthIndex(year, month);
     const chartStart = index - (CHART_MONTHS - 1);
 
-    const [totalsResult, openingResult, entriesResult, chartResult, chartOpeningResult] =
+    const [totalsResult, openingResult, entriesResult, chartResult, chartOpeningResult, unpaidResult] =
       await Promise.all([
         this.pg.query<MonthTotalRow>(
           `SELECT income, bills, expenses, net, closing_balance
@@ -90,6 +90,15 @@ export class LedgerService {
             LIMIT 1`,
           [userId, chartStart],
         ),
+        this.pg.query<{ total: string | number }>(
+          `SELECT coalesce(sum(amount), 0) AS total
+             FROM v_installments
+            WHERE user_id = $1
+              AND due_year = $2
+              AND due_month = $3
+              AND paid_at IS NULL`,
+          [userId, year, month],
+        ),
       ]);
 
     const totals = totalsResult.rows[0];
@@ -106,6 +115,7 @@ export class LedgerService {
     const paidBillsTotal = billEntries
       .filter((entry) => entry.status === 'paid')
       .reduce((sum, entry) => sum + entry.amount, 0);
+    const unpaidBillsTotal = Number(unpaidResult.rows[0]?.total ?? 0);
 
     return {
       date: jalaliMonthFirstIso(year, month),
@@ -121,7 +131,7 @@ export class LedgerService {
       billCount: billEntries.length,
       expenseCount,
       paidBillsTotal,
-      unpaidBillsTotal: bills - paidBillsTotal,
+      unpaidBillsTotal,
       chartSeries: buildChartSeries(chartResult.rows, chartStart, chartOpeningResult.rows[0]),
     };
   }

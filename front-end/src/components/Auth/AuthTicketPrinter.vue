@@ -10,7 +10,7 @@ import ReceiptPrinterScreen from '@/components/shared/ReceiptPrinterScreen.vue'
 import ReceiptPrinterStatus from '@/components/shared/ReceiptPrinterStatus.vue'
 import type { ReceiptPrinterStage } from '@/types/receiptPrinter'
 
-const stage = ref<ReceiptPrinterStage>('printing')
+const stage = ref<ReceiptPrinterStage>('idle')
 
 const ticketRoot = useTemplateRef<InstanceType<typeof AuthTicket>>('ticket')
 
@@ -27,7 +27,25 @@ const statusLabels: Record<ReceiptPrinterStage, string> = {
   complete: 'Ticket issued',
 }
 
+function waitForPaint(): Promise<void> {
+  return new Promise((resolve) => {
+    let settled = false
+    const finish = () => {
+      if (settled) return
+      settled = true
+      resolve()
+    }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(finish)
+    })
+    // rAF pauses in background tabs; still commit a hidden frame first.
+    window.setTimeout(finish, 48)
+  })
+}
+
 onMounted(async () => {
+  await waitForPaint()
+  stage.value = 'printing'
   await new Promise((resolve) => window.setTimeout(resolve, AUTH_TICKET_PRINT_MS))
   stage.value = 'complete'
 })

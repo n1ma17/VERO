@@ -15,8 +15,8 @@ const monthLabel = computed(() =>
   <section class="space-y-4">
     <h2 class="px-1 text-sm font-semibold text-text">Bills due in {{ monthLabel }}</h2>
 
-    <ul v-if="installments.length" class="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
-      <li v-for="installment in installments" :key="installment.id">
+    <ul v-if="installments.length" class="grid gap-x-6 gap-y-10 overflow-visible sm:grid-cols-2 lg:grid-cols-3">
+      <li v-for="installment in installments" :key="installment.id" class="overflow-visible pb-2">
         <InstallmentReceiptCard :installment="installment" />
       </li>
     </ul>

@@ -15,7 +15,7 @@ const monthLabel = computed(() => formatJalaliMonth(viewMonth.value.year, viewMo
   </div>
   <div
     v-else
-    class="rounded-3xl border border-dashed border-background/20 px-6 py-12 text-center text-text-muted"
+    class="rounded-3xl border border-dashed border-text/20 px-6 py-12 text-center text-text-muted"
   >
     <p>No expenses in {{ monthLabel }}.</p>
     <RouterLink

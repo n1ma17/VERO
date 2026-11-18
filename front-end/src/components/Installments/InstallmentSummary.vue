@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useInstallments } from '@/composables/useInstallments'
 import type { InstallmentStatus } from '@/types/installment'
+import { formatTomanNumber } from '@/utils/formatToman'
 import { getInstallmentStatus, installmentStatusLabels } from '@/utils/installmentStatus'
 
 const { installments } = useInstallments()
@@ -14,10 +15,15 @@ const valueClasses: Record<InstallmentStatus, string> = {
   overdue: 'text-danger',
 }
 
-const counts = computed(() => {
-  const result: Record<InstallmentStatus, number> = { paid: 0, unpaid: 0, overdue: 0 }
-  for (const installment of installments.value) result[getInstallmentStatus(installment)]++
-  return result
+const stats = computed(() => {
+  const counts: Record<InstallmentStatus, number> = { paid: 0, unpaid: 0, overdue: 0 }
+  const amounts: Record<InstallmentStatus, number> = { paid: 0, unpaid: 0, overdue: 0 }
+  for (const installment of installments.value) {
+    const status = getInstallmentStatus(installment)
+    counts[status]++
+    amounts[status] += installment.amount
+  }
+  return { counts, amounts }
 })
 </script>
 
@@ -31,8 +37,15 @@ const counts = computed(() => {
           {{ installmentStatusLabels[status] }}
         </dt>
         <dd class="mt-1 font-mono text-2xl font-bold" :class="valueClasses[status]">
-          {{ counts[status] }}
+          {{ stats.counts[status] }}
         </dd>
+        <p
+          class="mt-0.5 font-mono text-[10px] font-semibold leading-tight sm:text-xs"
+          :class="valueClasses[status]"
+        >
+          {{ formatTomanNumber(stats.amounts[status]) }}
+          <span class="font-sans text-[9px] font-medium opacity-80 sm:text-[10px]">Toman</span>
+        </p>
       </div>
     </dl>
   </div>

@@ -10,6 +10,6 @@ export interface AuthSession {
   email: string
 }
 
-export type AuthMode = 'login' | 'register'
+export type AuthMode = 'login' | 'register' | 'forgot'
 
 export type AuthOutcome = 'idle' | 'pending' | 'success' | 'rejected'

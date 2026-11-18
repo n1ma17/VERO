@@ -79,7 +79,7 @@ Add expense lives in `PageHeader` `#actions` (full-width on mobile).
 
 ### InstallmentsPage → `components/Installments/` (read-only list)
 - `InstallmentsDefineBillAction.vue` — CTA link to `/bills` (define bill)
-- `InstallmentSummary.vue` — paid / unpaid / overdue counts
+- `InstallmentSummary.vue` — paid / unpaid / overdue counts and Toman totals for the viewed month
 - `InstallmentList.vue` — grid of receipt cards, sorted by due date
 - `InstallmentReceiptCard.vue` — receipt-style card (status strip, perforated divider, scalloped edge, stamp if paid); whole card is a `RouterLink` to `installment-detail`
 

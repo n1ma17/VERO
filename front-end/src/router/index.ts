@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { ensureAuthReady, useAuth } from '@/composables/useAuth'
+import { beginLoading, endLoading, setLoadingOverlaySuppressed } from '@/composables/useLoadingOverlay'
 import '@/types/router'
 
 const router = createRouter({
@@ -15,7 +16,7 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/pages/AuthPage.vue'),
-      meta: { public: true, hideChrome: true },
+      meta: { public: true, hideChrome: true, skipLoadingOverlay: true },
     },
     {
       path: '/dashboard',
@@ -33,7 +34,13 @@ const router = createRouter({
       component: () => import('@/pages/DepositsPage.vue'),
     },
     {
-      path: '/bills/:id?',
+      path: '/bills/entry/:id?',
+      name: 'bill-entry',
+      component: () => import('@/pages/BillEntryPage.vue'),
+      meta: { skipLoadingOverlay: true },
+    },
+    {
+      path: '/bills',
       name: 'bills',
       component: () => import('@/pages/BillsPage.vue'),
     },
@@ -46,6 +53,7 @@ const router = createRouter({
       path: '/expenses/entry/:id?',
       name: 'expense-entry',
       component: () => import('@/pages/ExpenseEntryPage.vue'),
+      meta: { skipLoadingOverlay: true },
     },
     {
       path: '/installments',
@@ -56,11 +64,15 @@ const router = createRouter({
       path: '/installments/:id',
       name: 'installment-detail',
       component: () => import('@/pages/InstallmentDetailPage.vue'),
+      meta: { skipLoadingOverlay: true },
     },
   ],
 })
 
-router.beforeEach(async (to) => {
+router.beforeEach(async (to, from) => {
+  const skipOverlay = Boolean(to.meta.skipLoadingOverlay)
+  setLoadingOverlaySuppressed(skipOverlay)
+  if (to.fullPath !== from.fullPath && !skipOverlay) beginLoading()
   await ensureAuthReady()
   const { isAuthenticated } = useAuth()
 
@@ -76,6 +88,10 @@ router.beforeEach(async (to) => {
   }
 
   return true
+})
+
+router.afterEach((to, from) => {
+  if (to.fullPath !== from.fullPath && !to.meta.skipLoadingOverlay) endLoading()
 })
 
 export default router

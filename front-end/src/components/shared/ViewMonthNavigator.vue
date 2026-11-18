@@ -57,6 +57,8 @@ const isCurrentMonth = computed(() => {
       return bills.isCurrentMonth.value
     case 'ledger':
       return ledger.isCurrentMonth.value
+    case 'deposits':
+      return deposits.isCurrentMonth.value
     default:
       return true
   }

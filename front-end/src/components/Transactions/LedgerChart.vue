@@ -176,7 +176,7 @@ function selectMonth(year: number, month: number) {
         :width="groupWidth - 8"
         :height="plotHeight"
         rx="10"
-        :class="group.isView ? 'fill-accent/30' : 'fill-primary/15/10'"
+        :class="group.isView ? 'fill-accent/15' : 'fill-primary/10'"
       />
 
       <line

@@ -6,17 +6,13 @@ import { clampDueDay, currentJalaliMonth, monthToIndex } from '@/utils/jalali'
 import { depositFromApi, depositToApi, type DepositApi } from '@/utils/moneyApi'
 
 const VIEW_KEY = 'money-managment:deposits-view-month'
+/** Soft cap for month picker; furthest booked month can extend past this. */
+const MAX_FUTURE_MONTHS = 60
 
 function loadViewMonth(): JalaliMonth {
   try {
     const raw = localStorage.getItem(VIEW_KEY)
-    if (raw) {
-      const parsed = JSON.parse(raw) as JalaliMonth
-      const now = currentJalaliMonth()
-      if (monthToIndex(parsed.year, parsed.month) <= monthToIndex(now.year, now.month)) {
-        return parsed
-      }
-    }
+    if (raw) return JSON.parse(raw) as JalaliMonth
   } catch {
     /* ignore */
   }
@@ -85,17 +81,33 @@ export function useBankDeposits() {
       .reduce((sum, deposit) => sum + deposit.amount, 0)
   })
 
-  const canViewNextMonth = computed(() => {
+  const isCurrentMonth = computed(() => {
     const now = calendarMonth.value
-    return (
-      monthToIndex(viewMonth.value.year, viewMonth.value.month) <
-      monthToIndex(now.year, now.month)
-    )
+    return viewMonth.value.year === now.year && viewMonth.value.month === now.month
   })
+
+  const maxViewMonthIndex = computed(() => {
+    const now = calendarMonth.value
+    let max = monthToIndex(now.year, now.month) + MAX_FUTURE_MONTHS
+    for (const deposit of deposits.value) {
+      max = Math.max(max, monthToIndex(deposit.bookedYear, deposit.bookedMonth))
+    }
+    return max
+  })
+
+  const canViewNextMonth = computed(
+    () =>
+      monthToIndex(viewMonth.value.year, viewMonth.value.month) < maxViewMonthIndex.value,
+  )
 
   function setViewMonth(year: number, month: number) {
     viewMonth.value = { year, month }
     localStorage.setItem(VIEW_KEY, JSON.stringify(viewMonth.value))
+  }
+
+  function goToCurrentMonth() {
+    const now = calendarMonth.value
+    setViewMonth(now.year, now.month)
   }
 
   async function addDeposit(input: NewBankDeposit) {
@@ -106,6 +118,12 @@ export function useBankDeposits() {
       }),
     )
     deposits.value = [created, ...deposits.value]
+    if (
+      created.bookedYear !== viewMonth.value.year ||
+      created.bookedMonth !== viewMonth.value.month
+    ) {
+      setViewMonth(created.bookedYear, created.bookedMonth)
+    }
   }
 
   const editingDeposit = computed(() => {
@@ -148,8 +166,10 @@ export function useBankDeposits() {
     totalBalance,
     monthTotal,
     currentMonthTotal,
+    isCurrentMonth,
     canViewNextMonth,
     setViewMonth,
+    goToCurrentMonth,
     editingDepositId: readonly(editingDepositId),
     editingDeposit,
     addDeposit,
