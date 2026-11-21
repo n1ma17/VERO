@@ -9,7 +9,7 @@ import ReceiptEdge from '@/components/shared/ReceiptEdge.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useAuthTicketPrinter } from '@/composables/useAuthTicketPrinter'
 import type { AuthMode, AuthOutcome } from '@/types/auth'
-import { currentJalaliDate, formatJalaliDate } from '@/utils/jalali'
+import { currentCalendarDate, formatCalendarDate } from '@/utils/calendar'
 
 const STAMP_MS = 650
 const LEAVE_MS = 450
@@ -23,13 +23,13 @@ const mode = ref<AuthMode>('login')
 const outcome = ref<AuthOutcome>('idle')
 const failHint = ref('')
 
-const issuedLabel = formatJalaliDate(
-  currentJalaliDate().year,
-  currentJalaliDate().month,
-  currentJalaliDate().day,
+const issuedLabel = formatCalendarDate(
+  currentCalendarDate().year,
+  currentCalendarDate().month,
+  currentCalendarDate().day,
 )
 
-const ticketCode = `MM-${currentJalaliDate().year}${String(currentJalaliDate().month).padStart(2, '0')}`
+const ticketCode = `MM-${currentCalendarDate().year}${String(currentCalendarDate().month).padStart(2, '0')}`
 
 const isBusy = computed(
   () =>

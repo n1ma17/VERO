@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { formatTimestampAsJalali } from '@/utils/jalali'
+import { formatTimestampAsCalendar } from '@/utils/calendar'
 
 const props = withDefaults(
   defineProps<{
@@ -17,7 +17,7 @@ const sizeClasses = {
 
 const classes = computed(() => sizeClasses[props.size])
 const formattedDate = computed(() =>
-  props.paidAt ? formatTimestampAsJalali(props.paidAt) : null,
+  props.paidAt ? formatTimestampAsCalendar(props.paidAt) : null,
 )
 </script>
 

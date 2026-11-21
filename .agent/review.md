@@ -32,4 +32,5 @@ Run this checklist before finishing every task. Then log anything left unresolve
 - [tooling] `npx tsc --noEmit -p tsconfig.json` in `back-end/` fails on pre-existing `scripts/seed.ts(89)`: passes a `pg.Client` where `importWalletSnapshot` expects `PoolClient`. `nest build` (src only) is fine. (found 2026-11-21)
 - [currency] A row's currency cannot be changed from the edit form (it keeps the entered currency by design); delete + re-add to change it. Client-side dashboard totals depend on `/api/currency` rates being loaded; before load they use 1:1 rates for one tick. (found 2026-11-21)
 - [currency] Official IRR rate from the APIs is far from the free market; users should set the manual IRR rate in the navbar menu. (found 2026-11-21)
+- [calendar] Bill installment expansion in Postgres (`v_installments`) is still Jalali-month based even when the UI is Gregorian; duration spans are approximate across calendars. Shared picker components are still named `Jalali*`. Excel backup still stores Jalali numbers. (found 2026-11-21)
 - [backup] Import replaces all local data (no merge). View-month localStorage keys are not in the Excel file. (found 2026-10-24)

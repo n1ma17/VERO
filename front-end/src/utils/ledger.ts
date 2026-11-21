@@ -1,7 +1,7 @@
 import type { BankDeposit } from '@/types/bankDeposit'
 import type { Expense } from '@/types/expense'
 import type { Installment } from '@/types/installment'
-import { monthToIndex } from '@/utils/jalali'
+import { isoToCalendar, monthToIndex, usesJalaliCalendar } from '@/utils/calendar'
 import { toJalaali } from 'jalaali-js'
 
 export interface MonthTotals {
@@ -11,13 +11,18 @@ export interface MonthTotals {
 }
 
 function paymentMonthIndex(paidAt: string): number {
-  const { jy, jm } = toJalaali(new Date(paidAt))
-  return monthToIndex(jy, jm)
+  if (usesJalaliCalendar()) {
+    const { jy, jm } = toJalaali(new Date(paidAt))
+    return monthToIndex(jy, jm)
+  }
+  const { year, month } = isoToCalendar(paidAt)
+  return monthToIndex(year, month)
 }
 
 /**
  * Income by deposit "counted" month, paid bills by payment month, expenses by purchase month.
  * Keyed by `monthToIndex`. Dashboard overview; Transactions reads totals from `GET /api/ledger`.
+ * Months follow the active display calendar (Jalali for IRR, Gregorian otherwise).
  */
 export function buildMonthTotals(
   deposits: ReadonlyArray<Pick<BankDeposit, 'amount' | 'bookedYear' | 'bookedMonth'>>,

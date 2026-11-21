@@ -3,16 +3,26 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import CurrencySwitcher from '@/components/shared/CurrencySwitcher.vue'
 import { useAuth } from '@/composables/useAuth'
-import { currentJalaliDate, formatJalaliDate, JALALI_WEEKDAY_NAMES, jalaliWeekdayIndex } from '@/utils/jalali'
+import { useCurrency } from '@/composables/useCurrency'
+import {
+  calendarWeekdayIndex,
+  calendarWeekdayNames,
+  currentCalendarDate,
+  formatCalendarDate,
+} from '@/utils/calendar'
 
 const router = useRouter()
 const { logout, currentUser } = useAuth()
+const { currency } = useCurrency()
 
-const today = currentJalaliDate()
-const todayLabel = computed(
-  () =>
-    `${JALALI_WEEKDAY_NAMES[jalaliWeekdayIndex(today.year, today.month, today.day)]}, ${formatJalaliDate(today.year, today.month, today.day)}`,
-)
+const todayLabel = computed(() => {
+  void currency.value
+  const today = currentCalendarDate()
+  const weekday = calendarWeekdayNames()[
+    calendarWeekdayIndex(today.year, today.month, today.day)
+  ]
+  return `${weekday}, ${formatCalendarDate(today.year, today.month, today.day)}`
+})
 
 async function signOut() {
   await logout()

@@ -9,7 +9,7 @@ import ReceiptEdge from '@/components/shared/ReceiptEdge.vue'
 import { useCurrentInstallment } from '@/composables/useCurrentInstallment'
 import type { InstallmentStatus } from '@/types/installment'
 import { formatMoney } from '@/utils/formatMoney'
-import { formatJalaliDate, formatTimestampAsJalali } from '@/utils/jalali'
+import { formatCalendarDate, formatTimestampAsCalendar } from '@/utils/calendar'
 
 const { installment, status } = useCurrentInstallment()
 
@@ -44,7 +44,7 @@ const staticRows = computed(() => {
     { label: 'Reference', value: installment.value.billId.slice(0, 8) },
     {
       label: 'Due date',
-      value: formatJalaliDate(
+      value: formatCalendarDate(
         installment.value.dueYear,
         installment.value.dueMonth,
         installment.value.dueDay,
@@ -54,7 +54,7 @@ const staticRows = computed(() => {
 })
 
 const paidOnLabel = computed(() =>
-  installment.value?.paidAt ? formatTimestampAsJalali(installment.value.paidAt) : '—',
+  installment.value?.paidAt ? formatTimestampAsCalendar(installment.value.paidAt) : '—',
 )
 
 const amount = computed(() => (installment.value ? formatMoney(installment.value.amount) : ''))

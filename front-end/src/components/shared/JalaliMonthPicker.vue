@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { JALALI_MONTH_NAMES, formatJalaliMonth } from '@/utils/jalali'
+import { computed } from 'vue'
+import { useCurrency } from '@/composables/useCurrency'
+import { calendarMonthNames, formatCalendarMonth } from '@/utils/calendar'
 
 const props = defineProps<{
   year: number
@@ -12,7 +14,17 @@ const emit = defineEmits<{
   'update:month': [month: number]
 }>()
 
-const monthLabel = () => formatJalaliMonth(props.year, props.month)
+const { currency } = useCurrency()
+
+const monthNames = computed(() => {
+  void currency.value
+  return calendarMonthNames()
+})
+
+const monthLabel = computed(() => {
+  void currency.value
+  return formatCalendarMonth(props.year, props.month)
+})
 
 function selectMonth(month: number) {
   emit('update:month', month)
@@ -40,7 +52,7 @@ function changeYear(delta: number) {
         >
           Year −
         </button>
-        <span class="font-mono text-sm font-semibold">{{ monthLabel() }}</span>
+        <span class="font-mono text-sm font-semibold">{{ monthLabel }}</span>
         <button
           type="button"
           class="inline-flex min-h-11 items-center rounded-[8px] border border-primary/40 px-3 text-sm text-text transition hover:bg-primary hover:text-background"
@@ -52,7 +64,7 @@ function changeYear(delta: number) {
       </div>
       <div class="mt-3 grid grid-cols-4 gap-1.5">
         <button
-          v-for="(name, index) in JALALI_MONTH_NAMES"
+          v-for="(name, index) in monthNames"
           :key="name"
           type="button"
           class="min-h-11 rounded-[8px] px-1 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"

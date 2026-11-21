@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useDashboard, type SpendingSlice } from '@/composables/useDashboard'
 import { categoryMeta } from '@/utils/expenseCategories'
-import { formatJalaliMonth } from '@/utils/jalali'
+import { formatCalendarMonth } from '@/utils/calendar'
 import { currencyUnit, formatMoneyCompact, formatMoneyNumber } from '@/utils/formatMoney'
 
 const { spendingBreakdown, monthSpending, today } = useDashboard()
@@ -35,7 +35,9 @@ const segments = computed(() => {
   })
 })
 
-const monthLabel = formatJalaliMonth(today.year, today.month)
+const monthLabel = computed(() =>
+  formatCalendarMonth(today.value.year, today.value.month),
+)
 </script>
 
 <template>

@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useDashboard } from '@/composables/useDashboard'
 import { areaPath, niceScale, smoothPath } from '@/utils/chart'
-import { formatJalaliMonth } from '@/utils/jalali'
+import { formatCalendarMonth } from '@/utils/calendar'
 import { formatMoney, formatMoneyCompact } from '@/utils/formatMoney'
 
 const { cashFlow } = useDashboard()
@@ -69,7 +69,7 @@ const bestMonth = computed(() => {
     null,
   )
   if (!best || net(best) <= 0) return null
-  return { label: formatJalaliMonth(best.year, best.month), net: net(best) }
+  return { label: formatCalendarMonth(best.year, best.month), net: net(best) }
 })
 
 const activeIndex = computed(() => hoveredIndex.value ?? cashFlow.value.length - 1)
@@ -112,7 +112,7 @@ const activePoint = computed(() => cashFlow.value[activeIndex.value])
         v-if="activePoint"
         class="mb-3 rounded-2xl border border-primary/20 bg-surface px-3 py-2 text-xs shadow-md sm:absolute sm:right-0 sm:top-0 sm:z-10 sm:mb-0 sm:bg-surface/95"
       >
-        <p class="font-semibold">{{ formatJalaliMonth(activePoint.year, activePoint.month) }}</p>
+        <p class="font-semibold">{{ formatCalendarMonth(activePoint.year, activePoint.month) }}</p>
         <p class="mt-1 font-mono text-success">+{{ formatMoney(activePoint.income) }}</p>
         <p class="font-mono text-danger">−{{ formatMoney(activePoint.bills) }}</p>
         <p class="font-mono text-warning">−{{ formatMoney(activePoint.expenses) }}</p>

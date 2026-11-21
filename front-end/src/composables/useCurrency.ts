@@ -100,7 +100,15 @@ export function useCurrency() {
 
   async function setCurrency(code: Currency): Promise<void> {
     if (code === currency.value) return
+    const wasJalali = currency.value === 'IRR'
     await patchSettings({ currency: code })
+    const isJalali = currency.value === 'IRR'
+    if (wasJalali !== isJalali) {
+      const { reloadMoneyCollectionsForCalendar } = await import(
+        '@/composables/loadMoneyCollections'
+      )
+      await reloadMoneyCollectionsForCalendar()
+    }
   }
 
   async function setIrrMarketRate(value: number | null): Promise<void> {

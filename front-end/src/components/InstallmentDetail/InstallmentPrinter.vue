@@ -12,7 +12,7 @@ import BaseButton from '@/components/shared/BaseButton.vue'
 import { useCurrentInstallment } from '@/composables/useCurrentInstallment'
 import type { ReceiptPrinterStage } from '@/types/receiptPrinter'
 import { formatMoney } from '@/utils/formatMoney'
-import { formatJalaliDate, formatTimestampAsJalali } from '@/utils/jalali'
+import { formatCalendarDate, formatTimestampAsCalendar } from '@/utils/calendar'
 import { scrollToReceiptPrinter } from '@/utils/scrollToReceiptPrinter'
 
 const PROCESSING_MS = 1200
@@ -75,7 +75,7 @@ function pay() {
 const amount = computed(() => (installment.value ? formatMoney(installment.value.amount) : ''))
 const dueDate = computed(() =>
   installment.value
-    ? formatJalaliDate(
+    ? formatCalendarDate(
         installment.value.dueYear,
         installment.value.dueMonth,
         installment.value.dueDay,
@@ -83,7 +83,7 @@ const dueDate = computed(() =>
     : '',
 )
 const paidOn = computed(() =>
-  formatTimestampAsJalali(installment.value?.paidAt ?? new Date().toISOString()),
+  formatTimestampAsCalendar(installment.value?.paidAt ?? new Date().toISOString()),
 )
 
 const payLabel = computed(() => {

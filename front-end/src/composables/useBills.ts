@@ -6,18 +6,24 @@ import { withDisplayAmount } from '@/composables/useCurrency'
 import { refreshInstallments } from '@/composables/useInstallments'
 import type { Bill, JalaliMonth, NewBill } from '@/types/bill'
 import { billFromApi, billToApi, type BillApi } from '@/utils/moneyApi'
-import { currentJalaliMonth, indexToMonth, isBillActiveInMonth, monthToIndex } from '@/utils/jalali'
+import { sanitizeViewMonth } from '@/composables/viewMonthSync'
+import {
+  currentCalendarMonth,
+  indexToMonth,
+  isBillActiveInMonth,
+  monthToIndex,
+} from '@/utils/calendar'
 
 const VIEW_KEY = 'money-managment:bills-view-month'
 
 function loadViewMonth(): JalaliMonth {
   try {
     const raw = localStorage.getItem(VIEW_KEY)
-    if (raw) return JSON.parse(raw) as JalaliMonth
+    if (raw) return sanitizeViewMonth(JSON.parse(raw) as JalaliMonth)
   } catch {
     /* ignore */
   }
-  return currentJalaliMonth()
+  return currentCalendarMonth()
 }
 
 const bills = ref<Bill[]>([])
@@ -33,6 +39,17 @@ export function clearBills(): void {
   bills.value = []
 }
 
+export function resetBillsViewMonth(): void {
+  const now = currentCalendarMonth()
+  viewMonth.value = now
+  localStorage.setItem(VIEW_KEY, JSON.stringify(now))
+}
+
+export function alignBillsViewMonth(): void {
+  viewMonth.value = loadViewMonth()
+  localStorage.setItem(VIEW_KEY, JSON.stringify(viewMonth.value))
+}
+
 export function getBillsSnapshot(): Bill[] {
   return bills.value
 }
@@ -41,7 +58,7 @@ export function useBills() {
   const viewIndex = computed(() => monthToIndex(viewMonth.value.year, viewMonth.value.month))
 
   const isCurrentMonth = computed(() => {
-    const now = currentJalaliMonth()
+    const now = currentCalendarMonth()
     return viewIndex.value === monthToIndex(now.year, now.month)
   })
 
@@ -60,7 +77,7 @@ export function useBills() {
   }
 
   function goToCurrentMonth() {
-    const now = currentJalaliMonth()
+    const now = currentCalendarMonth()
     setViewMonth(now.year, now.month)
   }
 

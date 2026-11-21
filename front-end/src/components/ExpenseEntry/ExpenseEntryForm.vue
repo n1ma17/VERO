@@ -16,7 +16,7 @@ import { useExpenseCategoryCatalog } from '@/composables/useExpenseCategoryCatal
 import type { Currency } from '@/types/currency'
 import type { ExpenseCategory } from '@/types/expense'
 import { categoryMeta } from '@/utils/expenseCategories'
-import { clampDueDay, currentJalaliDate, formatJalaliDate, formatJalaliMonth } from '@/utils/jalali'
+import { clampDueDay, currentCalendarDate, formatCalendarDate, formatCalendarMonth } from '@/utils/calendar'
 import { formatMoney } from '@/utils/formatMoney'
 
 const route = useRoute()
@@ -33,7 +33,7 @@ const confirmingDelete = ref(false)
 const manageCategories = ref(false)
 
 function defaultEntryDate() {
-  const today = currentJalaliDate()
+  const today = currentCalendarDate()
   const viewed = viewMonth.value
   if (viewed.year === today.year && viewed.month === today.month) return today
   return { year: viewed.year, month: viewed.month, day: clampDueDay(today.day, viewed.year, viewed.month) }
@@ -120,7 +120,7 @@ watch(formResetTick, () => {
 })
 
 const isValid = computed(() => form.title.trim() !== '' && (form.amount ?? 0) > 0)
-const dateLabel = computed(() => formatJalaliDate(form.year, form.month, form.day))
+const dateLabel = computed(() => formatCalendarDate(form.year, form.month, form.day))
 const amountLabel = computed(() =>
   form.amount && form.amount > 0 ? formatMoney(form.amount, amountCurrency.value) : '—',
 )
@@ -154,7 +154,7 @@ async function submit() {
     id: saved.id,
     title: saved.title,
     category: saved.category,
-    dateLabel: formatJalaliDate(saved.jalaliYear, saved.jalaliMonth, saved.jalaliDay),
+    dateLabel: formatCalendarDate(saved.jalaliYear, saved.jalaliMonth, saved.jalaliDay),
     amountLabel: formatMoney(saved.originalAmount, saved.currency),
     note: saved.note,
     isUpdate: isEditing.value,
@@ -257,7 +257,7 @@ async function deleteExpense() {
         </div>
         <div class="flex justify-between gap-4">
           <dt class="text-text-muted">Counts in</dt>
-          <dd>{{ formatJalaliMonth(form.year, form.month) }}</dd>
+          <dd>{{ formatCalendarMonth(form.year, form.month) }}</dd>
         </div>
         <div class="flex justify-between gap-4">
           <dt class="text-text-muted">Amount</dt>

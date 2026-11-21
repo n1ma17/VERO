@@ -4,7 +4,8 @@ import { bumpMoneyData } from '@/composables/moneyGeneration'
 import { roundMoney, withDisplayAmount } from '@/composables/useCurrency'
 import type { JalaliMonth } from '@/types/bill'
 import type { BankDeposit, NewBankDeposit } from '@/types/bankDeposit'
-import { clampDueDay, currentJalaliMonth, monthToIndex } from '@/utils/jalali'
+import { sanitizeViewMonth } from '@/composables/viewMonthSync'
+import { clampDueDay, currentCalendarMonth, monthToIndex } from '@/utils/calendar'
 import { depositFromApi, depositToApi, type DepositApi } from '@/utils/moneyApi'
 
 const VIEW_KEY = 'money-managment:deposits-view-month'
@@ -14,11 +15,11 @@ const MAX_FUTURE_MONTHS = 60
 function loadViewMonth(): JalaliMonth {
   try {
     const raw = localStorage.getItem(VIEW_KEY)
-    if (raw) return JSON.parse(raw) as JalaliMonth
+    if (raw) return sanitizeViewMonth(JSON.parse(raw) as JalaliMonth)
   } catch {
     /* ignore */
   }
-  return currentJalaliMonth()
+  return currentCalendarMonth()
 }
 
 function depositSortKey(deposit: BankDeposit): number {
@@ -56,12 +57,23 @@ export function clearDeposits(): void {
   deposits.value = []
 }
 
+export function resetDepositsViewMonth(): void {
+  const now = currentCalendarMonth()
+  viewMonth.value = now
+  localStorage.setItem(VIEW_KEY, JSON.stringify(now))
+}
+
+export function alignDepositsViewMonth(): void {
+  viewMonth.value = loadViewMonth()
+  localStorage.setItem(VIEW_KEY, JSON.stringify(viewMonth.value))
+}
+
 export function getDepositsSnapshot(): BankDeposit[] {
   return deposits.value
 }
 
 export function useBankDeposits() {
-  const calendarMonth = computed(() => currentJalaliMonth())
+  const calendarMonth = computed(() => currentCalendarMonth())
 
   const depositsInViewMonth = computed(() => {
     const { year, month } = viewMonth.value

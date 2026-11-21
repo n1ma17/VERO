@@ -2,12 +2,12 @@
 import { computed } from 'vue'
 import DepositWallet from '@/components/Deposits/DepositWallet.vue'
 import { useBankDeposits } from '@/composables/useBankDeposits'
-import { formatJalaliMonth } from '@/utils/jalali'
+import { formatCalendarMonth } from '@/utils/calendar'
 
 const { depositsInViewMonth, viewMonth } = useBankDeposits()
 
 const monthLabel = computed(() =>
-  formatJalaliMonth(viewMonth.value.year, viewMonth.value.month),
+  formatCalendarMonth(viewMonth.value.year, viewMonth.value.month),
 )
 </script>
 

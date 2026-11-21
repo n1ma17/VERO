@@ -2,12 +2,12 @@
 import { computed } from 'vue'
 import InstallmentReceiptCard from '@/components/Installments/InstallmentReceiptCard.vue'
 import { useInstallments } from '@/composables/useInstallments'
-import { formatJalaliMonth } from '@/utils/jalali'
+import { formatCalendarMonth } from '@/utils/calendar'
 
 const { installments, viewMonth } = useInstallments()
 
 const monthLabel = computed(() =>
-  formatJalaliMonth(viewMonth.value.year, viewMonth.value.month),
+  formatCalendarMonth(viewMonth.value.year, viewMonth.value.month),
 )
 </script>
 

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import JalaliCalendarPanel from '@/components/shared/JalaliCalendarPanel.vue'
-import { clampDueDay, formatJalaliDate } from '@/utils/jalali'
+import { useCurrency } from '@/composables/useCurrency'
+import { clampDueDay, formatCalendarDate } from '@/utils/calendar'
 
 const props = defineProps<{
   year: number
@@ -35,7 +36,11 @@ const popoverStyle = ref({
   maxHeight: 'calc(100dvh - 1rem)',
 })
 
-const display = computed(() => formatJalaliDate(props.year, props.month, props.day))
+const { currency } = useCurrency()
+const display = computed(() => {
+  void currency.value
+  return formatCalendarDate(props.year, props.month, props.day)
+})
 
 watch(
   () => [props.year, props.month, props.day],

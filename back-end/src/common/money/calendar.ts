@@ -57,6 +57,15 @@ export function jalaliMonthFirstIso(year: number, month: number): string {
   return jalaliToIso(year, month, 1);
 }
 
+export function isoToGregorian(iso: string): { year: number; month: number; day: number } {
+  const [year, month, day] = iso.slice(0, 10).split('-').map(Number);
+  return { year, month, day };
+}
+
+export function gregorianMonthFirstIso(year: number, month: number): string {
+  return toIsoParts(year, month, 1);
+}
+
 function toIsoParts(year: number, month: number, day: number): string {
   return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }

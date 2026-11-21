@@ -6,7 +6,11 @@ import { useBills } from '@/composables/useBills'
 import { useExpenses } from '@/composables/useExpenses'
 import { useInstallments } from '@/composables/useInstallments'
 import { useLedger } from '@/composables/useLedger'
-import { formatJalaliMonth, nextJalaliMonth, previousJalaliMonth } from '@/utils/jalali'
+import {
+  formatCalendarMonth,
+  nextCalendarMonth,
+  previousCalendarMonth,
+} from '@/utils/calendar'
 
 export type ViewMonthNavigatorContext = 'expenses' | 'installments' | 'deposits' | 'ledger' | 'bills'
 
@@ -36,16 +40,16 @@ const monthLabel = computed(() => {
     case 'ledger':
       return ledger.viewLabel.value
     case 'expenses':
-      return formatJalaliMonth(expenses.viewMonth.value.year, expenses.viewMonth.value.month)
+      return formatCalendarMonth(expenses.viewMonth.value.year, expenses.viewMonth.value.month)
     case 'bills':
-      return formatJalaliMonth(bills.viewMonth.value.year, bills.viewMonth.value.month)
+      return formatCalendarMonth(bills.viewMonth.value.year, bills.viewMonth.value.month)
     case 'installments':
-      return formatJalaliMonth(
+      return formatCalendarMonth(
         installments.viewMonth.value.year,
         installments.viewMonth.value.month,
       )
     case 'deposits':
-      return formatJalaliMonth(deposits.viewMonth.value.year, deposits.viewMonth.value.month)
+      return formatCalendarMonth(deposits.viewMonth.value.year, deposits.viewMonth.value.month)
   }
 })
 
@@ -91,14 +95,14 @@ function onPrevious() {
       break
     case 'installments':
       if (!installments.canViewPreviousMonth.value) return
-      const prev = previousJalaliMonth(
+      const prev = previousCalendarMonth(
         installments.viewMonth.value.year,
         installments.viewMonth.value.month,
       )
       installments.setViewMonth(prev.year, prev.month)
       break
     case 'deposits': {
-      const prevMonth = previousJalaliMonth(
+      const prevMonth = previousCalendarMonth(
         deposits.viewMonth.value.year,
         deposits.viewMonth.value.month,
       )
@@ -120,7 +124,7 @@ function onNext() {
       ledger.shiftViewMonth(1)
       break
     case 'installments': {
-      const next = nextJalaliMonth(
+      const next = nextCalendarMonth(
         installments.viewMonth.value.year,
         installments.viewMonth.value.month,
       )
@@ -129,7 +133,7 @@ function onNext() {
     }
     case 'deposits':
       if (!deposits.canViewNextMonth.value) return
-      const nextMonth = nextJalaliMonth(
+      const nextMonth = nextCalendarMonth(
         deposits.viewMonth.value.year,
         deposits.viewMonth.value.month,
       )

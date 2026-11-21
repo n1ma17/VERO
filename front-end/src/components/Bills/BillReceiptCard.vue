@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import BillIssuedReceiptBody from '@/components/Bills/BillIssuedReceiptBody.vue'
 import type { Bill } from '@/types/bill'
-import { formatJalaliDate, formatJalaliMonthRange } from '@/utils/jalali'
+import { formatCalendarDate, formatCalendarMonthRange } from '@/utils/calendar'
 import { formatMoney } from '@/utils/formatMoney'
 
 const props = defineProps<{
@@ -10,10 +10,10 @@ const props = defineProps<{
 }>()
 
 const meta = computed(() =>
-  `First due ${formatJalaliDate(props.bill.startYear, props.bill.startMonth, props.bill.dueDay)}`,
+  `First due ${formatCalendarDate(props.bill.startYear, props.bill.startMonth, props.bill.dueDay)}`,
 )
 const periodLabel = computed(() =>
-  formatJalaliMonthRange(props.bill.startYear, props.bill.startMonth, props.bill.durationMonths),
+  formatCalendarMonthRange(props.bill.startYear, props.bill.startMonth, props.bill.durationMonths),
 )
 const amountLabel = computed(() => formatMoney(props.bill.amount))
 const refCode = computed(() => props.bill.id.slice(0, 8).toUpperCase())

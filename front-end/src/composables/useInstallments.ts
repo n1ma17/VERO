@@ -4,7 +4,8 @@ import { bumpMoneyData } from '@/composables/moneyGeneration'
 import { withDisplayAmount } from '@/composables/useCurrency'
 import type { JalaliMonth } from '@/types/bill'
 import type { Installment } from '@/types/installment'
-import { currentJalaliMonth, monthToIndex } from '@/utils/jalali'
+import { sanitizeViewMonth } from '@/composables/viewMonthSync'
+import { currentCalendarMonth, monthToIndex } from '@/utils/calendar'
 import { installmentFromApi, type InstallmentApi } from '@/utils/moneyApi'
 
 const VIEW_KEY = 'money-managment:installments-view-month'
@@ -13,8 +14,8 @@ function loadViewMonth(): JalaliMonth {
   try {
     const raw = localStorage.getItem(VIEW_KEY)
     if (raw) {
-      const parsed = JSON.parse(raw) as JalaliMonth
-      const now = currentJalaliMonth()
+      const parsed = sanitizeViewMonth(JSON.parse(raw) as JalaliMonth)
+      const now = currentCalendarMonth()
       if (monthToIndex(parsed.year, parsed.month) >= monthToIndex(now.year, now.month)) {
         return parsed
       }
@@ -22,7 +23,7 @@ function loadViewMonth(): JalaliMonth {
   } catch {
     /* ignore */
   }
-  return currentJalaliMonth()
+  return currentCalendarMonth()
 }
 
 function isInViewMonth(installment: Installment, year: number, month: number): boolean {
@@ -39,6 +40,17 @@ export async function loadInstallments(): Promise<void> {
 
 export function clearInstallments(): void {
   installments.value = []
+}
+
+export function resetInstallmentsViewMonth(): void {
+  const now = currentCalendarMonth()
+  viewMonth.value = now
+  localStorage.setItem(VIEW_KEY, JSON.stringify(now))
+}
+
+export function alignInstallmentsViewMonth(): void {
+  viewMonth.value = loadViewMonth()
+  localStorage.setItem(VIEW_KEY, JSON.stringify(viewMonth.value))
 }
 
 export function getInstallmentsSnapshot(): Installment[] {
@@ -62,7 +74,7 @@ export function useInstallments() {
   })
 
   const canViewPreviousMonth = computed(() => {
-    const now = currentJalaliMonth()
+    const now = currentCalendarMonth()
     return (
       monthToIndex(viewMonth.value.year, viewMonth.value.month) >
       monthToIndex(now.year, now.month)

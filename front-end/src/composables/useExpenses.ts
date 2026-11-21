@@ -6,7 +6,13 @@ import type { JalaliMonth } from '@/types/bill'
 import type { Expense, ExpenseCategory, NewExpense } from '@/types/expense'
 import { useExpenseCategoryCatalog } from '@/composables/useExpenseCategoryCatalog'
 import { categoryMeta, isExpenseCategorySlug } from '@/utils/expenseCategories'
-import { clampDueDay, currentJalaliMonth, indexToMonth, monthToIndex } from '@/utils/jalali'
+import { sanitizeViewMonth } from '@/composables/viewMonthSync'
+import {
+  clampDueDay,
+  currentCalendarMonth,
+  indexToMonth,
+  monthToIndex,
+} from '@/utils/calendar'
 import { expenseFromApi, expenseToApi, type ExpenseApi } from '@/utils/moneyApi'
 
 const VIEW_KEY = 'money-managment:expenses-view-month'
@@ -14,11 +20,11 @@ const VIEW_KEY = 'money-managment:expenses-view-month'
 function loadViewMonth(): JalaliMonth {
   try {
     const raw = localStorage.getItem(VIEW_KEY)
-    if (raw) return JSON.parse(raw) as JalaliMonth
+    if (raw) return sanitizeViewMonth(JSON.parse(raw) as JalaliMonth)
   } catch {
     /* ignore */
   }
-  return currentJalaliMonth()
+  return currentCalendarMonth()
 }
 
 function dateKey(expense: Pick<Expense, 'jalaliYear' | 'jalaliMonth' | 'jalaliDay'>): number {
@@ -51,6 +57,17 @@ export function clearExpenses(): void {
   expenses.value = []
 }
 
+export function resetExpensesViewMonth(): void {
+  const now = currentCalendarMonth()
+  viewMonth.value = now
+  localStorage.setItem(VIEW_KEY, JSON.stringify(now))
+}
+
+export function alignExpensesViewMonth(): void {
+  viewMonth.value = loadViewMonth()
+  localStorage.setItem(VIEW_KEY, JSON.stringify(viewMonth.value))
+}
+
 export function getExpensesSnapshot(): Expense[] {
   return expenses.value
 }
@@ -60,7 +77,7 @@ export function useExpenses() {
   const viewIndex = computed(() => monthToIndex(viewMonth.value.year, viewMonth.value.month))
 
   const isCurrentMonth = computed(() => {
-    const now = currentJalaliMonth()
+    const now = currentCalendarMonth()
     return viewIndex.value === monthToIndex(now.year, now.month)
   })
 
@@ -105,7 +122,7 @@ export function useExpenses() {
   }
 
   function goToCurrentMonth() {
-    const now = currentJalaliMonth()
+    const now = currentCalendarMonth()
     setViewMonth(now.year, now.month)
   }
 

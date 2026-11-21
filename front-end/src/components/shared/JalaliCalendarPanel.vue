@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useCurrency } from '@/composables/useCurrency'
 import {
-  JALALI_MONTH_NAMES,
-  JALALI_WEEKDAY_NAMES,
-  buildMonthDayGrid,
-  currentJalaliDate,
-  formatJalaliMonth,
-  nextJalaliMonth,
-  previousJalaliMonth,
-} from '@/utils/jalali'
+  buildCalendarMonthDayGrid,
+  calendarLabel,
+  calendarMonthNames,
+  calendarWeekdayNames,
+  currentCalendarDate,
+  formatCalendarMonth,
+  nextCalendarMonth,
+  previousCalendarMonth,
+} from '@/utils/calendar'
 
 const props = defineProps<{
   year: number
@@ -22,9 +24,32 @@ const emit = defineEmits<{
   'update:day': [day: number]
 }>()
 
-const today = currentJalaliDate()
-const monthLabel = computed(() => formatJalaliMonth(props.year, props.month))
-const dayCells = computed(() => buildMonthDayGrid(props.year, props.month))
+const { currency } = useCurrency()
+
+const today = computed(() => {
+  void currency.value
+  return currentCalendarDate()
+})
+const monthNames = computed(() => {
+  void currency.value
+  return calendarMonthNames()
+})
+const weekdayNames = computed(() => {
+  void currency.value
+  return calendarWeekdayNames()
+})
+const label = computed(() => {
+  void currency.value
+  return calendarLabel()
+})
+const monthLabel = computed(() => {
+  void currency.value
+  return formatCalendarMonth(props.year, props.month)
+})
+const dayCells = computed(() => {
+  void currency.value
+  return buildCalendarMonthDayGrid(props.year, props.month)
+})
 
 const dayCellClasses = {
   base:
@@ -39,7 +64,9 @@ function cellClass(day: number | null): string {
   if (day === null) return `${dayCellClasses.base} ${dayCellClasses.muted}`
   const isSelected = day === props.selectedDay
   const isToday =
-    props.year === today.year && props.month === today.month && day === today.day
+    props.year === today.value.year &&
+    props.month === today.value.month &&
+    day === today.value.day
   if (isSelected) return `${dayCellClasses.base} ${dayCellClasses.selected}`
   return `${dayCellClasses.base} ${dayCellClasses.default} ${isToday ? dayCellClasses.today : ''}`
 }
@@ -53,8 +80,8 @@ function selectDay(day: number) {
 function shiftMonth(delta: number) {
   const target =
     delta < 0
-      ? previousJalaliMonth(props.year, props.month)
-      : nextJalaliMonth(props.year, props.month)
+      ? previousCalendarMonth(props.year, props.month)
+      : nextCalendarMonth(props.year, props.month)
   emit('update:year', target.year)
   emit('update:month', target.month)
 }
@@ -80,7 +107,7 @@ function selectMonth(month: number) {
         </button>
         <div class="text-center">
           <p class="text-xs font-medium uppercase tracking-widest text-text-muted">
-            Jalali calendar
+            {{ label }}
           </p>
           <p class="font-semibold">{{ monthLabel }}</p>
         </div>
@@ -97,7 +124,7 @@ function selectMonth(month: number) {
 
     <div class="grid grid-cols-6 gap-1 border-b border-primary/15 px-3 py-2">
       <button
-        v-for="(name, index) in JALALI_MONTH_NAMES"
+        v-for="(name, index) in monthNames"
         :key="name"
         type="button"
         class="truncate rounded-lg px-1 py-1 text-[10px] font-medium transition sm:text-xs"
@@ -115,7 +142,7 @@ function selectMonth(month: number) {
     <div class="px-3 pb-4 pt-3">
       <div class="mb-2 grid grid-cols-7 gap-1">
         <span
-          v-for="weekday in JALALI_WEEKDAY_NAMES"
+          v-for="weekday in weekdayNames"
           :key="weekday"
           class="text-center text-[10px] font-semibold uppercase tracking-wide text-text-muted sm:text-xs"
         >

@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useLedger } from '@/composables/useLedger'
 import { niceScale } from '@/utils/chart'
-import { formatJalaliMonth } from '@/utils/jalali'
+import { formatCalendarMonth } from '@/utils/calendar'
 import { formatMoney, formatMoneyCompact } from '@/utils/formatMoney'
 
 const { chartSeries, viewMonth, setViewMonth } = useLedger()
@@ -111,7 +111,7 @@ function selectMonth(year: number, month: number) {
       <div>
         <dt class="text-xs text-text-muted">Month</dt>
         <dd class="font-semibold">
-          {{ formatJalaliMonth(activeGroup.point.year, activeGroup.point.month) }}
+          {{ formatCalendarMonth(activeGroup.point.year, activeGroup.point.month) }}
         </dd>
       </div>
       <div>

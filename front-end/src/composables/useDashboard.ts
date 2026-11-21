@@ -1,6 +1,7 @@
 import { computed } from 'vue'
 import { useBankDeposits } from '@/composables/useBankDeposits'
 import { moneyGeneration } from '@/composables/moneyGeneration'
+import { useCurrency } from '@/composables/useCurrency'
 import { useExpenses } from '@/composables/useExpenses'
 import { useInstallments } from '@/composables/useInstallments'
 import type { ExpenseCategory } from '@/types/expense'
@@ -8,13 +9,13 @@ import type { InstallmentStatus } from '@/types/installment'
 import { daysBetween, toIsoDate } from '@/utils/date'
 import { getInstallmentStatus } from '@/utils/installmentStatus'
 import {
-  JALALI_MONTH_NAMES,
-  currentJalaliDate,
-  formatJalaliDate,
+  calendarMonthLength,
+  calendarMonthNames,
+  currentCalendarDate,
+  formatCalendarDate,
   indexToMonth,
-  jalaliMonthLength,
   monthToIndex,
-} from '@/utils/jalali'
+} from '@/utils/calendar'
 import { balanceThrough, buildMonthTotals } from '@/utils/ledger'
 
 const CASH_FLOW_MONTHS = 12
@@ -63,15 +64,19 @@ function dateKey(year: number, month: number, day: number): number {
   return year * 10000 + month * 100 + day
 }
 
-/** Read-only overview of the current Jalali month, built from deposits, bill installments and expenses. */
+/** Read-only overview of the current calendar month, built from deposits, bill installments and expenses. */
 export function useDashboard() {
   const { deposits } = useBankDeposits()
   const { allInstallments } = useInstallments()
   const { expenses } = useExpenses()
+  const { currency } = useCurrency()
 
-  const today = currentJalaliDate()
+  const today = computed(() => {
+    void currency.value
+    return currentCalendarDate()
+  })
   const todayIso = toIsoDate(new Date())
-  const currentIndex = monthToIndex(today.year, today.month)
+  const currentIndex = computed(() => monthToIndex(today.value.year, today.value.month))
 
   const moneyInputs = computed(() => {
     void moneyGeneration.value
@@ -90,12 +95,12 @@ export function useDashboard() {
     ),
   )
 
-  const monthIncome = computed(() => totals.value.get(currentIndex)?.income ?? 0)
-  const monthBills = computed(() => totals.value.get(currentIndex)?.bills ?? 0)
-  const monthExpenses = computed(() => totals.value.get(currentIndex)?.expenses ?? 0)
+  const monthIncome = computed(() => totals.value.get(currentIndex.value)?.income ?? 0)
+  const monthBills = computed(() => totals.value.get(currentIndex.value)?.bills ?? 0)
+  const monthExpenses = computed(() => totals.value.get(currentIndex.value)?.expenses ?? 0)
   const monthSpending = computed(() => monthBills.value + monthExpenses.value)
   const monthNet = computed(() => monthIncome.value - monthSpending.value)
-  const balance = computed(() => balanceThrough(totals.value, currentIndex))
+  const balance = computed(() => balanceThrough(totals.value, currentIndex.value))
   const savingsRate = computed(() =>
     monthIncome.value > 0 ? Math.round((monthNet.value / monthIncome.value) * 100) : null,
   )
@@ -103,20 +108,23 @@ export function useDashboard() {
   const monthDepositCount = computed(
     () =>
       moneyInputs.value.deposits.filter(
-        (deposit) => deposit.bookedYear === today.year && deposit.bookedMonth === today.month,
+        (deposit) =>
+          deposit.bookedYear === today.value.year && deposit.bookedMonth === today.value.month,
       ).length,
   )
 
   const monthExpenseList = computed(() =>
     moneyInputs.value.expenses.filter(
-      (expense) => expense.jalaliYear === today.year && expense.jalaliMonth === today.month,
+      (expense) =>
+        expense.jalaliYear === today.value.year && expense.jalaliMonth === today.value.month,
     ),
   )
   const monthExpenseCount = computed(() => monthExpenseList.value.length)
 
   const monthInstallments = computed(() =>
     moneyInputs.value.installments.filter(
-      (installment) => installment.dueYear === today.year && installment.dueMonth === today.month,
+      (installment) =>
+        installment.dueYear === today.value.year && installment.dueMonth === today.value.month,
     ),
   )
   const monthBillCount = computed(() => monthInstallments.value.length)
@@ -142,7 +150,11 @@ export function useDashboard() {
         id: installment.id,
         title: installment.title,
         amount: installment.amount,
-        dueLabel: formatJalaliDate(installment.dueYear, installment.dueMonth, installment.dueDay),
+        dueLabel: formatCalendarDate(
+          installment.dueYear,
+          installment.dueMonth,
+          installment.dueDay,
+        ),
         daysLeft: daysBetween(todayIso, installment.dueDate),
         status: getInstallmentStatus(installment, todayIso),
         logoKey: installment.logoKey,
@@ -150,15 +162,16 @@ export function useDashboard() {
   )
 
   function monthSeries(count: number): MonthFlowPoint[] {
+    const names = calendarMonthNames()
     const points: MonthFlowPoint[] = []
     for (let offset = count - 1; offset >= 0; offset--) {
-      const index = currentIndex - offset
+      const index = currentIndex.value - offset
       const { year, month } = indexToMonth(index)
       const monthTotals = totals.value.get(index)
       points.push({
         year,
         month,
-        label: JALALI_MONTH_NAMES[month - 1].slice(0, 3),
+        label: names[month - 1].slice(0, 3),
         income: monthTotals?.income ?? 0,
         bills: monthTotals?.bills ?? 0,
         expenses: monthTotals?.expenses ?? 0,
@@ -196,7 +209,7 @@ export function useDashboard() {
         id: `deposit-${deposit.id}`,
         kind: 'deposit' as const,
         title: deposit.note ?? 'Bank deposit',
-        dateLabel: formatJalaliDate(deposit.jalaliYear, deposit.jalaliMonth, deposit.jalaliDay),
+        dateLabel: formatCalendarDate(deposit.jalaliYear, deposit.jalaliMonth, deposit.jalaliDay),
         amount: deposit.amount,
         category: null,
         expenseId: null,
@@ -207,7 +220,7 @@ export function useDashboard() {
         id: `expense-${expense.id}`,
         kind: 'expense' as const,
         title: expense.title,
-        dateLabel: formatJalaliDate(expense.jalaliYear, expense.jalaliMonth, expense.jalaliDay),
+        dateLabel: formatCalendarDate(expense.jalaliYear, expense.jalaliMonth, expense.jalaliDay),
         amount: expense.amount,
         category: expense.category,
         expenseId: expense.id,
@@ -221,7 +234,9 @@ export function useDashboard() {
       .map(({ sortKey: _sortKey, createdAt: _createdAt, ...item }) => item)
   })
 
-  const monthLength = jalaliMonthLength(today.year, today.month)
+  const monthLength = computed(() =>
+    calendarMonthLength(today.value.year, today.value.month),
+  )
 
   return {
     today,

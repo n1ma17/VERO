@@ -4,7 +4,7 @@ import ReceiptDivider from '@/components/shared/ReceiptDivider.vue'
 import ReceiptEdge from '@/components/shared/ReceiptEdge.vue'
 import type { Expense } from '@/types/expense'
 import { categoryMeta } from '@/utils/expenseCategories'
-import { formatJalaliDate } from '@/utils/jalali'
+import { formatCalendarDate } from '@/utils/calendar'
 import { formatMoney } from '@/utils/formatMoney'
 
 const props = defineProps<{
@@ -13,7 +13,7 @@ const props = defineProps<{
 
 const category = computed(() => categoryMeta(props.expense.category))
 const date = computed(() =>
-  formatJalaliDate(props.expense.jalaliYear, props.expense.jalaliMonth, props.expense.jalaliDay),
+  formatCalendarDate(props.expense.jalaliYear, props.expense.jalaliMonth, props.expense.jalaliDay),
 )
 </script>
 

@@ -2,7 +2,11 @@
 import { computed } from 'vue'
 import { displayCurrency, roundMoney } from '@/composables/useCurrency'
 import { useDashboard } from '@/composables/useDashboard'
-import { JALALI_WEEKDAY_NAMES, formatJalaliDate, jalaliWeekdayIndex } from '@/utils/jalali'
+import {
+  calendarWeekdayIndex,
+  calendarWeekdayNames,
+  formatCalendarDate,
+} from '@/utils/calendar'
 import { smoothPath } from '@/utils/chart'
 import { formatMoney } from '@/utils/formatMoney'
 
@@ -19,12 +23,17 @@ const greeting = computed(() => {
   return 'Good evening'
 })
 
-const todayLabel = computed(
-  () =>
-    `${JALALI_WEEKDAY_NAMES[jalaliWeekdayIndex(today.year, today.month, today.day)]}, ${formatJalaliDate(today.year, today.month, today.day)}`,
-)
+const todayLabel = computed(() => {
+  const d = today.value
+  const weekday = calendarWeekdayNames()[
+    calendarWeekdayIndex(d.year, d.month, d.day)
+  ]
+  return `${weekday}, ${formatCalendarDate(d.year, d.month, d.day)}`
+})
 
-const monthProgress = computed(() => Math.round((today.day / monthLength) * 100))
+const monthProgress = computed(() =>
+  Math.round((today.value.day / monthLength.value) * 100),
+)
 
 const netTone = computed(() => {
   if (monthNet.value < 0) return 'negative'

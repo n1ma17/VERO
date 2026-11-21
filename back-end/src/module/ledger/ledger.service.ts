@@ -1,5 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { isIsoDate, isoToJalali, jalaliMonthFirstIso } from '../../common/money/calendar.js';
+import {
+  gregorianMonthFirstIso,
+  isIsoDate,
+  isoToGregorian,
+  isoToJalali,
+  jalaliMonthFirstIso,
+} from '../../common/money/calendar.js';
 import {
   fromUsd,
   isCurrency,
@@ -38,6 +44,21 @@ const JALALI_MONTH_NAMES = [
   'Esfand',
 ] as const;
 
+const GREGORIAN_MONTH_NAMES = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+] as const;
+
 /** All money columns are USD (see `v_month_totals`). */
 type MonthTotalRow = {
   income: string | number;
@@ -70,14 +91,37 @@ export class LedgerService {
     if (!isIsoDate(isoDate)) {
       throw new BadRequestException('date must be a real Gregorian date');
     }
-    const { year, month } = isoToJalali(isoDate);
-    const index = monthIndex(year, month);
-    const chartStart = index - (CHART_MONTHS - 1);
 
     await this.fx.ensureFresh();
 
+    const currencyResult = await this.pg.query<{ currency: string }>(
+      'SELECT currency FROM users WHERE id = $1',
+      [userId],
+    );
+    const storedCurrency = currencyResult.rows[0]?.currency;
+    const currency: Currency = isCurrency(storedCurrency) ? storedCurrency : 'IRR';
+    const jalali = currency === 'IRR';
+
+    const { year, month } = jalali ? isoToJalali(isoDate) : isoToGregorian(isoDate);
+    const index = monthIndex(year, month);
+    const chartStart = index - (CHART_MONTHS - 1);
+    const totalsView = jalali ? 'v_month_totals' : 'v_month_totals_g';
+    const entriesView = jalali ? 'v_ledger_entries' : 'v_ledger_entries_g';
+    const unpaidSql = jalali
+      ? `SELECT coalesce(sum(amount_usd), 0) AS total
+           FROM v_installments
+          WHERE user_id = $1
+            AND due_year = $2
+            AND due_month = $3
+            AND paid_at IS NULL`
+      : `SELECT coalesce(sum(amount_usd), 0) AS total
+           FROM v_installments
+          WHERE user_id = $1
+            AND EXTRACT(YEAR FROM due_date) = $2
+            AND EXTRACT(MONTH FROM due_date) = $3
+            AND paid_at IS NULL`;
+
     const [
-      currencyResult,
       rates,
       totalsResult,
       openingResult,
@@ -86,17 +130,16 @@ export class LedgerService {
       chartOpeningResult,
       unpaidResult,
     ] = await Promise.all([
-      this.pg.query<{ currency: string }>('SELECT currency FROM users WHERE id = $1', [userId]),
       this.fx.getUserRates(userId),
       this.pg.query<MonthTotalRow>(
         `SELECT income, bills, expenses, net, closing_balance
-           FROM v_month_totals
+           FROM ${totalsView}
           WHERE user_id = $1 AND jalali_year = $2 AND jalali_month = $3`,
         [userId, year, month],
       ),
       this.pg.query<{ closing_balance: string | number }>(
         `SELECT closing_balance
-           FROM v_month_totals
+           FROM ${totalsView}
           WHERE user_id = $1 AND month_index < $2
           ORDER BY month_index DESC
           LIMIT 1`,
@@ -105,38 +148,28 @@ export class LedgerService {
       this.pg.query<LedgerRow>(
         `SELECT id, kind, title, detail, amount, currency, amount_usd, occurred_on,
                 year, month, day, status, installment_id, expense_id, category, balance_usd
-           FROM v_ledger_entries
+           FROM ${entriesView}
           WHERE user_id = $1 AND counted_year = $2 AND counted_month = $3
           ORDER BY sort_key, id`,
         [userId, year, month],
       ),
       this.pg.query<ChartRow>(
         `SELECT jalali_year, jalali_month, month_index, income, bills, expenses, closing_balance
-           FROM v_month_totals
+           FROM ${totalsView}
           WHERE user_id = $1 AND month_index BETWEEN $2 AND $3`,
         [userId, chartStart, index],
       ),
       this.pg.query<{ closing_balance: string | number }>(
         `SELECT closing_balance
-           FROM v_month_totals
+           FROM ${totalsView}
           WHERE user_id = $1 AND month_index < $2
           ORDER BY month_index DESC
           LIMIT 1`,
         [userId, chartStart],
       ),
-      this.pg.query<{ total: string | number }>(
-        `SELECT coalesce(sum(amount_usd), 0) AS total
-           FROM v_installments
-          WHERE user_id = $1
-            AND due_year = $2
-            AND due_month = $3
-            AND paid_at IS NULL`,
-        [userId, year, month],
-      ),
+      this.pg.query<{ total: string | number }>(unpaidSql, [userId, year, month]),
     ]);
 
-    const storedCurrency = currencyResult.rows[0]?.currency;
-    const currency: Currency = isCurrency(storedCurrency) ? storedCurrency : 'IRR';
     const toDisplay = displayConverter(currency, rates);
 
     const totals = totalsResult.rows[0];
@@ -159,7 +192,7 @@ export class LedgerService {
     const unpaidBillsTotal = toDisplay(unpaidResult.rows[0]?.total);
 
     return {
-      date: jalaliMonthFirstIso(year, month),
+      date: jalali ? jalaliMonthFirstIso(year, month) : gregorianMonthFirstIso(year, month),
       currency,
       monthIncome: income,
       monthBills: bills,
@@ -179,6 +212,7 @@ export class LedgerService {
         chartStart,
         chartOpeningResult.rows[0],
         toDisplay,
+        jalali,
       ),
     };
   }
@@ -206,8 +240,9 @@ function mapEntry(row: LedgerRow, toDisplay: ToDisplay): LedgerEntryDto {
   };
 }
 
-function monthLabel(month: number): string {
-  return JALALI_MONTH_NAMES[month - 1].slice(0, 3);
+function monthLabel(month: number, jalali: boolean): string {
+  const names = jalali ? JALALI_MONTH_NAMES : GREGORIAN_MONTH_NAMES;
+  return names[month - 1].slice(0, 3);
 }
 
 function buildChartSeries(
@@ -215,6 +250,7 @@ function buildChartSeries(
   chartStart: number,
   opening: { closing_balance: string | number } | undefined,
   toDisplay: ToDisplay,
+  jalali: boolean,
 ): LedgerMonthPointDto[] {
   const byIndex = new Map(rows.map((row) => [row.month_index, row]));
   let running = toDisplay(opening?.closing_balance);
@@ -226,8 +262,8 @@ function buildChartSeries(
     const row = byIndex.get(monthIdx);
     if (row) running = toDisplay(row.closing_balance);
     points.push({
-      date: jalaliMonthFirstIso(year, month),
-      label: monthLabel(month),
+      date: jalali ? jalaliMonthFirstIso(year, month) : gregorianMonthFirstIso(year, month),
+      label: monthLabel(month, jalali),
       income: toDisplay(row?.income),
       bills: toDisplay(row?.bills),
       expenses: toDisplay(row?.expenses),

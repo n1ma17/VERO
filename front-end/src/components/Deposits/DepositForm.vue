@@ -8,14 +8,14 @@ import { useBankDeposits } from '@/composables/useBankDeposits'
 import { useCurrency } from '@/composables/useCurrency'
 import { useToast } from '@/composables/useToast'
 import type { Currency } from '@/types/currency'
-import { clampDueDay, currentJalaliDate, currentJalaliMonth } from '@/utils/jalali'
+import { clampDueDay, currentCalendarDate, currentCalendarMonth } from '@/utils/calendar'
 
 const { addDeposit, updateDeposit, editingDeposit, cancelEditingDeposit } = useBankDeposits()
 const { currency: displayCurrency } = useCurrency()
 const { showSuccess } = useToast()
 
-const today = currentJalaliDate()
-const defaultBooked = currentJalaliMonth()
+const today = currentCalendarDate()
+const defaultBooked = currentCalendarMonth()
 
 const amount = ref<number | null>(null)
 const editCurrency = ref<Currency | null>(null)
@@ -63,14 +63,14 @@ watch(
 )
 
 function resetDateToToday() {
-  const date = currentJalaliDate()
+  const date = currentCalendarDate()
   depositYear.value = date.year
   depositMonth.value = date.month
   depositDay.value = date.day
 }
 
 function resetBookedToCurrentMonth() {
-  const month = currentJalaliMonth()
+  const month = currentCalendarMonth()
   bookedYear.value = month.year
   bookedMonth.value = month.month
 }

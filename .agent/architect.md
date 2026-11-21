@@ -25,7 +25,7 @@ Multi-currency (`007_multi_currency.sql`): `bills` / `bank_deposits` / `expenses
 | `v_month_totals` | Income, bills, expenses, net, cumulative balance — grouped by Jalali year/month of the stored DATE |
 | `v_ledger_entries` | Statement lines with running balance |
 
-Storage and API dates are Gregorian ISO `YYYY-MM-DD`. Views still group by Jalali month via `date_to_jalali` (matches `jalaali-js` 2.0.1). Overdue uses the date in `Asia/Tehran`. Bill installments hit the ledger and balance only when paid, grouped by payment month (Asia/Tehran), not by due month.
+Storage and API dates are Gregorian ISO `YYYY-MM-DD`. Jalali ledger views group by `date_to_jalali` (matches `jalaali-js` 2.0.1); Gregorian ledger views (`*_g`) group by `EXTRACT(YEAR/MONTH FROM …)`. Overdue uses the date in `Asia/Tehran`. Bill installments still expand by Jalali months in `v_installments`. Paid installments hit the ledger and balance only when paid, grouped by payment month (Asia/Tehran), not by due month.
 
 ## Backend stack (`back-end/`)
 - NestJS 12, Express, `bodyParser: false` (Better Auth reads raw bodies)
@@ -51,7 +51,7 @@ Storage and API dates are Gregorian ISO `YYYY-MM-DD`. Views still group by Jalal
 | GET/POST/PATCH/DELETE | `/api/deposits` | Bank deposits |
 | GET/POST/PATCH/DELETE | `/api/expenses` | Expenses |
 | GET/PATCH | `/api/installments`, `/api/installments/:id/paid` | View rows + set `paid_at` |
-| GET | `/api/ledger?date=` | Month statement from views. `date` is Gregorian ISO of Jalali day 1 of the viewed month (totals, entries, 6-month chart) |
+| GET | `/api/ledger?date=` | Month statement from views. `date` is Gregorian ISO of day 1 of the viewed month. IRR users use Jalali views (`v_month_totals` / `v_ledger_entries`); other currencies use Gregorian views (`v_month_totals_g` / `v_ledger_entries_g` from `008_gregorian_ledger.sql`) |
 | GET | `/api/dashboard` | Current-month collections |
 | PUT | `/api/wallet` | Replace all collections from an Excel backup |
 
@@ -61,7 +61,7 @@ Storage and API dates are Gregorian ISO `YYYY-MM-DD`. Views still group by Jalal
 - Vue Router 5 (`createWebHistory`, lazy-loaded pages)
 - Path alias: `@` → `src`
 - `better-auth/vue` client (`src/api/authClient.ts`); REST helper `src/api/http.ts` (`credentials: 'include'`, 8s abort)
-- On boot / login: parallel `GET` of `/api/bills`, `/api/deposits`, `/api/expenses`, `/api/installments`, and `/api/ledger?date=` (Jalali day 1 of the stored view-month, as Gregorian ISO). Mutations go straight to the Nest API; in-memory composables hold the working set. Dashboard derives from those collections. Transactions uses `GET /api/ledger`. Composables convert ISO ↔ Jalali at the HTTP boundary (`src/utils/moneyApi.ts`); UI types stay Jalali year/month/day.
+- On boot / login: `loadCurrency` first, then align view-months to the active calendar, then parallel `GET` of `/api/bills`, `/api/deposits`, `/api/expenses`, `/api/installments`, and `/api/ledger?date=` (day 1 of the stored view-month, as Gregorian ISO). Mutations go straight to the Nest API; in-memory composables hold the working set. Dashboard derives from those collections. Transactions uses `GET /api/ledger`. Composables convert ISO ↔ active calendar at the HTTP boundary (`src/utils/moneyApi.ts` via `src/utils/calendar.ts`); UI year/month/day fields are Jalali when display currency is IRR, Gregorian otherwise.
 - Excel backup reads the in-memory cache and `PUT /api/wallet` on import, then reloads collections + ledger.
 
 ## Routes
@@ -89,7 +89,8 @@ Deposits list: `DepositList` (header + empty state) → `DepositWallet` (`.depos
 ## Composables (`front-end/src/composables/`)
 - `useAuth.ts` — Better Auth email/password (`login` / `register` / `logout` / `requestNewPassword`); session in memory. `ensureAuthReady()` hydrates session then loads collections. Forgot password calls `POST /api/auth/request-password-reset`; the server emails a generated password (SMTP or Nest log) then hashes it onto `accounts`.
 - `loadMoneyCollections.ts` — `Promise.all` of `loadCurrency` / `loadBills` / `loadDeposits` / `loadExpenses` / `loadInstallments` / `loadLedger`; `clearMoneyCollections` on logout (memory only).
-- `useCurrency.ts` — display currency + rates from `/api/currency` (code cached in localStorage `money-managment:currency`). `convertAmount` (unrounded), `withDisplayAmount(row)`, `roundMoney`, `displayCurrency()`; `setCurrency` / `setIrrMarketRate` PATCH then `bumpMoneyData()`. Row stores keep raw rows (`amount` = `originalAmount` in `currency`) and expose computed lists whose `amount` is converted; `get*Snapshot()` stays raw for Excel.
+- `useCurrency.ts` — display currency + rates from `/api/currency` (code cached in localStorage `money-managment:currency`). `convertAmount` (unrounded), `withDisplayAmount(row)`, `roundMoney`, `displayCurrency()`; `setCurrency` / `setIrrMarketRate` PATCH then `bumpMoneyData()`. Crossing IRR ↔ other also reloads collections and resets view-months (`reloadMoneyCollectionsForCalendar`) because the UI calendar flips Jalali ↔ Gregorian. Row stores keep raw rows (`amount` = `originalAmount` in `currency`) and expose computed lists whose `amount` is converted; `get*Snapshot()` stays raw for Excel.
+- `utils/calendar.ts` — calendar mode from `displayCurrency() === 'IRR'`; formatters, month grids, ISO ↔ UI date converters used by pickers (`JalaliDatePicker` / `JalaliCalendarPanel` / `JalaliMonthPicker`, still named Jalali but dual-mode) and `moneyApi.ts`.
 - `useLedger` only uses a snapshot whose `currency` matches the display currency.
 - `useBills.ts` — REST bills; `loadBills` from `GET /api/bills`. Logos uploaded as `logoUrl` data URLs. View-month in `localStorage` (`money-managment:bills-view-month`); new bills default to that Jalali month; POST sends `startOn`/`endOn` ISO.
 - `useBillLogos.ts` — in-memory cache; `loadBillLogo` fetches `/api/bills/:id/logo` as a blob URL.

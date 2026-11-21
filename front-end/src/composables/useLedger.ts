@@ -4,14 +4,15 @@ import { moneyGeneration } from '@/composables/moneyGeneration'
 import { displayCurrency } from '@/composables/useCurrency'
 import type { JalaliMonth } from '@/types/bill'
 import type { LedgerMonth, LedgerMonthPoint } from '@/types/ledger'
+import { sanitizeViewMonth } from '@/composables/viewMonthSync'
 import {
-  JALALI_MONTH_NAMES,
-  currentJalaliMonth,
-  formatJalaliMonth,
+  calendarMonthFirstIso,
+  calendarMonthNames,
+  currentCalendarMonth,
+  formatCalendarMonth,
   indexToMonth,
-  jalaliMonthFirstIso,
   monthToIndex,
-} from '@/utils/jalali'
+} from '@/utils/calendar'
 import { ledgerFromApi, type LedgerMonthApi } from '@/utils/moneyApi'
 
 const VIEW_KEY = 'money-managment:transactions-view-month'
@@ -20,22 +21,23 @@ const CHART_MONTHS = 6
 function loadViewMonth(): JalaliMonth {
   try {
     const raw = localStorage.getItem(VIEW_KEY)
-    if (raw) return JSON.parse(raw) as JalaliMonth
+    if (raw) return sanitizeViewMonth(JSON.parse(raw) as JalaliMonth)
   } catch {
     /* ignore */
   }
-  return currentJalaliMonth()
+  return currentCalendarMonth()
 }
 
 function emptyChart(year: number, month: number): LedgerMonthPoint[] {
   const viewIndex = monthToIndex(year, month)
+  const names = calendarMonthNames()
   const points: LedgerMonthPoint[] = []
   for (let offset = CHART_MONTHS - 1; offset >= 0; offset--) {
     const point = indexToMonth(viewIndex - offset)
     points.push({
       year: point.year,
       month: point.month,
-      label: JALALI_MONTH_NAMES[point.month - 1].slice(0, 3),
+      label: names[point.month - 1].slice(0, 3),
       income: 0,
       bills: 0,
       expenses: 0,
@@ -82,7 +84,7 @@ export async function loadLedger(): Promise<void> {
   const seq = ++fetchSeq
   try {
     const data = await api<LedgerMonthApi>(
-      `/api/ledger?date=${jalaliMonthFirstIso(year, month)}`,
+      `/api/ledger?date=${calendarMonthFirstIso(year, month)}`,
     )
     if (seq !== fetchSeq) return
     snapshot.value = ledgerFromApi(data)
@@ -111,6 +113,17 @@ export function clearLedger(): void {
   snapshot.value = null
 }
 
+export function resetLedgerViewMonth(): void {
+  const now = currentCalendarMonth()
+  viewMonth.value = now
+  localStorage.setItem(VIEW_KEY, JSON.stringify(now))
+}
+
+export function alignLedgerViewMonth(): void {
+  viewMonth.value = loadViewMonth()
+  localStorage.setItem(VIEW_KEY, JSON.stringify(viewMonth.value))
+}
+
 function ensureLedgerWatch(): void {
   if (watching) return
   watching = true
@@ -124,17 +137,17 @@ function ensureLedgerWatch(): void {
 }
 
 /**
- * Statement for the selected Jalali month, loaded from Postgres via
+ * Statement for the selected calendar month, loaded from Postgres via
  * `GET /api/ledger?date=` (Gregorian ISO of that month's first day).
- * View-month is only UI state (localStorage).
+ * View-month is only UI state (localStorage). Jalali when currency is IRR.
  */
 export function useLedger() {
   ensureLedgerWatch()
 
   const viewIndex = computed(() => monthToIndex(viewMonth.value.year, viewMonth.value.month))
-  const viewLabel = computed(() => formatJalaliMonth(viewMonth.value.year, viewMonth.value.month))
+  const viewLabel = computed(() => formatCalendarMonth(viewMonth.value.year, viewMonth.value.month))
   const isCurrentMonth = computed(() => {
-    const now = currentJalaliMonth()
+    const now = currentCalendarMonth()
     return viewIndex.value === monthToIndex(now.year, now.month)
   })
 
@@ -180,7 +193,7 @@ export function useLedger() {
   }
 
   function goToCurrentMonth() {
-    const now = currentJalaliMonth()
+    const now = currentCalendarMonth()
     setViewMonth(now.year, now.month)
   }
 

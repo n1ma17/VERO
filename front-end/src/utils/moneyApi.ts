@@ -7,10 +7,10 @@ import type { LedgerEntry, LedgerMonth, LedgerMonthPoint } from '@/types/ledger'
 import {
   billEndIso,
   durationFromIsoSpan,
-  isoToJalali,
-  jalaliMonthFirstIso,
-  jalaliToIsoDate,
-} from '@/utils/jalali'
+  isoToCalendar,
+  calendarMonthFirstIso,
+  calendarToIsoDate,
+} from '@/utils/calendar'
 
 /** Row APIs return `amount` in the row's own `currency`. */
 export interface BillApi {
@@ -101,7 +101,7 @@ export interface LedgerMonthApi {
 
 /** Row stores convert `amount` for display; these mappers keep it as entered. */
 export function billFromApi(row: BillApi): Bill {
-  const start = isoToJalali(row.startOn)
+  const start = isoToCalendar(row.startOn)
   return {
     id: row.id,
     title: row.title,
@@ -122,7 +122,7 @@ export function billToApi(input: NewBill & { durationMonths: number }) {
     title: input.title,
     amount: input.amount,
     currency: input.currency,
-    startOn: jalaliToIsoDate(input.startYear, input.startMonth, input.dueDay),
+    startOn: calendarToIsoDate(input.startYear, input.startMonth, input.dueDay),
     endOn: billEndIso(input.startYear, input.startMonth, input.dueDay, input.durationMonths),
     dueDay: input.dueDay,
     logoUrl: input.logoUrl,
@@ -130,7 +130,7 @@ export function billToApi(input: NewBill & { durationMonths: number }) {
 }
 
 export function expenseFromApi(row: ExpenseApi): Expense {
-  const date = isoToJalali(row.occurredOn)
+  const date = isoToCalendar(row.occurredOn)
   return {
     id: row.id,
     title: row.title,
@@ -152,14 +152,14 @@ export function expenseToApi(input: NewExpense) {
     amount: input.amount,
     currency: input.currency,
     category: input.category,
-    occurredOn: jalaliToIsoDate(input.jalaliYear, input.jalaliMonth, input.jalaliDay),
+    occurredOn: calendarToIsoDate(input.jalaliYear, input.jalaliMonth, input.jalaliDay),
     note: input.note,
   }
 }
 
 export function depositFromApi(row: DepositApi): BankDeposit {
-  const arrived = isoToJalali(row.arrivedOn)
-  const booked = isoToJalali(row.bookedOn)
+  const arrived = isoToCalendar(row.arrivedOn)
+  const booked = isoToCalendar(row.bookedOn)
   return {
     id: row.id,
     amount: row.amount,
@@ -179,14 +179,14 @@ export function depositToApi(input: NewBankDeposit) {
   return {
     amount: input.amount,
     currency: input.currency,
-    arrivedOn: jalaliToIsoDate(input.jalaliYear, input.jalaliMonth, input.jalaliDay),
-    bookedOn: jalaliMonthFirstIso(input.bookedYear, input.bookedMonth),
+    arrivedOn: calendarToIsoDate(input.jalaliYear, input.jalaliMonth, input.jalaliDay),
+    bookedOn: calendarMonthFirstIso(input.bookedYear, input.bookedMonth),
     note: input.note,
   }
 }
 
 export function installmentFromApi(row: InstallmentApi): Installment {
-  const due = isoToJalali(row.dueDate)
+  const due = isoToCalendar(row.dueDate)
   return {
     id: row.id,
     billId: row.billId,
@@ -204,10 +204,10 @@ export function installmentFromApi(row: InstallmentApi): Installment {
 }
 
 function chartPointFromApi(point: LedgerMonthApi['chartSeries'][number]): LedgerMonthPoint {
-  const jalali = isoToJalali(point.date)
+  const calendar = isoToCalendar(point.date)
   return {
-    year: jalali.year,
-    month: jalali.month,
+    year: calendar.year,
+    month: calendar.month,
     label: point.label,
     income: point.income,
     bills: point.bills,
@@ -217,10 +217,10 @@ function chartPointFromApi(point: LedgerMonthApi['chartSeries'][number]): Ledger
 }
 
 export function ledgerFromApi(row: LedgerMonthApi): LedgerMonth {
-  const jalali = isoToJalali(row.date)
+  const calendar = isoToCalendar(row.date)
   return {
-    year: jalali.year,
-    month: jalali.month,
+    year: calendar.year,
+    month: calendar.month,
     currency: row.currency,
     monthIncome: row.monthIncome,
     monthBills: row.monthBills,
@@ -230,7 +230,7 @@ export function ledgerFromApi(row: LedgerMonthApi): LedgerMonth {
     openingBalance: row.openingBalance,
     closingBalance: row.closingBalance,
     entries: row.entries.map((entry) => {
-      const date = isoToJalali(entry.date)
+      const date = isoToCalendar(entry.date)
       return {
         id: entry.id,
         kind: entry.kind,

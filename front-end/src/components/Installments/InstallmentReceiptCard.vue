@@ -6,7 +6,7 @@ import ReceiptBillIdentity from '@/components/shared/ReceiptBillIdentity.vue'
 import ReceiptPaperHeader from '@/components/shared/ReceiptPaperHeader.vue'
 import type { Installment } from '@/types/installment'
 import { formatMoney } from '@/utils/formatMoney'
-import { formatJalaliDate } from '@/utils/jalali'
+import { formatCalendarDate } from '@/utils/calendar'
 import { getInstallmentStatus } from '@/utils/installmentStatus'
 
 const props = defineProps<{
@@ -15,7 +15,7 @@ const props = defineProps<{
 
 const status = computed(() => getInstallmentStatus(props.installment))
 const dueDate = computed(() =>
-  formatJalaliDate(props.installment.dueYear, props.installment.dueMonth, props.installment.dueDay),
+  formatCalendarDate(props.installment.dueYear, props.installment.dueMonth, props.installment.dueDay),
 )
 const amount = computed(() => formatMoney(props.installment.amount))
 const refCode = computed(() => props.installment.billId.slice(0, 8).toUpperCase())

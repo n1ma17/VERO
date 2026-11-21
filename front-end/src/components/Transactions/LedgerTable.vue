@@ -5,7 +5,7 @@ import { displayCurrency } from '@/composables/useCurrency'
 import { useLedger } from '@/composables/useLedger'
 import type { LedgerEntry, LedgerEntryKind } from '@/types/ledger'
 import { categoryMeta } from '@/utils/expenseCategories'
-import { formatJalaliDate } from '@/utils/jalali'
+import { formatCalendarDate } from '@/utils/calendar'
 import { formatMoney } from '@/utils/formatMoney'
 
 type Filter = 'all' | LedgerEntryKind
@@ -94,7 +94,7 @@ function originalLabel(entry: LedgerEntry): string | null {
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
             <p class="font-mono text-xs text-text-muted">
-              {{ formatJalaliDate(entry.year, entry.month, entry.day) }}
+              {{ formatCalendarDate(entry.year, entry.month, entry.day) }}
             </p>
             <RouterLink
               v-if="entry.installmentId"
@@ -180,7 +180,7 @@ function originalLabel(entry: LedgerEntry): string | null {
             class="border-b border-primary/15 transition hover:bg-primary/10"
           >
             <td class="whitespace-nowrap py-3 pr-4 font-mono text-xs">
-              {{ formatJalaliDate(entry.year, entry.month, entry.day) }}
+              {{ formatCalendarDate(entry.year, entry.month, entry.day) }}
             </td>
             <td class="py-3 pr-4">
               <RouterLink

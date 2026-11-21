@@ -15,10 +15,10 @@ import { useToast } from '@/composables/useToast'
 import type { Currency } from '@/types/currency'
 import {
   clampDueDay,
-  currentJalaliDate,
-  formatJalaliDate,
-  formatJalaliMonthRange,
-} from '@/utils/jalali'
+  currentCalendarDate,
+  formatCalendarDate,
+  formatCalendarMonthRange,
+} from '@/utils/calendar'
 import { formatMoney } from '@/utils/formatMoney'
 
 const route = useRoute()
@@ -28,7 +28,7 @@ const { stage, startIssue, formResetTick } = useBillDefinitionFlow()
 const { showSuccess } = useToast()
 const { currency: displayCurrency } = useCurrency()
 
-const today = currentJalaliDate()
+const today = currentCalendarDate()
 const billNotFound = ref(false)
 const confirmingDelete = ref(false)
 
@@ -120,11 +120,11 @@ const isValid = computed(
 const isPrinterBusy = computed(() => stage.value !== 'idle')
 
 const firstDueLabel = computed(() =>
-  formatJalaliDate(form.startYear, form.startMonth, form.dueDay),
+  formatCalendarDate(form.startYear, form.startMonth, form.dueDay),
 )
 
 const previewPeriod = computed(() =>
-  formatJalaliMonthRange(form.startYear, form.startMonth, form.durationMonths),
+  formatCalendarMonthRange(form.startYear, form.startMonth, form.durationMonths),
 )
 
 const previewAmount = computed(() =>
@@ -160,8 +160,8 @@ async function submit() {
   startIssue({
     id: bill.id,
     title: bill.title,
-    firstDueLabel: formatJalaliDate(bill.startYear, bill.startMonth, bill.dueDay),
-    periodLabel: formatJalaliMonthRange(bill.startYear, bill.startMonth, bill.durationMonths),
+    firstDueLabel: formatCalendarDate(bill.startYear, bill.startMonth, bill.dueDay),
+    periodLabel: formatCalendarMonthRange(bill.startYear, bill.startMonth, bill.durationMonths),
     amountLabel: formatMoney(bill.originalAmount, bill.currency),
     isUpdate: isEditing.value,
   })

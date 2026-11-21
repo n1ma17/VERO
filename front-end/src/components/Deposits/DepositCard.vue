@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppMoneyMark from '@/components/shared/AppMoneyMark.vue'
 import type { BankDeposit } from '@/types/bankDeposit'
-import { formatJalaliDate, formatJalaliMonth } from '@/utils/jalali'
+import { formatCalendarDate, formatCalendarMonth } from '@/utils/calendar'
 import { formatMoney } from '@/utils/formatMoney'
 
 defineProps<{
@@ -36,8 +36,8 @@ const toneClasses = {
     </p>
 
     <div class="flex items-end justify-between gap-3 text-xs opacity-80">
-      <span>{{ formatJalaliDate(deposit.jalaliYear, deposit.jalaliMonth, deposit.jalaliDay) }}</span>
-      <span>Counted in {{ formatJalaliMonth(deposit.bookedYear, deposit.bookedMonth) }}</span>
+      <span>{{ formatCalendarDate(deposit.jalaliYear, deposit.jalaliMonth, deposit.jalaliDay) }}</span>
+      <span>Counted in {{ formatCalendarMonth(deposit.bookedYear, deposit.bookedMonth) }}</span>
     </div>
   </div>
 </template>
