@@ -31,6 +31,9 @@ export async function ensureAuthReady(): Promise<void> {
         const { data } = await authClient.getSession()
         applyUser(data?.user)
         if (session.value) await loadMoneyCollections()
+      } catch {
+        /* Offline / Capacitor / mixed-content: stay logged out, still boot UI. */
+        session.value = null
       } finally {
         ready.value = true
       }

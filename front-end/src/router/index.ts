@@ -1,10 +1,10 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import { ensureAuthReady, useAuth } from '@/composables/useAuth'
 import { beginLoading, endLoading, setLoadingOverlaySuppressed } from '@/composables/useLoadingOverlay'
 import '@/types/router'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
@@ -71,27 +71,33 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
   const skipOverlay = Boolean(to.meta.skipLoadingOverlay)
+  const showOverlay = to.fullPath !== from.fullPath && !skipOverlay
   setLoadingOverlaySuppressed(skipOverlay)
-  if (to.fullPath !== from.fullPath && !skipOverlay) beginLoading()
-  await ensureAuthReady()
-  const { isAuthenticated } = useAuth()
+  if (showOverlay) beginLoading()
+  try {
+    await ensureAuthReady()
+    const { isAuthenticated } = useAuth()
 
-  if (to.meta.public) {
-    if (isAuthenticated.value && (to.name === 'login' || to.name === 'landing')) {
-      return { name: 'dashboard' }
+    if (to.meta.public) {
+      if (isAuthenticated.value && (to.name === 'login' || to.name === 'landing')) {
+        return { name: 'dashboard' }
+      }
+      return true
+    }
+
+    if (!isAuthenticated.value) {
+      return { name: 'login', query: { redirect: to.fullPath } }
+    }
+
+    return true
+  } catch {
+    if (!to.meta.public) {
+      return { name: 'login', query: { redirect: to.fullPath } }
     }
     return true
+  } finally {
+    if (showOverlay) endLoading()
   }
-
-  if (!isAuthenticated.value) {
-    return { name: 'login', query: { redirect: to.fullPath } }
-  }
-
-  return true
-})
-
-router.afterEach((to, from) => {
-  if (to.fullPath !== from.fullPath && !to.meta.skipLoadingOverlay) endLoading()
 })
 
 export default router

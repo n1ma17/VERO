@@ -33,6 +33,7 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new PostgresExceptionFilter());
 
-  await app.listen(process.env.PORT ?? 3000);
+  // Bind all interfaces so a phone on the LAN can reach the API (Capacitor).
+  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 await bootstrap();

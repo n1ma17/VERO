@@ -17,6 +17,7 @@ Run this checklist before finishing every task. Then log anything left unresolve
 
 ## Open issues / tech debt
 <!-- Format: - [area] description (found YYYY-MM-DD) -->
+- [mobile] Capacitor release APK still needs a reachable LAN Nest (`VITE_API_URL`) and matching `AUTH_TRUSTED_ORIGINS`; production should use HTTPS API + secure cookies instead of cleartext/http scheme. (found 2026-11-21)
 - [auth] Forgot password emails a generated password (weaker than a reset link). SMTP is off until `EMAIL_PROVIDER=smtp` and SMTP_* are set; otherwise the new password is only in the Nest log. (found 2026-10-28)
 - [dashboard] Overview still derived in the client from collection caches; Transactions ledger refreshes on `bumpMoneyData()` after mutations (not only on full reload). (found 2026-10-26; sync fixed 2026-11-21)
 - [data] `bill_logos` DB check still allows `image/svg+xml`; the Nest upload path rejects SVG. Align the SQL check if SVG should be gone entirely. (found 2026-10-26)

@@ -58,7 +58,8 @@ Storage and API dates are Gregorian ISO `YYYY-MM-DD`. Jalali ledger views group 
 ## Frontend stack
 - Vue 3.5 (`<script setup lang="ts">`), TypeScript 6, Vite 8 on port 5173
 - Tailwind CSS 4 via `@tailwindcss/vite` (no `tailwind.config.js`; config lives in CSS)
-- Vue Router 5 (`createWebHistory`, lazy-loaded pages)
+- Vue Router 5 (`createWebHashHistory` + Vite `base: './'` for Capacitor/`file`/`http` WebView)
+- Capacitor 8 Android (`front-end/capacitor.config.ts`, `webDir: dist`, `androidScheme: http`, WebView `hostname` = host of `VITE_API_URL`, `CapacitorHttp` enabled, cleartext + allowMixedContent). Sync: `npm run build && npx cap sync android`.
 - Path alias: `@` → `src`
 - `better-auth/vue` client (`src/api/authClient.ts`); REST helper `src/api/http.ts` (`credentials: 'include'`, 8s abort)
 - On boot / login: `loadCurrency` first, then align view-months to the active calendar, then parallel `GET` of `/api/bills`, `/api/deposits`, `/api/expenses`, `/api/installments`, and `/api/ledger?date=` (day 1 of the stored view-month, as Gregorian ISO). Mutations go straight to the Nest API; in-memory composables hold the working set. Dashboard derives from those collections. Transactions uses `GET /api/ledger`. Composables convert ISO ↔ active calendar at the HTTP boundary (`src/utils/moneyApi.ts` via `src/utils/calendar.ts`); UI year/month/day fields are Jalali when display currency is IRR, Gregorian otherwise.
