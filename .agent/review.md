@@ -24,7 +24,7 @@ Run this checklist before finishing every task. Then log anything left unresolve
 - [ops] Nest crashes when an outbound HTTP/2 connection (likely Arcjet, `104.18.x.x:443`) times out: unhandled `'error'` on `ClientHttp2Session` kills the process, and the frontend then hangs on the loading overlay. Handle or isolate that error, or make Arcjet fail open. (found 2026-11-18)
 - [ui] 3-color redesign: only the landing page was checked visually. Still to check: dashboard KPIs, cash-flow/ledger charts (series now share one gray, and legends may need +/− labels), auth ticket on gray paper, deposits bank card (still 3D tilt and a mandala pattern), printer, and loading segmented bar overlay. (found 2026-11-18)
 - [ui] Feature pages (Dashboard, Transactions) still use many filled `bg-primary/10` pills and `rounded-full` badges; convert to hairline/uppercase labels so they match the landing page. (found 2026-11-18)
-- [theme] `expenseCategories` dot colors all collapse to gray under the 3-color palette; category dots carry no meaning now. (found 2026-11-18)
+- [theme] User-picked category colors use theme tokens (accent, status-*, deposit-card-*). (updated 2026-11-21)
 - [i18n] UI text is hard-coded in English; no RTL/Persian support yet. (found 2026-10-24)
 - [data] Old `money-managment:transactions` localStorage key is orphaned (legacy USD data); harmless, could be cleared on load. (found 2026-10-24)
 - [dashboard] `useDashboard` captures "today" when the component mounts; leaving the tab open past midnight shows yesterday until reload. (found 2026-10-24)

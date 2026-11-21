@@ -3,7 +3,8 @@ import { api } from '@/api/http'
 import { bumpMoneyData } from '@/composables/moneyGeneration'
 import type { JalaliMonth } from '@/types/bill'
 import type { Expense, ExpenseCategory, NewExpense } from '@/types/expense'
-import { EXPENSE_CATEGORY_ORDER, isExpenseCategory } from '@/utils/expenseCategories'
+import { useExpenseCategoryCatalog } from '@/composables/useExpenseCategoryCatalog'
+import { categoryMeta, isExpenseCategorySlug } from '@/utils/expenseCategories'
 import { clampDueDay, currentJalaliMonth, indexToMonth, monthToIndex } from '@/utils/jalali'
 import { expenseFromApi, expenseToApi, type ExpenseApi } from '@/utils/moneyApi'
 
@@ -27,7 +28,7 @@ function normalize(input: NewExpense): NewExpense {
   return {
     title: input.title.trim(),
     amount: Math.round(input.amount),
-    category: isExpenseCategory(input.category) ? input.category : 'other',
+    category: isExpenseCategorySlug(input.category) ? input.category : 'other',
     jalaliYear: input.jalaliYear,
     jalaliMonth: input.jalaliMonth,
     jalaliDay: clampDueDay(input.jalaliDay, input.jalaliYear, input.jalaliMonth),
@@ -52,6 +53,7 @@ export function getExpensesSnapshot(): Expense[] {
 }
 
 export function useExpenses() {
+  const { orderedIds } = useExpenseCategoryCatalog()
   const viewIndex = computed(() => monthToIndex(viewMonth.value.year, viewMonth.value.month))
 
   const isCurrentMonth = computed(() => {
@@ -78,8 +80,14 @@ export function useExpenses() {
     for (const expense of expensesInViewMonth.value) {
       totals.set(expense.category, (totals.get(expense.category) ?? 0) + expense.amount)
     }
-    return EXPENSE_CATEGORY_ORDER.filter((category) => totals.has(category))
-      .map((category) => ({ category, amount: totals.get(category)! }))
+    const keys = new Set([...orderedIds.value, ...totals.keys()])
+    return [...keys]
+      .filter((category) => totals.has(category))
+      .map((category) => ({
+        category,
+        amount: totals.get(category)!,
+        label: categoryMeta(category).label,
+      }))
       .sort((a, b) => b.amount - a.amount)
   })
 

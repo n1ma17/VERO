@@ -90,7 +90,7 @@ export async function importWalletSnapshot(
       await client.query(
         `INSERT INTO expenses
            (id, user_id, title, amount, category, occurred_on, note)
-         VALUES ($1, $2, $3, $4, $5::expense_category, $6::date, $7)`,
+         VALUES ($1, $2, $3, $4, $5, $6::date, $7)`,
         [
           expense.id,
           userId,

@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import * as XLSX from 'xlsx';
-import { EXPENSE_CATEGORIES, type ExpenseCategory } from '../../src/common/money/types.js';
+import { type ExpenseCategory } from '../../src/common/money/types.js';
+
+const CATEGORY_SLUG = /^[a-z][a-z0-9-]{0,47}$/;
 
 const LOGO_CHUNK_SIZE = 30_000;
 const BACKUP_FORMAT_VERSION = 1;
@@ -59,10 +61,7 @@ export type BackupSnapshot = {
 };
 
 function isExpenseCategory(value: unknown): value is ExpenseCategory {
-  return (
-    typeof value === 'string' &&
-    (EXPENSE_CATEGORIES as readonly string[]).includes(value)
-  );
+  return typeof value === 'string' && CATEGORY_SLUG.test(value);
 }
 
 function rowsFromSheet<T>(wb: XLSX.WorkBook, name: string): T[] {

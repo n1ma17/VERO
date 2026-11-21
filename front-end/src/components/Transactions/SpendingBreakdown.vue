@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDashboard, type SpendingSlice } from '@/composables/useDashboard'
-import { expenseCategories } from '@/utils/expenseCategories'
+import { categoryMeta } from '@/utils/expenseCategories'
 import { formatJalaliMonth } from '@/utils/jalali'
 import { formatTomanCompact, formatTomanNumber } from '@/utils/formatToman'
 
@@ -15,7 +15,7 @@ const billsStyle = { label: 'Bills & installments', stroke: 'stroke-danger', dot
 
 function sliceStyle(key: SpendingSlice['key']) {
   if (key === 'bills') return billsStyle
-  const meta = expenseCategories[key]
+  const meta = categoryMeta(key)
   return { label: meta.label, stroke: meta.stroke, dot: meta.dot }
 }
 

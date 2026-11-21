@@ -9,8 +9,11 @@ import TomanAmountInput from '@/components/shared/TomanAmountInput.vue'
 import { useExpenseEntryFlow } from '@/composables/useExpenseEntryFlow'
 import { useExpenses } from '@/composables/useExpenses'
 import { useToast } from '@/composables/useToast'
+import ExpenseCategoryManage from '@/components/ExpenseEntry/ExpenseCategoryManage.vue'
+import ExpenseCategoryPicker from '@/components/ExpenseEntry/ExpenseCategoryPicker.vue'
+import { useExpenseCategoryCatalog } from '@/composables/useExpenseCategoryCatalog'
 import type { ExpenseCategory } from '@/types/expense'
-import { EXPENSE_CATEGORY_ORDER, expenseCategories } from '@/utils/expenseCategories'
+import { categoryMeta } from '@/utils/expenseCategories'
 import { clampDueDay, currentJalaliDate, formatJalaliDate, formatJalaliMonth } from '@/utils/jalali'
 import { formatToman } from '@/utils/formatToman'
 
@@ -20,8 +23,11 @@ const { getExpenseById, addExpense, updateExpense, removeExpense, viewMonth } = 
 const { stage, startIssue, formResetTick } = useExpenseEntryFlow()
 const { showSuccess } = useToast()
 
+const { visibleCategories, orderedIds } = useExpenseCategoryCatalog()
+
 const expenseNotFound = ref(false)
 const confirmingDelete = ref(false)
+const manageCategories = ref(false)
 
 function defaultEntryDate() {
   const today = currentJalaliDate()
@@ -91,6 +97,12 @@ watch(
   },
 )
 
+watch(orderedIds, (ids) => {
+  if (!ids.includes(form.category)) {
+    form.category = ids[0] ?? 'other'
+  }
+})
+
 watch(formResetTick, () => {
   if (isEditing.value) {
     void router.push({ name: 'expenses' })
@@ -105,11 +117,6 @@ const amountLabel = computed(() => (form.amount && form.amount > 0 ? formatToman
 
 const inputClasses =
   'w-full rounded-2xl border border-primary/20 bg-surface px-3 py-3 text-base text-text outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-accent/60 disabled:opacity-50'
-
-const chipClasses = {
-  active: 'border-transparent ring-2 ring-primary ring-offset-1 ring-offset-surface',
-  idle: 'border-primary/20 hover:border-accent',
-} as const
 
 async function submit() {
   if (!isValid.value || isPrinterBusy.value || expenseNotFound.value) return
@@ -160,7 +167,7 @@ async function deleteExpense() {
     v-if="!expenseNotFound"
     class="relative overflow-visible rounded-t-3xl bg-surface text-text"
   >
-    <div class="h-2" :class="expenseCategories[form.category].strip" />
+    <div class="h-2" :class="categoryMeta(form.category).strip" />
 
     <header class="px-4 pb-4 pt-6 text-center sm:px-6">
       <p class="text-xs font-medium uppercase tracking-widest text-text-muted">
@@ -187,26 +194,21 @@ async function deleteExpense() {
       <TomanAmountInput v-model="form.amount" :disabled="isPrinterBusy" />
 
       <fieldset :disabled="isPrinterBusy">
-        <legend class="mb-1.5 text-xs text-text-muted">Category</legend>
-        <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <div class="mb-1.5 flex items-baseline justify-between gap-2">
+          <legend class="text-xs text-text-muted">Category</legend>
           <button
-            v-for="category in EXPENSE_CATEGORY_ORDER"
-            :key="category"
             type="button"
-            class="flex min-h-11 items-center gap-2 rounded-2xl border px-2.5 py-2 text-left text-xs font-medium transition disabled:opacity-50"
-            :class="form.category === category ? chipClasses.active : chipClasses.idle"
-            :aria-pressed="form.category === category"
-            @click="form.category = category"
+            class="text-xs font-medium text-accent hover:underline disabled:opacity-50"
+            @click="manageCategories = !manageCategories"
           >
-            <span
-              class="flex size-6 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold"
-              :class="expenseCategories[category].tile"
-            >
-              {{ expenseCategories[category].label.slice(0, 1) }}
-            </span>
-            <span class="truncate">{{ expenseCategories[category].label }}</span>
+            {{ manageCategories ? 'Close editor' : 'Manage categories' }}
           </button>
         </div>
+        <ExpenseCategoryManage v-model="manageCategories" class="mb-3" />
+        <ExpenseCategoryPicker v-model="form.category" />
+        <p v-if="!visibleCategories.length" class="text-xs text-danger">
+          No visible categories. Open the editor and add one.
+        </p>
       </fieldset>
 
       <JalaliDatePicker
@@ -235,7 +237,7 @@ async function deleteExpense() {
       <dl class="space-y-2 font-mono text-sm">
         <div class="flex justify-between gap-4">
           <dt class="text-text-muted">Category</dt>
-          <dd>{{ expenseCategories[form.category].label }}</dd>
+          <dd>{{ categoryMeta(form.category).label }}</dd>
         </div>
         <div class="flex justify-between gap-4">
           <dt class="text-text-muted">Counts in</dt>

@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { useDashboard, type ActivityItem } from '@/composables/useDashboard'
-import { expenseCategories } from '@/utils/expenseCategories'
+import { categoryMeta } from '@/utils/expenseCategories'
 import { formatToman } from '@/utils/formatToman'
 
 const { recentActivity } = useDashboard()
 
 function dotClass(item: ActivityItem) {
-  return item.category ? expenseCategories[item.category].dot : 'bg-success'
+  return item.category ? categoryMeta(item.category).dot : 'bg-success'
 }
 
 function subtitle(item: ActivityItem) {
   return item.category
-    ? `${expenseCategories[item.category].label} · ${item.dateLabel}`
+    ? `${categoryMeta(item.category).label} · ${item.dateLabel}`
     : `Deposit · ${item.dateLabel}`
 }
 </script>

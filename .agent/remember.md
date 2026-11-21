@@ -59,6 +59,8 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 - Seeded admin email is `nimaab1992@gmail.com` (not `nima1992@gmail`). Forgot password with `EMAIL_PROVIDER=log` writes the new password only to the Nest console. Restore the `.env` password with `npm run db:reset-admin-password` from `back-end/` — do not re-run `db:seed` just to fix a password (that re-imports the Excel wallet).
 
 ## Task log
+- 2026-11-21 — `ExpenseSummary` shows 5 category rows; **Show more** expands rest with GSAP stagger (`gsap` dep). Build OK.
+- 2026-11-21 — Custom expense categories on entry page: catalog in localStorage (`useExpenseCategoryCatalog`), theme color tokens, manage UI (`ExpenseCategoryManage`, `ExpenseCategoryPicker`); DB `expenses.category` → text (`006_expense_category_text.sql`). Build + migrate OK.
 - 2026-11-21 — Dashboard/Transactions stay stale after pay expense/installment: `moneyGeneration` + `bumpMoneyData()` after collection mutations; ledger watch on login via `armLedger()` (`moneyGeneration.ts`, `useLedger`, composables). Build OK.
 - 2026-11-21 — Shared `ReceiptBillIdentity` (logo or initial + title) on all `receipt-paper--card` list cards: Bills + Installments (`InstallmentReceiptCard.vue`, `BillIssuedReceiptBody.vue`). Build OK.
 - 2026-11-21 — Bills list receipt cards show bill logo (`BillLogoImage`) + centered title via `showBillIdentity` on `BillIssuedReceiptBody` (`BillReceiptCard.vue`). Build OK.

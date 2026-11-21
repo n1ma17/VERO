@@ -1,15 +1,4 @@
-export type ExpenseCategory =
-  | 'food'
-  | 'groceries'
-  | 'home'
-  | 'clothing'
-  | 'entertainment'
-  | 'transport'
-  | 'car'
-  | 'motorcycle'
-  | 'beauty'
-  | 'health'
-  | 'other'
+export type ExpenseCategory = string
 
 export interface Expense {
   id: string

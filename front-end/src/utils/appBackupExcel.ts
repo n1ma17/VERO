@@ -11,7 +11,7 @@ import type { BankDeposit } from '@/types/bankDeposit'
 import type { Expense } from '@/types/expense'
 import { BACKUP_FORMAT_VERSION } from '@/utils/appDataKeys'
 import { installmentPaymentKey } from '@/utils/billInstallments'
-import { isExpenseCategory } from '@/utils/expenseCategories'
+import { isExpenseCategorySlug } from '@/utils/expenseCategories'
 import { billToApi, depositToApi, expenseToApi } from '@/utils/moneyApi'
 import { jalaliToIsoDate } from '@/utils/jalali'
 
@@ -44,7 +44,7 @@ export async function collectAppBackupSnapshot(): Promise<AppBackupSnapshot> {
   const deposits = getDepositsSnapshot()
   const expenses = getExpensesSnapshot().map((expense) => ({
     ...expense,
-    category: isExpenseCategory(expense.category) ? expense.category : 'other',
+    category: isExpenseCategorySlug(expense.category) ? expense.category : 'other',
   }))
   const installmentPayments: Record<string, string> = {}
   for (const installment of getInstallmentsSnapshot()) {
@@ -193,7 +193,7 @@ function parseExpenses(rows: Record<string, unknown>[]): Expense[] {
         id: String(row.id),
         title: String(row.title),
         amount: Math.round(Number(row.amount) || 0),
-        category: isExpenseCategory(category) ? category : 'other',
+        category: isExpenseCategorySlug(category) ? category : 'other',
         jalaliYear: Number(row.jalaliYear) || 1400,
         jalaliMonth: Number(row.jalaliMonth) || 1,
         jalaliDay: Number(row.jalaliDay) || 1,

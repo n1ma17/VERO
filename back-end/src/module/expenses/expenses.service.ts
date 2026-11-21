@@ -39,7 +39,7 @@ export class ExpensesService {
     const { rows } = await this.pg.query<ExpenseRow>(
       `INSERT INTO expenses
          (user_id, title, amount, category, occurred_on, note)
-       VALUES ($1, $2, $3, $4::expense_category, $5::date, $6)
+       VALUES ($1, $2, $3, $4, $5::date, $6)
        RETURNING id, title, amount, category, occurred_on, note, created_at`,
       [
         userId,
@@ -61,7 +61,7 @@ export class ExpensesService {
       `UPDATE expenses
           SET title = $3,
               amount = $4,
-              category = $5::expense_category,
+              category = $5,
               occurred_on = $6::date,
               note = $7
         WHERE user_id = $1 AND id = $2

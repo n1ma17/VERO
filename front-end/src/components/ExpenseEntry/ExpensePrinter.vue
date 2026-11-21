@@ -9,7 +9,7 @@ import ReceiptPrinterScreen from '@/components/shared/ReceiptPrinterScreen.vue'
 import ReceiptPrinterStatus from '@/components/shared/ReceiptPrinterStatus.vue'
 import { useExpenseEntryFlow } from '@/composables/useExpenseEntryFlow'
 import type { ReceiptPrinterStage } from '@/types/receiptPrinter'
-import { expenseCategories } from '@/utils/expenseCategories'
+import { categoryMeta } from '@/utils/expenseCategories'
 
 const { stage, snapshot } = useExpenseEntryFlow()
 
@@ -46,7 +46,7 @@ const statusLabels: Record<ReceiptPrinterStage, string> = {
           </div>
           <div class="flex justify-between gap-4">
             <dt>Category</dt>
-            <dd class="text-right">{{ expenseCategories[snapshot.category].label }}</dd>
+            <dd class="text-right">{{ categoryMeta(snapshot.category).label }}</dd>
           </div>
           <div v-if="snapshot.note" class="flex justify-between gap-4">
             <dt>Note</dt>

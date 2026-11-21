@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import InstallmentStatusBadge from '@/components/shared/InstallmentStatusBadge.vue'
 import { useLedger } from '@/composables/useLedger'
 import type { LedgerEntryKind } from '@/types/ledger'
-import { expenseCategories } from '@/utils/expenseCategories'
+import { categoryMeta } from '@/utils/expenseCategories'
 import { formatJalaliDate } from '@/utils/jalali'
 import { formatToman } from '@/utils/formatToman'
 
@@ -117,8 +117,8 @@ function balanceClass(value: number) {
                 v-if="entry.category"
                 class="flex items-center gap-1.5 text-xs text-text-muted"
               >
-                <span class="size-2 rounded-full" :class="expenseCategories[entry.category].dot" />
-                {{ expenseCategories[entry.category].label }}
+                <span class="size-2 rounded-full" :class="categoryMeta(entry.category).dot" />
+                {{ categoryMeta(entry.category).label }}
               </span>
             </div>
           </div>
@@ -206,8 +206,8 @@ function balanceClass(value: number) {
                   v-if="entry.category"
                   class="flex items-center gap-1.5 text-xs text-text-muted"
                 >
-                  <span class="size-2 rounded-full" :class="expenseCategories[entry.category].dot" />
-                  {{ expenseCategories[entry.category].label }}
+                  <span class="size-2 rounded-full" :class="categoryMeta(entry.category).dot" />
+                  {{ categoryMeta(entry.category).label }}
                 </span>
               </div>
             </td>

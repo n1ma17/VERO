@@ -34,7 +34,7 @@ export interface MonthFlowPoint {
 
 /** One slice of "where money goes": all bills together, or one expense category. */
 export interface SpendingSlice {
-  key: 'bills' | ExpenseCategory
+  key: 'bills' | string
   amount: number
   share: number
 }

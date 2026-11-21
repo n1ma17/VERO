@@ -1,4 +1,5 @@
-export const EXPENSE_CATEGORIES = [
+/** Default slugs shipped with the app; the API accepts any `[a-z][a-z0-9-]{0,47}` slug. */
+export const EXPENSE_CATEGORY_DEFAULTS = [
   'food',
   'groceries',
   'home',
@@ -12,7 +13,7 @@ export const EXPENSE_CATEGORIES = [
   'other',
 ] as const;
 
-export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
+export type ExpenseCategory = string;
 
 export type InstallmentStatus = 'paid' | 'unpaid' | 'overdue';
 

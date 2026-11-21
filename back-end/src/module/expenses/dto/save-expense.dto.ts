@@ -1,5 +1,4 @@
 import {
-  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -8,9 +7,9 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
-import { EXPENSE_CATEGORIES } from '../../../common/money/types.js';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const CATEGORY_SLUG = /^[a-z][a-z0-9-]{0,47}$/;
 
 export class SaveExpenseDto {
   @IsString()
@@ -22,8 +21,11 @@ export class SaveExpenseDto {
   @Min(1)
   amount!: number;
 
-  @IsIn(EXPENSE_CATEGORIES)
-  category!: (typeof EXPENSE_CATEGORIES)[number];
+  @IsString()
+  @MinLength(1)
+  @MaxLength(48)
+  @Matches(CATEGORY_SLUG)
+  category!: string;
 
   @IsString()
   @Matches(ISO_DATE)

@@ -640,7 +640,101 @@
     letter-spacing: 0.04em;
   }
 
+  @keyframes expense-summary-row-reveal {
+    from {
+      opacity: 0;
+      transform: scaleY(0.25);
+    }
+
+    to {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+  }
+
+  .expense-summary-row-reveal {
+    transform-origin: top center;
+    animation: expense-summary-row-reveal 0.42s cubic-bezier(0.34, 1.35, 0.64, 1) backwards;
+  }
+
+  .expense-summary-row-reveal-delay-0 {
+    animation-delay: 0ms;
+  }
+
+  .expense-summary-row-reveal-delay-1 {
+    animation-delay: 65ms;
+  }
+
+  .expense-summary-row-reveal-delay-2 {
+    animation-delay: 130ms;
+  }
+
+  .expense-summary-row-reveal-delay-3 {
+    animation-delay: 195ms;
+  }
+
+  .expense-summary-row-reveal-delay-4 {
+    animation-delay: 260ms;
+  }
+
+  .expense-summary-row-reveal-delay-5 {
+    animation-delay: 325ms;
+  }
+
+  .expense-summary-row-reveal-delay-6 {
+    animation-delay: 390ms;
+  }
+
+  .expense-summary-row-reveal-delay-7 {
+    animation-delay: 455ms;
+  }
+
+  .expense-summary-row-reveal-delay-8 {
+    animation-delay: 520ms;
+  }
+
+  .expense-summary-row-reveal-delay-9 {
+    animation-delay: 585ms;
+  }
+
+  .expense-summary-row-reveal-delay-10 {
+    animation-delay: 650ms;
+  }
+
+  .expense-summary-row-reveal-delay-11 {
+    animation-delay: 715ms;
+  }
+
+  .expense-summary-row-reveal-delay-12 {
+    animation-delay: 780ms;
+  }
+
+  @keyframes expense-summary-row-collapse {
+    from {
+      opacity: 1;
+      max-height: 5.5rem;
+      transform: scaleY(1);
+    }
+
+    to {
+      opacity: 0;
+      max-height: 0;
+      transform: scaleY(0.35);
+    }
+  }
+
+  .expense-summary-row-collapse {
+    overflow: hidden;
+    transform-origin: top center;
+    animation: expense-summary-row-collapse 0.36s cubic-bezier(0.55, 0, 0.75, 0.45) forwards;
+  }
+
   @media (prefers-reduced-motion: reduce) {
+    .expense-summary-row-reveal,
+    .expense-summary-row-collapse {
+      animation: none;
+    }
+
     .receipt-printer-mouth {
       transition: none;
     }
