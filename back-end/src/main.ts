@@ -1,11 +1,11 @@
 import { RequestMethod, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule, ObserveInstrument } from './app.module.js';
+import { AppModule, observeEnabled, ObserveInstrument } from './app.module.js';
 import { PostgresExceptionFilter } from './common/filters/postgres-exception.filter.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    instrument: ObserveInstrument,
+    ...(observeEnabled ? { instrument: ObserveInstrument } : {}),
     bodyParser: false,
   });
 

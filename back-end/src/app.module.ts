@@ -42,6 +42,22 @@ function isDatabaseClient(instance: unknown): boolean {
   );
 }
 
+/**
+ * Nest Observe (observe.nestjs.com) needs a real app key/secret. Placeholder
+ * values get 429 rate-limits and spam the console; leave unset for localdev.
+ */
+function observeCredential(value: string | undefined): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.startsWith('YOUR_')) return undefined;
+  return trimmed;
+}
+
+export const observeEnabled = Boolean(
+  observeCredential(process.env.OBSERVE_APP_KEY) &&
+    observeCredential(process.env.OBSERVE_APP_SECRET),
+);
+
 export const { ObserveModule, ObserveInstrument } = createObserveModule({
   skipInstrumentation: (instance) =>
     instance instanceof ArcjetGuard ||
@@ -79,11 +95,15 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule({
     LedgerModule,
     DashboardModule,
     WalletModule,
-    ObserveModule.forRoot({
-      appKey: 'YOUR_APP_KEY',
-      appSecret: 'YOUR_APP_SECRET',
-      serviceId: 'app-money',
-    }),
+    ...(observeEnabled
+      ? [
+          ObserveModule.forRoot({
+            appKey: observeCredential(process.env.OBSERVE_APP_KEY)!,
+            appSecret: observeCredential(process.env.OBSERVE_APP_SECRET)!,
+            serviceId: process.env.OBSERVE_SERVICE_ID?.trim() || 'app-money',
+          }),
+        ]
+      : []),
   ],
   controllers: [AppController],
   providers: [AppService],

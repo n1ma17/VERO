@@ -14,5 +14,12 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    // Same-origin /api in the browser so session cookies are first-party.
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+      },
+    },
   },
 })

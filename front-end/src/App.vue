@@ -15,7 +15,7 @@ const fullBleed = computed(() => route.meta.fullBleed === true)
 const mainPad = {
   guest: 'mx-auto min-w-0 max-w-5xl px-4 py-5 sm:py-6',
   app:
-    'mx-auto min-w-0 max-w-5xl px-4 pt-5 pb-[calc(5rem+24px+env(safe-area-inset-bottom))] sm:pt-8 sm:pb-[calc(5rem+24px+env(safe-area-inset-bottom))]',
+    'mx-auto min-w-0 max-w-5xl px-4 pt-5 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-8 sm:pb-[calc(5rem+env(safe-area-inset-bottom,0px))]',
   bleed: 'min-w-0',
 } as const
 const mainClass = computed(() => {

@@ -229,7 +229,6 @@
     inset-inline: 0;
     bottom: 0;
     z-index: 50;
-    padding-bottom: env(safe-area-inset-bottom);
     pointer-events: none;
   }
 
@@ -239,17 +238,20 @@
     pointer-events: auto;
     position: relative;
     display: flex;
-    align-items: center;
-    width: 98%;
-    margin-inline: auto;
-    height: 5rem;
+    align-items: flex-start;
+    width: 100%;
+    margin-inline: 0;
+    min-height: 5rem;
+    height: auto;
     padding-inline: 0.75rem;
+    /* Keep icons above the gesture/home area; bar fill stays flush to the screen edge. */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     overflow: hidden;
-    /* border-radius: 16px; */
-    border-top-right-radius: 8px;
-    border-top-left-radius: 8px;
+    /* border-top-right-radius: 8px;
+    border-top-left-radius: 8px; */
+    border-radius: 8px;
     border: 1px solid color-mix(in oklab, var(--color-text) 18%, transparent);
-    border-bottom: unset;
+    border-bottom: none;
     background-color: var(--color-background);
     box-shadow: -2px -6px 20px 0px var(--color-background);
   }
@@ -272,7 +274,7 @@
     z-index: 1;
     display: flex;
     width: 100%;
-    height: 100%;
+    height: 5rem;
     align-items: center;
     list-style: none;
     margin: 0;

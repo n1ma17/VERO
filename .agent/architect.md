@@ -61,7 +61,7 @@ Storage and API dates are Gregorian ISO `YYYY-MM-DD`. Jalali ledger views group 
 - Vue Router 5 (`createWebHashHistory` + Vite `base: './'` for Capacitor/`file`/`http` WebView)
 - Capacitor 8 Android (`front-end/capacitor.config.ts`, `webDir: dist`, `androidScheme: http`, WebView `hostname` = host of `VITE_API_URL`, `CapacitorHttp` enabled, cleartext + allowMixedContent). Sync: `npm run build && npx cap sync android`.
 - Path alias: `@` → `src`
-- `better-auth/vue` client (`src/api/authClient.ts`); REST helper `src/api/http.ts` (`credentials: 'include'`, 8s abort)
+- `better-auth/vue` client (`src/api/authClient.ts`); REST helper `src/api/http.ts` (`credentials: 'include'`, 8s abort). Browser uses same-origin `/api` via `apiBaseUrl()` + Vite proxy (`vite.config.ts` → `127.0.0.1:3000`); Capacitor native keeps absolute `VITE_API_URL` (LAN) so cookies stay first-party.
 - On boot / login: `loadCurrency` first, then align view-months to the active calendar, then parallel `GET` of `/api/bills`, `/api/deposits`, `/api/expenses`, `/api/installments`, and `/api/ledger?date=` (day 1 of the stored view-month, as Gregorian ISO). Mutations go straight to the Nest API; in-memory composables hold the working set. Dashboard derives from those collections. Transactions uses `GET /api/ledger`. Composables convert ISO ↔ active calendar at the HTTP boundary (`src/utils/moneyApi.ts` via `src/utils/calendar.ts`); UI year/month/day fields are Jalali when display currency is IRR, Gregorian otherwise.
 - Excel backup reads the in-memory cache and `PUT /api/wallet` on import, then reloads collections + ledger.
 
