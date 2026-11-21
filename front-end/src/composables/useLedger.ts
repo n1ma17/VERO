@@ -1,8 +1,6 @@
 import { computed, ref, watch } from 'vue'
 import { ApiError, api } from '@/api/http'
-import { useBankDeposits } from '@/composables/useBankDeposits'
-import { useExpenses } from '@/composables/useExpenses'
-import { useInstallments } from '@/composables/useInstallments'
+import { moneyGeneration } from '@/composables/moneyGeneration'
 import type { JalaliMonth } from '@/types/bill'
 import type { LedgerMonth, LedgerMonthPoint } from '@/types/ledger'
 import {
@@ -98,6 +96,11 @@ export async function loadLedger(): Promise<void> {
 
 export function armLedger(): void {
   sessionActive.value = true
+  ensureLedgerWatch()
+}
+
+export function refreshLedger(): Promise<void> {
+  return loadLedger()
 }
 
 export function clearLedger(): void {
@@ -109,11 +112,8 @@ export function clearLedger(): void {
 function ensureLedgerWatch(): void {
   if (watching) return
   watching = true
-  const { deposits } = useBankDeposits()
-  const { expenses } = useExpenses()
-  const { allInstallments } = useInstallments()
   watch(
-    [viewMonth, deposits, expenses, allInstallments],
+    [viewMonth, moneyGeneration],
     () => {
       void loadLedger()
     },

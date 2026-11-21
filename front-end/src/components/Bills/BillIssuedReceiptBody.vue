@@ -1,24 +1,36 @@
 <script setup lang="ts">
+import ReceiptBillIdentity from '@/components/shared/ReceiptBillIdentity.vue'
 import ReceiptPaperFooter from '@/components/shared/ReceiptPaperFooter.vue'
 import ReceiptPaperHeader from '@/components/shared/ReceiptPaperHeader.vue'
 
-defineProps<{
-  kind: string
-  meta: string
-  title: string
-  periodLabel: string
-  amountLabel: string
-  refCode: string
-}>()
+withDefaults(
+  defineProps<{
+    kind: string
+    meta: string
+    title: string
+    periodLabel: string
+    amountLabel: string
+    refCode: string
+    logoKey?: string | null
+    showBillIdentity?: boolean
+  }>(),
+  { logoKey: null, showBillIdentity: false },
+)
 </script>
 
 <template>
   <ReceiptPaperHeader :kind="kind" :meta="meta" />
 
+  <ReceiptBillIdentity
+    v-if="showBillIdentity"
+    :title="title"
+    :logo-key="logoKey ?? null"
+  />
+
   <div class="mt-5 border-t border-dashed border-text-muted/60" />
 
   <dl class="mt-4 space-y-1.5">
-    <div class="flex justify-between gap-4">
+    <div v-if="!showBillIdentity" class="flex justify-between gap-4">
       <dt>Title</dt>
       <dd class="truncate text-right">{{ title }}</dd>
     </div>

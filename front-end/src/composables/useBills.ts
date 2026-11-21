@@ -1,5 +1,6 @@
 import { computed, readonly, ref } from 'vue'
 import { api } from '@/api/http'
+import { bumpMoneyData } from '@/composables/moneyGeneration'
 import { evictBillLogo, persistBillLogo } from '@/composables/useBillLogos'
 import { refreshInstallments } from '@/composables/useInstallments'
 import type { Bill, JalaliMonth, NewBill } from '@/types/bill'
@@ -71,6 +72,7 @@ export function useBills() {
     if (input.logoUrl) await persistBillLogo(bill.id, input.logoUrl)
     bills.value = [bill, ...bills.value]
     await refreshInstallments()
+    bumpMoneyData()
     return bill
   }
 
@@ -91,6 +93,7 @@ export function useBills() {
     else if (input.logoUrl === null) await persistBillLogo(id, null)
     bills.value = bills.value.map((item) => (item.id === id ? bill : item))
     await refreshInstallments()
+    bumpMoneyData()
     return bill
   }
 
@@ -99,6 +102,7 @@ export function useBills() {
     evictBillLogo(id)
     bills.value = bills.value.filter((item) => item.id !== id)
     await refreshInstallments()
+    bumpMoneyData()
   }
 
   const billsInViewMonth = computed(() => {

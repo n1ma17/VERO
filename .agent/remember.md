@@ -59,6 +59,9 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 - Seeded admin email is `nimaab1992@gmail.com` (not `nima1992@gmail`). Forgot password with `EMAIL_PROVIDER=log` writes the new password only to the Nest console. Restore the `.env` password with `npm run db:reset-admin-password` from `back-end/` — do not re-run `db:seed` just to fix a password (that re-imports the Excel wallet).
 
 ## Task log
+- 2026-11-21 — Dashboard/Transactions stay stale after pay expense/installment: `moneyGeneration` + `bumpMoneyData()` after collection mutations; ledger watch on login via `armLedger()` (`moneyGeneration.ts`, `useLedger`, composables). Build OK.
+- 2026-11-21 — Shared `ReceiptBillIdentity` (logo or initial + title) on all `receipt-paper--card` list cards: Bills + Installments (`InstallmentReceiptCard.vue`, `BillIssuedReceiptBody.vue`). Build OK.
+- 2026-11-21 — Bills list receipt cards show bill logo (`BillLogoImage`) + centered title via `showBillIdentity` on `BillIssuedReceiptBody` (`BillReceiptCard.vue`). Build OK.
 - 2026-11-18 — Restored credential password for seeded admin via `npm run db:reset-admin-password` (Better Auth `hashPassword` → `accounts.password`); user-requested reset, not committed to `.env`.
 - 2026-11-18 — Loading overlay title uses `text-accent` (`AppLoadingOverlay.vue`). Build OK.
 - 2026-11-18 — Loading overlay matches reference segmented bar (LOADING / Please Wait) on `color-background` with `color-text` border and segments; removed bill shredder (`AppLoadingOverlay.vue`, `main.css`). `segmentClass` fixed for partial leading segment. Build OK.

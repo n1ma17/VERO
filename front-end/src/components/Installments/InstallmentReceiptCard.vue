@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import ApprovedStamp from '@/components/shared/ApprovedStamp.vue'
 import InstallmentStatusBadge from '@/components/shared/InstallmentStatusBadge.vue'
+import ReceiptBillIdentity from '@/components/shared/ReceiptBillIdentity.vue'
 import ReceiptPaperHeader from '@/components/shared/ReceiptPaperHeader.vue'
 import type { Installment } from '@/types/installment'
 import { formatToman } from '@/utils/formatToman'
@@ -28,10 +29,11 @@ const refCode = computed(() => props.installment.billId.slice(0, 8).toUpperCase(
     <InstallmentStatusBadge class="absolute right-3 top-3 z-10" :status="status" />
 
     <ReceiptPaperHeader kind="Bill due" :meta="dueDate" />
-
-    <p class="mt-2 truncate px-2 text-center text-sm font-semibold text-white">{{ installment.title }}</p>
-
     <div class="mt-4 border-t border-dashed border-text-muted/60" />
+
+    <ReceiptBillIdentity :title="installment.title" :logo-key="installment.logoKey" />
+
+    <!-- <div class="mt-4 border-t border-dashed border-text-muted/60" /> -->
 
     <dl class="mt-4 space-y-1.5 text-sm">
       <div class="flex justify-between gap-4">
@@ -50,7 +52,7 @@ const refCode = computed(() => props.installment.billId.slice(0, 8).toUpperCase(
     <ApprovedStamp
       v-if="status === 'paid'"
       :paid-at="installment.paidAt"
-      class="absolute right-3 top-16 sm:right-4"
+      class="absolute right-3 top-32 sm:right-4"
     />
   </RouterLink>
 </template>

@@ -1,5 +1,6 @@
 import { computed } from 'vue'
 import { useBankDeposits } from '@/composables/useBankDeposits'
+import { moneyGeneration } from '@/composables/moneyGeneration'
 import { useExpenses } from '@/composables/useExpenses'
 import { useInstallments } from '@/composables/useInstallments'
 import type { ExpenseCategory } from '@/types/expense'
@@ -72,8 +73,21 @@ export function useDashboard() {
   const todayIso = toIsoDate(new Date())
   const currentIndex = monthToIndex(today.year, today.month)
 
+  const moneyInputs = computed(() => {
+    void moneyGeneration.value
+    return {
+      deposits: deposits.value,
+      installments: allInstallments.value,
+      expenses: expenses.value,
+    }
+  })
+
   const totals = computed(() =>
-    buildMonthTotals(deposits.value, allInstallments.value, expenses.value),
+    buildMonthTotals(
+      moneyInputs.value.deposits,
+      moneyInputs.value.installments,
+      moneyInputs.value.expenses,
+    ),
   )
 
   const monthIncome = computed(() => totals.value.get(currentIndex)?.income ?? 0)
@@ -88,20 +102,20 @@ export function useDashboard() {
 
   const monthDepositCount = computed(
     () =>
-      deposits.value.filter(
+      moneyInputs.value.deposits.filter(
         (deposit) => deposit.bookedYear === today.year && deposit.bookedMonth === today.month,
       ).length,
   )
 
   const monthExpenseList = computed(() =>
-    expenses.value.filter(
+    moneyInputs.value.expenses.filter(
       (expense) => expense.jalaliYear === today.year && expense.jalaliMonth === today.month,
     ),
   )
   const monthExpenseCount = computed(() => monthExpenseList.value.length)
 
   const monthInstallments = computed(() =>
-    allInstallments.value.filter(
+    moneyInputs.value.installments.filter(
       (installment) => installment.dueYear === today.year && installment.dueMonth === today.month,
     ),
   )
@@ -112,7 +126,7 @@ export function useDashboard() {
   )
 
   const overdue = computed(() =>
-    allInstallments.value.filter(
+    moneyInputs.value.installments.filter(
       (installment) => getInstallmentStatus(installment, todayIso) === 'overdue',
     ),
   )
@@ -120,7 +134,7 @@ export function useDashboard() {
   const overdueAmount = computed(() => overdue.value.reduce((sum, i) => sum + i.amount, 0))
 
   const upcomingBills = computed<UpcomingBill[]>(() =>
-    allInstallments.value
+    moneyInputs.value.installments
       .filter((installment) => !installment.paidAt)
       .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
       .slice(0, UPCOMING_LIMIT)
@@ -176,8 +190,9 @@ export function useDashboard() {
   })
 
   const recentActivity = computed<ActivityItem[]>(() => {
+    const { deposits: depositRows, expenses: expenseRows } = moneyInputs.value
     const items: (ActivityItem & { sortKey: number; createdAt: string })[] = [
-      ...deposits.value.map((deposit) => ({
+      ...depositRows.map((deposit) => ({
         id: `deposit-${deposit.id}`,
         kind: 'deposit' as const,
         title: deposit.note ?? 'Bank deposit',
@@ -188,7 +203,7 @@ export function useDashboard() {
         sortKey: dateKey(deposit.jalaliYear, deposit.jalaliMonth, deposit.jalaliDay),
         createdAt: deposit.createdAt,
       })),
-      ...expenses.value.map((expense) => ({
+      ...expenseRows.map((expense) => ({
         id: `expense-${expense.id}`,
         kind: 'expense' as const,
         title: expense.title,

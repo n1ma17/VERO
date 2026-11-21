@@ -1,5 +1,6 @@
 import { computed, readonly, ref } from 'vue'
 import { api } from '@/api/http'
+import { bumpMoneyData } from '@/composables/moneyGeneration'
 import type { JalaliMonth } from '@/types/bill'
 import type { BankDeposit, NewBankDeposit } from '@/types/bankDeposit'
 import { clampDueDay, currentJalaliMonth, monthToIndex } from '@/utils/jalali'
@@ -124,6 +125,7 @@ export function useBankDeposits() {
     ) {
       setViewMonth(created.bookedYear, created.bookedMonth)
     }
+    bumpMoneyData()
   }
 
   const editingDeposit = computed(() => {
@@ -149,6 +151,7 @@ export function useBankDeposits() {
     )
     deposits.value = deposits.value.map((deposit) => (deposit.id === id ? updated : deposit))
     editingDepositId.value = null
+    bumpMoneyData()
     return true
   }
 
@@ -156,6 +159,7 @@ export function useBankDeposits() {
     await api(`/api/deposits/${id}`, { method: 'DELETE' })
     deposits.value = deposits.value.filter((deposit) => deposit.id !== id)
     if (editingDepositId.value === id) editingDepositId.value = null
+    bumpMoneyData()
   }
 
   return {

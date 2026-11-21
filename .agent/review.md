@@ -18,7 +18,7 @@ Run this checklist before finishing every task. Then log anything left unresolve
 ## Open issues / tech debt
 <!-- Format: - [area] description (found YYYY-MM-DD) -->
 - [auth] Forgot password emails a generated password (weaker than a reset link). SMTP is off until `EMAIL_PROVIDER=smtp` and SMTP_* are set; otherwise the new password is only in the Nest log. (found 2026-10-28)
-- [dashboard] Overview still derived in the client from collection caches; only Transactions reads `GET /api/ledger`. (found 2026-10-26)
+- [dashboard] Overview still derived in the client from collection caches; Transactions ledger refreshes on `bumpMoneyData()` after mutations (not only on full reload). (found 2026-10-26; sync fixed 2026-11-21)
 - [data] `bill_logos` DB check still allows `image/svg+xml`; the Nest upload path rejects SVG. Align the SQL check if SVG should be gone entirely. (found 2026-10-26)
 - [ops] Nest Observe uses placeholder app keys; telemetry 429s locally and is noisy. (found 2026-10-26)
 - [ops] Nest crashes when an outbound HTTP/2 connection (likely Arcjet, `104.18.x.x:443`) times out: unhandled `'error'` on `ClientHttp2Session` kills the process, and the frontend then hangs on the loading overlay. Handle or isolate that error, or make Arcjet fail open. (found 2026-11-18)

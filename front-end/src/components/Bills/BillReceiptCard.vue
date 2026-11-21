@@ -28,6 +28,8 @@ const refCode = computed(() => props.bill.id.slice(0, 8).toUpperCase())
       kind="Bill definition"
       :meta="meta"
       :title="bill.title"
+      :logo-key="bill.logoKey"
+      show-bill-identity
       :period-label="periodLabel"
       :amount-label="amountLabel"
       :ref-code="refCode"

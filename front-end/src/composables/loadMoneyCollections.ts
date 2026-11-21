@@ -1,3 +1,4 @@
+import { bumpMoneyData } from '@/composables/moneyGeneration'
 import { clearBillLogos } from '@/composables/useBillLogos'
 import { clearBills, loadBills } from '@/composables/useBills'
 import { clearDeposits, loadDeposits } from '@/composables/useBankDeposits'
@@ -14,6 +15,7 @@ export async function loadMoneyCollections(): Promise<void> {
     loadInstallments(),
     loadLedger(),
   ])
+  bumpMoneyData()
 }
 
 export function clearMoneyCollections(): void {

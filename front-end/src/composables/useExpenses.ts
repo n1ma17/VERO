@@ -1,5 +1,6 @@
 import { computed, readonly, ref } from 'vue'
 import { api } from '@/api/http'
+import { bumpMoneyData } from '@/composables/moneyGeneration'
 import type { JalaliMonth } from '@/types/bill'
 import type { Expense, ExpenseCategory, NewExpense } from '@/types/expense'
 import { EXPENSE_CATEGORY_ORDER, isExpenseCategory } from '@/utils/expenseCategories'
@@ -108,6 +109,7 @@ export function useExpenses() {
     })
     const expense = expenseFromApi(row)
     expenses.value = [expense, ...expenses.value]
+    bumpMoneyData()
     return expense
   }
 
@@ -118,12 +120,14 @@ export function useExpenses() {
     })
     const updated = expenseFromApi(row)
     expenses.value = expenses.value.map((expense) => (expense.id === id ? updated : expense))
+    bumpMoneyData()
     return updated
   }
 
   async function removeExpense(id: string) {
     await api(`/api/expenses/${id}`, { method: 'DELETE' })
     expenses.value = expenses.value.filter((expense) => expense.id !== id)
+    bumpMoneyData()
   }
 
   return {

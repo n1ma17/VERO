@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { api } from '@/api/http'
+import { bumpMoneyData } from '@/composables/moneyGeneration'
 import type { JalaliMonth } from '@/types/bill'
 import type { Installment } from '@/types/installment'
 import { currentJalaliMonth, monthToIndex } from '@/utils/jalali'
@@ -78,6 +79,7 @@ export function useInstallments() {
       }),
     )
     installments.value = installments.value.map((item) => (item.id === updated.id ? updated : item))
+    bumpMoneyData()
   }
 
   return {
