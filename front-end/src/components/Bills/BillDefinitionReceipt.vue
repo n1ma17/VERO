@@ -2,7 +2,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BillLogoUpload from '@/components/Bills/BillLogoUpload.vue'
-import TomanAmountInput from '@/components/shared/TomanAmountInput.vue'
+import MoneyAmountInput from '@/components/shared/MoneyAmountInput.vue'
 import BaseButton from '@/components/shared/BaseButton.vue'
 import JalaliDatePicker from '@/components/shared/JalaliDatePicker.vue'
 import ReceiptDivider from '@/components/shared/ReceiptDivider.vue'
@@ -10,20 +10,23 @@ import ReceiptEdge from '@/components/shared/ReceiptEdge.vue'
 import { useBillDefinitionFlow } from '@/composables/useBillDefinitionFlow'
 import { loadBillLogo } from '@/composables/useBillLogos'
 import { useBills } from '@/composables/useBills'
+import { useCurrency } from '@/composables/useCurrency'
 import { useToast } from '@/composables/useToast'
+import type { Currency } from '@/types/currency'
 import {
   clampDueDay,
   currentJalaliDate,
   formatJalaliDate,
   formatJalaliMonthRange,
 } from '@/utils/jalali'
-import { formatToman } from '@/utils/formatToman'
+import { formatMoney } from '@/utils/formatMoney'
 
 const route = useRoute()
 const router = useRouter()
 const { getBillById, addBill, updateBill, removeBill, viewMonth } = useBills()
 const { stage, startIssue, formResetTick } = useBillDefinitionFlow()
 const { showSuccess } = useToast()
+const { currency: displayCurrency } = useCurrency()
 
 const today = currentJalaliDate()
 const billNotFound = ref(false)
@@ -32,6 +35,8 @@ const confirmingDelete = ref(false)
 const form = reactive({
   title: '',
   amount: null as number | null,
+  /** Set while editing so the bill keeps the currency it was entered in. */
+  currency: null as Currency | null,
   startYear: viewMonth.value.year,
   startMonth: viewMonth.value.month,
   dueDay: today.day,
@@ -45,6 +50,7 @@ const editBillId = computed(() => {
 })
 
 const isEditing = computed(() => editBillId.value !== null)
+const amountCurrency = computed(() => form.currency ?? displayCurrency.value)
 
 watch(
   () => [form.startYear, form.startMonth],
@@ -68,7 +74,8 @@ watch(
       return
     }
     form.title = bill.title
-    form.amount = bill.amount
+    form.amount = bill.originalAmount
+    form.currency = bill.currency
     form.startYear = bill.startYear
     form.startMonth = bill.startMonth
     form.dueDay = bill.dueDay
@@ -88,6 +95,7 @@ watch(formResetTick, () => {
 function resetFormFields() {
   form.title = ''
   form.amount = null
+  form.currency = null
   form.logoUrl = null
   form.durationMonths = 1
   form.startYear = viewMonth.value.year
@@ -120,7 +128,7 @@ const previewPeriod = computed(() =>
 )
 
 const previewAmount = computed(() =>
-  form.amount && form.amount > 0 ? formatToman(form.amount) : '—',
+  form.amount && form.amount > 0 ? formatMoney(form.amount, amountCurrency.value) : '—',
 )
 
 const inputClasses =
@@ -131,7 +139,8 @@ async function submit() {
 
   const payload = {
     title: form.title.trim(),
-    amount: Math.round(form.amount!),
+    amount: form.amount!,
+    currency: amountCurrency.value,
     startYear: form.startYear,
     startMonth: form.startMonth,
     dueDay: form.dueDay,
@@ -153,7 +162,7 @@ async function submit() {
     title: bill.title,
     firstDueLabel: formatJalaliDate(bill.startYear, bill.startMonth, bill.dueDay),
     periodLabel: formatJalaliMonthRange(bill.startYear, bill.startMonth, bill.durationMonths),
-    amountLabel: formatToman(bill.amount),
+    amountLabel: formatMoney(bill.originalAmount, bill.currency),
     isUpdate: isEditing.value,
   })
 }
@@ -201,7 +210,12 @@ async function deleteBill() {
         />
       </div>
 
-      <TomanAmountInput v-model="form.amount" :disabled="isPrinterBusy" />
+      <MoneyAmountInput
+        v-model="form.amount"
+        :currency="amountCurrency"
+        :disabled="isPrinterBusy"
+        :hint="isEditing && amountCurrency !== displayCurrency ? 'Kept in the currency it was entered in.' : undefined"
+      />
 
       <JalaliDatePicker
         v-model:year="form.startYear"

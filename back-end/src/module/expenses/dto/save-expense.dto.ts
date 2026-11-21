@@ -1,5 +1,6 @@
 import {
-  IsInt,
+  IsIn,
+  IsNumber,
   IsOptional,
   IsString,
   Matches,
@@ -7,6 +8,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
+import { CURRENCIES, type Currency } from '../../../common/money/currency.js';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const CATEGORY_SLUG = /^[a-z][a-z0-9-]{0,47}$/;
@@ -17,9 +19,12 @@ export class SaveExpenseDto {
   @MaxLength(160)
   title!: string;
 
-  @IsInt()
-  @Min(1)
+  @IsNumber({ maxDecimalPlaces: 2, allowNaN: false, allowInfinity: false })
+  @Min(0.01)
   amount!: number;
+
+  @IsIn(CURRENCIES)
+  currency!: Currency;
 
   @IsString()
   @MinLength(1)

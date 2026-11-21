@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useLedger } from '@/composables/useLedger'
-import { formatToman } from '@/utils/formatToman'
+import { formatMoney } from '@/utils/formatMoney'
 
 const {
   monthIncome,
@@ -42,7 +42,7 @@ const netTone = computed(() => {
 const balanceTone = computed(() => (closingBalance.value < 0 ? 'negative' : 'positive'))
 
 function signed(value: number) {
-  return value > 0 ? `+${formatToman(value)}` : formatToman(value)
+  return value > 0 ? `+${formatMoney(value)}` : formatMoney(value)
 }
 </script>
 
@@ -53,7 +53,7 @@ function signed(value: number) {
         Deposits
       </p>
       <p class="mt-2 break-words font-mono text-lg font-bold leading-tight text-success sm:text-xl">
-        {{ formatToman(monthIncome) }}
+        {{ formatMoney(monthIncome) }}
       </p>
       <p class="mt-1 text-xs text-text-muted">{{ depositCount }} deposit(s) counted</p>
     </article>
@@ -63,11 +63,11 @@ function signed(value: number) {
         Bills
       </p>
       <p class="mt-2 break-words font-mono text-lg font-bold leading-tight text-danger sm:text-xl">
-        {{ formatToman(monthBills) }}
+        {{ formatMoney(monthBills) }}
       </p>
       <p class="mt-1 text-xs leading-snug text-text-muted">
-        {{ billCount }} bill(s) · {{ formatToman(paidBillsTotal) }} paid ·
-        {{ formatToman(unpaidBillsTotal) }} open
+        {{ billCount }} bill(s) · {{ formatMoney(paidBillsTotal) }} paid ·
+        {{ formatMoney(unpaidBillsTotal) }} open
       </p>
     </article>
 
@@ -76,7 +76,7 @@ function signed(value: number) {
         Expenses
       </p>
       <p class="mt-2 break-words font-mono text-lg font-bold leading-tight text-warning sm:text-xl">
-        {{ formatToman(monthExpenses) }}
+        {{ formatMoney(monthExpenses) }}
       </p>
       <p class="mt-1 text-xs text-text-muted">{{ expenseCount }} purchase(s)</p>
     </article>
@@ -103,9 +103,9 @@ function signed(value: number) {
     >
       <p class="text-xs font-medium uppercase tracking-wider opacity-80">Remaining balance</p>
       <p class="mt-2 break-words font-mono text-lg font-bold leading-tight sm:text-xl">
-        {{ formatToman(closingBalance) }}
+        {{ formatMoney(closingBalance) }}
       </p>
-      <p class="mt-1 text-xs opacity-80">Carried in: {{ formatToman(openingBalance) }}</p>
+      <p class="mt-1 text-xs opacity-80">Carried in: {{ formatMoney(openingBalance) }}</p>
     </article>
   </div>
 </template>

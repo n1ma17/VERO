@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useDashboard } from '@/composables/useDashboard'
-import { formatToman, formatTomanNumber } from '@/utils/formatToman'
+import { currencyUnit, formatMoney, formatMoneyNumber } from '@/utils/formatMoney'
 
 const {
   monthIncome,
@@ -59,7 +59,7 @@ const staggerClasses = [
         </span>
       </div>
       <p class="mt-3 font-mono text-xl font-bold leading-tight text-success sm:text-2xl">
-        {{ formatTomanNumber(monthIncome) }}<span class="ml-1 font-sans text-xs font-medium">Toman</span>
+        {{ formatMoneyNumber(monthIncome) }}<span class="ml-1 font-sans text-xs font-medium">{{ currencyUnit() }}</span>
       </p>
       <p class="mt-1 text-xs text-text-muted">
         {{ monthDepositCount }} deposit(s) this month
@@ -81,7 +81,7 @@ const staggerClasses = [
         </span>
       </div>
       <p class="mt-3 font-mono text-xl font-bold leading-tight text-danger sm:text-2xl">
-        {{ formatTomanNumber(monthBills) }}<span class="ml-1 font-sans text-xs font-medium">Toman</span>
+        {{ formatMoneyNumber(monthBills) }}<span class="ml-1 font-sans text-xs font-medium">{{ currencyUnit() }}</span>
       </p>
       <p class="mt-1 text-xs text-text-muted">{{ monthBillCount }} bill(s) due this month</p>
     </article>
@@ -104,7 +104,7 @@ const staggerClasses = [
         </span>
       </div>
       <p class="mt-3 font-mono text-xl font-bold leading-tight text-warning sm:text-2xl">
-        {{ formatTomanNumber(monthExpenses) }}<span class="ml-1 font-sans text-xs font-medium">Toman</span>
+        {{ formatMoneyNumber(monthExpenses) }}<span class="ml-1 font-sans text-xs font-medium">{{ currencyUnit() }}</span>
       </p>
       <p class="mt-1 text-xs text-text-muted">{{ monthExpenseCount }} purchase(s) this month</p>
     </RouterLink>
@@ -135,7 +135,7 @@ const staggerClasses = [
           {{ monthPaidCount }}<span class="text-base text-text-muted">/{{ monthBillCount }}</span>
         </p>
         <p class="mt-0.5 font-mono text-xs text-text-muted">
-          {{ formatToman(monthPaidAmount) }}
+          {{ formatMoney(monthPaidAmount) }}
         </p>
       </div>
     </article>
@@ -164,7 +164,7 @@ const staggerClasses = [
       </div>
       <template v-if="hasOverdue">
         <p class="mt-3 font-mono text-xl font-bold leading-tight sm:text-2xl">
-          {{ formatTomanNumber(overdueAmount) }}<span class="ml-1 font-sans text-xs font-medium">Toman</span>
+          {{ formatMoneyNumber(overdueAmount) }}<span class="ml-1 font-sans text-xs font-medium">{{ currencyUnit() }}</span>
         </p>
         <p class="mt-1 text-xs opacity-80">{{ overdueCount }} installment(s) past due — review now</p>
       </template>

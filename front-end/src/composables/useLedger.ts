@@ -1,6 +1,7 @@
 import { computed, ref, watch } from 'vue'
 import { ApiError, api } from '@/api/http'
 import { moneyGeneration } from '@/composables/moneyGeneration'
+import { displayCurrency } from '@/composables/useCurrency'
 import type { JalaliMonth } from '@/types/bill'
 import type { LedgerMonth, LedgerMonthPoint } from '@/types/ledger'
 import {
@@ -48,6 +49,7 @@ function emptyMonth(year: number, month: number): LedgerMonth {
   return {
     year,
     month,
+    currency: displayCurrency(),
     monthIncome: 0,
     monthBills: 0,
     monthExpenses: 0,
@@ -136,26 +138,22 @@ export function useLedger() {
     return viewIndex.value === monthToIndex(now.year, now.month)
   })
 
+  function matchesView(current: LedgerMonth | null): current is LedgerMonth {
+    return (
+      current !== null &&
+      current.year === viewMonth.value.year &&
+      current.month === viewMonth.value.month &&
+      current.currency === displayCurrency()
+    )
+  }
+
   const month = computed(() => {
     const current = snapshot.value
-    if (
-      current &&
-      current.year === viewMonth.value.year &&
-      current.month === viewMonth.value.month
-    ) {
-      return current
-    }
+    if (matchesView(current)) return current
     return emptyMonth(viewMonth.value.year, viewMonth.value.month)
   })
 
-  const loading = computed(() => {
-    const current = snapshot.value
-    return (
-      current === null ||
-      current.year !== viewMonth.value.year ||
-      current.month !== viewMonth.value.month
-    )
-  })
+  const loading = computed(() => !matchesView(snapshot.value))
 
   const monthIncome = computed(() => month.value.monthIncome)
   const monthBills = computed(() => month.value.monthBills)

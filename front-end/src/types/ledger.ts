@@ -1,3 +1,4 @@
+import type { Currency } from '@/types/currency'
 import type { ExpenseCategory } from '@/types/expense'
 import type { InstallmentStatus } from '@/types/installment'
 
@@ -8,8 +9,11 @@ export interface LedgerEntry {
   kind: LedgerEntryKind
   title: string
   detail: string | null
-  /** Always positive; `kind` decides whether it adds or subtracts. */
+  /** Always positive, in `LedgerMonth.currency`; `kind` decides whether it adds or subtracts. */
   amount: number
+  /** Amount as entered on the row. */
+  originalAmount: number
+  originalCurrency: Currency
   year: number
   month: number
   day: number
@@ -36,6 +40,8 @@ export interface LedgerMonthPoint {
 export interface LedgerMonth {
   year: number
   month: number
+  /** Display currency the server converted every money field into. */
+  currency: Currency
   monthIncome: number
   monthBills: number
   monthExpenses: number

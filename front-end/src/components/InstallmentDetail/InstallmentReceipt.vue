@@ -8,7 +8,7 @@ import ReceiptDivider from '@/components/shared/ReceiptDivider.vue'
 import ReceiptEdge from '@/components/shared/ReceiptEdge.vue'
 import { useCurrentInstallment } from '@/composables/useCurrentInstallment'
 import type { InstallmentStatus } from '@/types/installment'
-import { formatToman } from '@/utils/formatToman'
+import { formatMoney } from '@/utils/formatMoney'
 import { formatJalaliDate, formatTimestampAsJalali } from '@/utils/jalali'
 
 const { installment, status } = useCurrentInstallment()
@@ -57,7 +57,7 @@ const paidOnLabel = computed(() =>
   installment.value?.paidAt ? formatTimestampAsJalali(installment.value.paidAt) : '—',
 )
 
-const amount = computed(() => (installment.value ? formatToman(installment.value.amount) : ''))
+const amount = computed(() => (installment.value ? formatMoney(installment.value.amount) : ''))
 const isPaid = computed(() => status.value === 'paid')
 </script>
 

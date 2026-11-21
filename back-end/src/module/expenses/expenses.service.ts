@@ -1,12 +1,15 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { isIsoDate } from '../../common/money/calendar.js';
+import { roundMoney } from '../../common/money/currency.js';
 import { mapExpense, type ExpenseRow } from '../../common/money/mappers.js';
 import type { ExpenseDto } from '../../common/money/types.js';
 import { PgService } from '../../lib/database/pg.service.js';
 import type { SaveExpenseDto } from './dto/save-expense.dto.js';
 
+const COLUMNS = 'id, title, amount, currency, category, occurred_on, note, created_at';
+
 const SELECT = `
-  SELECT id, title, amount, category, occurred_on, note, created_at
+  SELECT ${COLUMNS}
     FROM expenses
 `;
 
@@ -38,13 +41,14 @@ export class ExpensesService {
     }
     const { rows } = await this.pg.query<ExpenseRow>(
       `INSERT INTO expenses
-         (user_id, title, amount, category, occurred_on, note)
-       VALUES ($1, $2, $3, $4, $5::date, $6)
-       RETURNING id, title, amount, category, occurred_on, note, created_at`,
+         (user_id, title, amount, currency, category, occurred_on, note)
+       VALUES ($1, $2, $3, $4, $5, $6::date, $7)
+       RETURNING ${COLUMNS}`,
       [
         userId,
         dto.title.trim(),
-        dto.amount,
+        roundMoney(dto.amount, dto.currency),
+        dto.currency,
         dto.category,
         dto.occurredOn,
         dto.note?.trim() || null,
@@ -61,16 +65,18 @@ export class ExpensesService {
       `UPDATE expenses
           SET title = $3,
               amount = $4,
-              category = $5,
-              occurred_on = $6::date,
-              note = $7
+              currency = $5,
+              category = $6,
+              occurred_on = $7::date,
+              note = $8
         WHERE user_id = $1 AND id = $2
-    RETURNING id, title, amount, category, occurred_on, note, created_at`,
+    RETURNING ${COLUMNS}`,
       [
         userId,
         id,
         dto.title.trim(),
-        dto.amount,
+        roundMoney(dto.amount, dto.currency),
+        dto.currency,
         dto.category,
         dto.occurredOn,
         dto.note?.trim() || null,

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import InstallmentStatusBadge from '@/components/shared/InstallmentStatusBadge.vue'
+import { displayCurrency } from '@/composables/useCurrency'
 import { useLedger } from '@/composables/useLedger'
-import type { LedgerEntryKind } from '@/types/ledger'
+import type { LedgerEntry, LedgerEntryKind } from '@/types/ledger'
 import { categoryMeta } from '@/utils/expenseCategories'
 import { formatJalaliDate } from '@/utils/jalali'
-import { formatToman } from '@/utils/formatToman'
+import { formatMoney } from '@/utils/formatMoney'
 
 type Filter = 'all' | LedgerEntryKind
 
@@ -50,6 +51,11 @@ const amountClasses: Record<LedgerEntryKind, string> = {
 function balanceClass(value: number) {
   return value < 0 ? 'text-danger' : 'text-text'
 }
+
+function originalLabel(entry: LedgerEntry): string | null {
+  if (entry.originalCurrency === displayCurrency()) return null
+  return `${formatMoney(entry.originalAmount, entry.originalCurrency)} entered`
+}
 </script>
 
 <template>
@@ -77,7 +83,7 @@ function balanceClass(value: number) {
       <li class="flex items-center justify-between gap-3 rounded-2xl bg-primary/10 px-3 py-3 text-sm text-text-muted">
         <span class="italic">Carried in</span>
         <span class="shrink-0 font-mono" :class="balanceClass(openingBalance)">
-          {{ formatToman(openingBalance) }}
+          {{ formatMoney(openingBalance) }}
         </span>
       </li>
       <li
@@ -124,10 +130,13 @@ function balanceClass(value: number) {
           </div>
           <div class="shrink-0 text-right">
             <p class="font-mono text-sm font-semibold" :class="amountClasses[entry.kind]">
-              {{ entry.kind === 'deposit' ? '+' : '−' }}{{ formatToman(entry.amount) }}
+              {{ entry.kind === 'deposit' ? '+' : '−' }}{{ formatMoney(entry.amount) }}
+            </p>
+            <p v-if="originalLabel(entry)" class="font-mono text-[10px] text-text-muted">
+              {{ originalLabel(entry) }}
             </p>
             <p class="mt-1 font-mono text-xs" :class="balanceClass(entry.balance)">
-              {{ formatToman(entry.balance) }}
+              {{ formatMoney(entry.balance) }}
             </p>
           </div>
         </div>
@@ -138,7 +147,7 @@ function balanceClass(value: number) {
       <li class="flex items-center justify-between gap-3 px-3 pt-2 text-sm font-semibold">
         <span>Remaining</span>
         <span class="font-mono" :class="balanceClass(closingBalance)">
-          {{ formatToman(closingBalance) }}
+          {{ formatMoney(closingBalance) }}
         </span>
       </li>
     </ul>
@@ -161,7 +170,7 @@ function balanceClass(value: number) {
             <td class="py-3 pr-4" />
             <td class="py-3 pr-4 italic" colspan="3">Carried in from previous months</td>
             <td class="py-3 text-right font-mono" :class="balanceClass(openingBalance)">
-              {{ formatToman(openingBalance) }}
+              {{ formatMoney(openingBalance) }}
             </td>
           </tr>
 
@@ -215,10 +224,13 @@ function balanceClass(value: number) {
               class="whitespace-nowrap py-3 pr-4 text-right font-mono font-semibold"
               :class="amountClasses[entry.kind]"
             >
-              {{ entry.kind === 'deposit' ? '+' : '−' }}{{ formatToman(entry.amount) }}
+              {{ entry.kind === 'deposit' ? '+' : '−' }}{{ formatMoney(entry.amount) }}
+              <p v-if="originalLabel(entry)" class="text-[10px] font-normal text-text-muted">
+                {{ originalLabel(entry) }}
+              </p>
             </td>
             <td class="whitespace-nowrap py-3 text-right font-mono" :class="balanceClass(entry.balance)">
-              {{ formatToman(entry.balance) }}
+              {{ formatMoney(entry.balance) }}
             </td>
           </tr>
 
@@ -233,7 +245,7 @@ function balanceClass(value: number) {
             <td class="pt-4 pr-4" />
             <td class="pt-4 pr-4" colspan="3">Remaining balance</td>
             <td class="pt-4 text-right font-mono" :class="balanceClass(closingBalance)">
-              {{ formatToman(closingBalance) }}
+              {{ formatMoney(closingBalance) }}
             </td>
           </tr>
         </tfoot>

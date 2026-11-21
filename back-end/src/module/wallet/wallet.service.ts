@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { roundMoney } from '../../common/money/currency.js';
 import { upsertBillLogo } from '../../common/money/logo.js';
 import { PgService } from '../../lib/database/pg.service.js';
 import type { ImportWalletDto } from './dto/import-wallet.dto.js';
@@ -16,13 +17,14 @@ export class WalletService {
       for (const bill of dto.bills) {
         await client.query(
           `INSERT INTO bills
-             (id, user_id, title, amount, start_on, end_on, due_day)
-           VALUES ($1, $2, $3, $4, $5::date, $6::date, $7)`,
+             (id, user_id, title, amount, currency, start_on, end_on, due_day)
+           VALUES ($1, $2, $3, $4, $5, $6::date, $7::date, $8)`,
           [
             bill.id,
             userId,
             bill.title.trim(),
-            bill.amount,
+            roundMoney(bill.amount, bill.currency),
+            bill.currency,
             bill.startOn,
             bill.endOn,
             bill.dueDay,
@@ -48,12 +50,13 @@ export class WalletService {
       for (const deposit of dto.deposits) {
         await client.query(
           `INSERT INTO bank_deposits
-             (id, user_id, amount, arrived_on, booked_on, note)
-           VALUES ($1, $2, $3, $4::date, $5::date, $6)`,
+             (id, user_id, amount, currency, arrived_on, booked_on, note)
+           VALUES ($1, $2, $3, $4, $5::date, $6::date, $7)`,
           [
             deposit.id,
             userId,
-            deposit.amount,
+            roundMoney(deposit.amount, deposit.currency),
+            deposit.currency,
             deposit.arrivedOn,
             deposit.bookedOn,
             deposit.note?.trim() || null,
@@ -64,13 +67,14 @@ export class WalletService {
       for (const expense of dto.expenses) {
         await client.query(
           `INSERT INTO expenses
-             (id, user_id, title, amount, category, occurred_on, note)
-           VALUES ($1, $2, $3, $4, $5, $6::date, $7)`,
+             (id, user_id, title, amount, currency, category, occurred_on, note)
+           VALUES ($1, $2, $3, $4, $5, $6, $7::date, $8)`,
           [
             expense.id,
             userId,
             expense.title.trim(),
-            expense.amount,
+            roundMoney(expense.amount, expense.currency),
+            expense.currency,
             expense.category,
             expense.occurredOn,
             expense.note?.trim() || null,

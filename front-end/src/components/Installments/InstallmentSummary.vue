@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useInstallments } from '@/composables/useInstallments'
 import type { InstallmentStatus } from '@/types/installment'
-import { formatTomanNumber } from '@/utils/formatToman'
+import { currencyUnit, formatMoneyNumber } from '@/utils/formatMoney'
 import { getInstallmentStatus, installmentStatusLabels } from '@/utils/installmentStatus'
 
 const { installments } = useInstallments()
@@ -43,8 +43,8 @@ const stats = computed(() => {
           class="mt-0.5 font-mono text-[10px] font-semibold leading-tight sm:text-xs"
           :class="valueClasses[status]"
         >
-          {{ formatTomanNumber(stats.amounts[status]) }}
-          <span class="font-sans text-[9px] font-medium opacity-80 sm:text-[10px]">Toman</span>
+          {{ formatMoneyNumber(stats.amounts[status]) }}
+          <span class="font-sans text-[9px] font-medium opacity-80 sm:text-[10px]">{{ currencyUnit() }}</span>
         </p>
       </div>
     </dl>

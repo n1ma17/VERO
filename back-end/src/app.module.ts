@@ -8,7 +8,9 @@ import { ArcjetProtectionModule } from './lib/arcjet/arcjet.module.js';
 import { AppAuthModule } from './lib/auth/auth.module.js';
 import { validateAuthEnv } from './lib/auth/validate-auth-env.js';
 import { PgModule } from './lib/database/pg.module.js';
+import { FxModule } from './lib/fx/fx.module.js';
 import { BillsModule } from './module/bills/bills.module.js';
+import { CurrencyModule } from './module/currency/currency.module.js';
 import { DashboardModule } from './module/dashboard/dashboard.module.js';
 import { DepositsModule } from './module/deposits/deposits.module.js';
 import { ExpensesModule } from './module/expenses/expenses.module.js';
@@ -66,8 +68,10 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule({
     }),
     ArcjetProtectionModule,
     PgModule,
+    FxModule,
     AppAuthModule,
     UsersModule,
+    CurrencyModule,
     BillsModule,
     DepositsModule,
     ExpensesModule,

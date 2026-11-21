@@ -1,7 +1,8 @@
-import { computed, readonly, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { api } from '@/api/http'
 import { bumpMoneyData } from '@/composables/moneyGeneration'
 import { evictBillLogo, persistBillLogo } from '@/composables/useBillLogos'
+import { withDisplayAmount } from '@/composables/useCurrency'
 import { refreshInstallments } from '@/composables/useInstallments'
 import type { Bill, JalaliMonth, NewBill } from '@/types/bill'
 import { billFromApi, billToApi, type BillApi } from '@/utils/moneyApi'
@@ -20,6 +21,7 @@ function loadViewMonth(): JalaliMonth {
 }
 
 const bills = ref<Bill[]>([])
+const displayBills = computed(() => bills.value.map(withDisplayAmount))
 const viewMonth = ref<JalaliMonth>(loadViewMonth())
 
 export async function loadBills(): Promise<void> {
@@ -44,7 +46,7 @@ export function useBills() {
   })
 
   function getBillById(id: string): Bill | undefined {
-    return bills.value.find((bill) => bill.id === id)
+    return displayBills.value.find((bill) => bill.id === id)
   }
 
   function setViewMonth(year: number, month: number) {
@@ -73,7 +75,7 @@ export function useBills() {
     bills.value = [bill, ...bills.value]
     await refreshInstallments()
     bumpMoneyData()
-    return bill
+    return withDisplayAmount(bill)
   }
 
   async function updateBill(
@@ -94,7 +96,7 @@ export function useBills() {
     bills.value = bills.value.map((item) => (item.id === id ? bill : item))
     await refreshInstallments()
     bumpMoneyData()
-    return bill
+    return withDisplayAmount(bill)
   }
 
   async function removeBill(id: string): Promise<void> {
@@ -107,11 +109,11 @@ export function useBills() {
 
   const billsInViewMonth = computed(() => {
     const { year, month } = viewMonth.value
-    return bills.value.filter((bill) => isBillActiveInMonth(bill, year, month))
+    return displayBills.value.filter((bill) => isBillActiveInMonth(bill, year, month))
   })
 
   return {
-    bills: readonly(bills),
+    bills: displayBills,
     billsInViewMonth,
     viewMonth,
     isCurrentMonth,

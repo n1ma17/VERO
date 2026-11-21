@@ -8,8 +8,8 @@
       Bills, deposits, spending. One statement.
     </h1>
     <p class="col-span-12 mt-8 text-base leading-relaxed sm:col-span-8 lg:col-span-5">
-      A ledger for people paid in Toman who plan by the Jalali month. Define a bill once, log what
-      you spend, and see what is left before the month runs out.
+      A ledger for people who plan by the Jalali month, in dollars, euros, pounds or rials. Define a
+      bill once, log what you spend, and see what is left before the month runs out.
     </p>
   </div>
 </template>

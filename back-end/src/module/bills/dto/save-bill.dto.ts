@@ -1,5 +1,7 @@
 import {
+  IsIn,
   IsInt,
+  IsNumber,
   IsOptional,
   IsString,
   Matches,
@@ -9,6 +11,7 @@ import {
   MinLength,
   ValidateIf,
 } from 'class-validator';
+import { CURRENCIES, type Currency } from '../../../common/money/currency.js';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -18,9 +21,12 @@ export class SaveBillDto {
   @MaxLength(160)
   title!: string;
 
-  @IsInt()
-  @Min(1)
+  @IsNumber({ maxDecimalPlaces: 2, allowNaN: false, allowInfinity: false })
+  @Min(0.01)
   amount!: number;
+
+  @IsIn(CURRENCIES)
+  currency!: Currency;
 
   @IsString()
   @Matches(ISO_DATE)

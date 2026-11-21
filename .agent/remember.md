@@ -37,6 +37,7 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 - Printer pages share `createPrinterFlow` (`usePrinterFlow.ts`); editing reuses the entry page with an optional `:id` route param.
 - Receipt paper feed/retract is a CSS `transform` **transition** (2s out, 1.4s in), not keyframes. Keyframe `from` on class swap made the sheet peek, snap back to `-110%`, then feed. Auth print waits for a painted hidden frame (double rAF, 48ms timeout fallback).
 - Charts are hand-written SVG with `fill-*`/`stroke-*` theme classes; no chart library. Dynamic sizes go in SVG attributes, never inline `style`.
+- Multi-currency (user answers 2026-11-21): rows keep the amount + currency they were entered in forever; everything is converted at **today's live rate** (past figures move with the market); USD/EUR/GBP from a public API, IRR free-market rate entered manually per user (`users.irr_per_usd`, falls back to official API rate); Toman dropped (data ×10 → IRR); selector is a navbar menu with code badge. Sums are normalized to USD in SQL, converted once in the API; the client converts unrounded and rounds only in `formatMoney`.
 - GitHub remote is `https://github.com/n1ma17/VERO.git` on `master`. The Vue app used to sit at the VERO root; it now lives under `front-end/` with `back-end/` and `database/` beside it.
 
 ## Gotchas
@@ -56,10 +57,17 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 - `pg` DATE values must use local `getFullYear`/`getMonth`/`getDate` in `toDateOnly` — UTC `toISOString().slice(0,10)` is a Tehran off-by-one.
 - Paper is `#8C8E92`, the same color as `text`. Anything inside `.receipt-printer-sheet` gets ink tokens re-scoped in CSS. Content rendered on paper outside the sheet still needs explicit `text-on-paper`.
 - Do not animate `.receipt-printer-sheet` with `@keyframes` on `transform`. Swapping `is-hidden` → `is-printing` flashes a frame (paper peeks, retracts, then feeds). Transition from the current `translateY(-110%)` instead. Start auth at `idle` so the hidden frame paints before `printing`.
+- Changing a column type used by a view fails in Postgres: drop `v_ledger_entries`, `v_month_totals`, `v_installments` first, then recreate (latest definitions in `007_multi_currency.sql`).
+- FX providers take ~9s from this network via Node `fetch` (curl ~4s); `open.er-api.com` sometimes fails inside Nest ("fetch failed") while the jsDelivr fallback works. Keep timeouts ≥ 20s and never block requests on refresh once real rates exist.
+- Display-converted store lists are new objects on every recompute; form watchers must key on the row id (`editingDeposit.value?.id`), not the object, or a currency change wipes in-progress edits.
 - Seeded admin email is `nimaab1992@gmail.com` (not `nima1992@gmail`). Forgot password with `EMAIL_PROVIDER=log` writes the new password only to the Nest console. Restore the `.env` password with `npm run db:reset-admin-password` from `back-end/` — do not re-run `db:seed` just to fix a password (that re-imports the Excel wallet).
 
+- Navbar popovers on mobile (below `sm`, `matchMedia('(max-width: 39.999rem)')`) become bottom sheets: `<Teleport to="body" :disabled="!isMobile">`, `z-[150]` sheet + `z-[140]` backdrop (above bottom nav 50 and loading 100, below datepicker 200 / toasts 300), lock body with `overflow-hidden`, pad `env(safe-area-inset-bottom)`. Inputs inside use `text-base` on mobile so iOS does not zoom.
+
 ## Task log
-- 2026-11-21 — `ExpenseSummary` shows 5 category rows; **Show more** expands rest with GSAP stagger (`gsap` dep). Build OK.
+- 2026-11-21 — `CurrencySwitcher` is a slide-up bottom sheet below `sm` (teleported, backdrop, grab handle, close button, scroll lock, Esc); desktop keeps the dropdown. Build OK; checked 390px and desktop in browser (`shared/CurrencySwitcher.vue`).
+- 2026-11-21 — Multi-currency (USD/EUR/GBP/IRR): migration `007_multi_currency.sql` (numeric amounts + `currency`, Toman→IRR ×10, `fx_rates`, `v_user_fx`, USD-normalized views); Nest `FxService` (open.er-api → jsDelivr fallback) + `GET/PATCH /api/currency`; DTOs/services/ledger/wallet/seed scripts carry currency; Vue `useCurrency`, `formatMoney*`, `MoneyAmountInput`, `CurrencySwitcher` in navbar, display-converted stores, edit keeps original currency, ledger "entered in" note, Excel backup v2. Migrate + both builds OK; checked dashboard/transactions/entry form in browser and API conversions (manual IRR rate).
+- 2026-11-21 — `ExpenseSummary` shows 5 category rows; **Show more**/**Show less** with CSS keyframe stagger (gsap removed after Vite resolve error). Build OK.
 - 2026-11-21 — Custom expense categories on entry page: catalog in localStorage (`useExpenseCategoryCatalog`), theme color tokens, manage UI (`ExpenseCategoryManage`, `ExpenseCategoryPicker`); DB `expenses.category` → text (`006_expense_category_text.sql`). Build + migrate OK.
 - 2026-11-21 — Dashboard/Transactions stay stale after pay expense/installment: `moneyGeneration` + `bumpMoneyData()` after collection mutations; ledger watch on login via `armLedger()` (`moneyGeneration.ts`, `useLedger`, composables). Build OK.
 - 2026-11-21 — Shared `ReceiptBillIdentity` (logo or initial + title) on all `receipt-paper--card` list cards: Bills + Installments (`InstallmentReceiptCard.vue`, `BillIssuedReceiptBody.vue`). Build OK.

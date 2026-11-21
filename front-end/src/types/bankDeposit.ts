@@ -1,7 +1,12 @@
+import type { Currency } from '@/types/currency'
+
 export interface BankDeposit {
   id: string
-  /** Amount in Iranian Toman (integer). */
+  /** Amount converted to the user's display currency at today's rate. */
   amount: number
+  /** Amount as entered, in `currency`. */
+  originalAmount: number
+  currency: Currency
   /** When the transfer hit the bank (Jalali). */
   jalaliYear: number
   jalaliMonth: number
@@ -13,9 +18,11 @@ export interface BankDeposit {
   createdAt: string
 }
 
+/** `amount` is in `currency`. */
 export type NewBankDeposit = Pick<
   BankDeposit,
   | 'amount'
+  | 'currency'
   | 'note'
   | 'jalaliYear'
   | 'jalaliMonth'

@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useExpenses } from '@/composables/useExpenses'
 import { categoryMeta } from '@/utils/expenseCategories'
-import { formatToman, formatTomanNumber } from '@/utils/formatToman'
+import { currencyUnit, formatMoney, formatMoneyNumber } from '@/utils/formatMoney'
 
 const COLLAPSED_COUNT = 5
 const REVEAL_MS = 420
@@ -133,7 +133,7 @@ function showLess() {
         Spent this month
       </p>
       <p class="mt-2 font-mono text-2xl font-bold leading-tight text-warning sm:text-3xl">
-        {{ formatTomanNumber(monthTotal) }}<span class="ml-1 font-sans text-xs font-medium">Toman</span>
+        {{ formatMoneyNumber(monthTotal) }}<span class="ml-1 font-sans text-xs font-medium">{{ currencyUnit() }}</span>
       </p>
       <p class="mt-1 text-sm text-text-muted">
         {{ expensesInViewMonth.length }} purchase(s)
@@ -162,7 +162,7 @@ function showLess() {
             />
           </svg>
           <span class="font-mono text-xs sm:text-right">
-            {{ formatToman(item.amount) }}
+            {{ formatMoney(item.amount) }}
             <span class="text-text-muted">· {{ share(item.amount) }}%</span>
           </span>
         </li>

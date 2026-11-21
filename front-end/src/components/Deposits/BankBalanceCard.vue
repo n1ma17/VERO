@@ -2,11 +2,11 @@
 import { computed } from 'vue'
 import BankCardPlastic from '@/components/Deposits/BankCardPlastic.vue'
 import { useBankDeposits } from '@/composables/useBankDeposits'
-import { formatTomanNumber } from '@/utils/formatToman'
+import { currencyUnit, formatMoneyNumber } from '@/utils/formatMoney'
 
 const { monthTotal } = useBankDeposits()
 
-const balanceNumber = computed(() => formatTomanNumber(monthTotal.value))
+const balanceNumber = computed(() => formatMoneyNumber(monthTotal.value))
 </script>
 
 <template>
@@ -18,7 +18,7 @@ const balanceNumber = computed(() => formatTomanNumber(monthTotal.value))
       <p class="break-all text-3xl font-extrabold tracking-tight text-accent sm:text-5xl md:text-6xl">
         {{ balanceNumber }}
       </p>
-      <span class="shrink-0 text-sm font-semibold text-primary">Toman</span>
+      <span class="shrink-0 text-sm font-semibold text-primary">{{ currencyUnit() }}</span>
     </div>
 
     <div class="mt-[-28px] overflow-visible sm:mt-[-36px] md:mt-[-40px]">

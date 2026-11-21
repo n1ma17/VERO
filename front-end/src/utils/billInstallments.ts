@@ -47,6 +47,8 @@ export function buildInstallmentsFromBills(
         billId: bill.id,
         title: bill.title,
         amount: bill.amount,
+        originalAmount: bill.originalAmount,
+        currency: bill.currency,
         dueYear: due.year,
         dueMonth: due.month,
         dueDay: due.day,

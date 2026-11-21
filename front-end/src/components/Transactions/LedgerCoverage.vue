@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useLedger } from '@/composables/useLedger'
-import { formatToman } from '@/utils/formatToman'
+import { formatMoney } from '@/utils/formatMoney'
 
 const { monthIncome, monthBills, monthExpenses, monthSpending, monthNet } = useLedger()
 
@@ -29,8 +29,8 @@ const segments = computed(() => {
 const verdict = computed(() => {
   if (monthIncome.value <= 0 && monthSpending.value <= 0) return 'Nothing recorded for this month yet.'
   if (monthIncome.value <= 0) return 'No deposits counted — spending is fully uncovered.'
-  if (isOver.value) return `Spending exceeds deposits by ${formatToman(-monthNet.value)}.`
-  return `${formatToman(monthNet.value)} left after bills and expenses.`
+  if (isOver.value) return `Spending exceeds deposits by ${formatMoney(-monthNet.value)}.`
+  return `${formatMoney(monthNet.value)} left after bills and expenses.`
 })
 </script>
 
@@ -54,19 +54,19 @@ const verdict = computed(() => {
     <dl class="mt-auto space-y-2 border-t border-primary/20 pt-4 text-sm">
       <div class="flex justify-between gap-4">
         <dt class="text-text-muted">Deposits</dt>
-        <dd class="font-mono">{{ formatToman(monthIncome) }}</dd>
+        <dd class="font-mono">{{ formatMoney(monthIncome) }}</dd>
       </div>
       <div class="flex justify-between gap-4">
         <dt class="flex items-center gap-2 text-text-muted">
           <span class="size-2 rounded-full bg-danger" /> Bills
         </dt>
-        <dd class="font-mono">{{ formatToman(monthBills) }}</dd>
+        <dd class="font-mono">{{ formatMoney(monthBills) }}</dd>
       </div>
       <div class="flex justify-between gap-4">
         <dt class="flex items-center gap-2 text-text-muted">
           <span class="size-2 rounded-full bg-warning" /> Expenses
         </dt>
-        <dd class="font-mono">{{ formatToman(monthExpenses) }}</dd>
+        <dd class="font-mono">{{ formatMoney(monthExpenses) }}</dd>
       </div>
     </dl>
   </section>

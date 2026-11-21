@@ -1,6 +1,7 @@
 import { computed, readonly, ref } from 'vue'
 import { api } from '@/api/http'
 import { bumpMoneyData } from '@/composables/moneyGeneration'
+import { roundMoney, withDisplayAmount } from '@/composables/useCurrency'
 import type { JalaliMonth } from '@/types/bill'
 import type { BankDeposit, NewBankDeposit } from '@/types/bankDeposit'
 import { clampDueDay, currentJalaliMonth, monthToIndex } from '@/utils/jalali'
@@ -30,7 +31,8 @@ function isBookedInMonth(deposit: BankDeposit, year: number, month: number): boo
 
 function payload(input: NewBankDeposit) {
   return depositToApi({
-    amount: Math.round(input.amount),
+    amount: roundMoney(input.amount, input.currency),
+    currency: input.currency,
     jalaliYear: input.jalaliYear,
     jalaliMonth: input.jalaliMonth,
     jalaliDay: clampDueDay(input.jalaliDay, input.jalaliYear, input.jalaliMonth),
@@ -41,6 +43,7 @@ function payload(input: NewBankDeposit) {
 }
 
 const deposits = ref<BankDeposit[]>([])
+const displayDeposits = computed(() => deposits.value.map(withDisplayAmount))
 const editingDepositId = ref<string | null>(null)
 const viewMonth = ref<JalaliMonth>(loadViewMonth())
 
@@ -62,13 +65,13 @@ export function useBankDeposits() {
 
   const depositsInViewMonth = computed(() => {
     const { year, month } = viewMonth.value
-    return deposits.value
+    return displayDeposits.value
       .filter((deposit) => isBookedInMonth(deposit, year, month))
       .sort((a, b) => depositSortKey(b) - depositSortKey(a))
   })
 
   const totalBalance = computed(() =>
-    deposits.value.reduce((sum, deposit) => sum + deposit.amount, 0),
+    displayDeposits.value.reduce((sum, deposit) => sum + deposit.amount, 0),
   )
 
   const monthTotal = computed(() =>
@@ -77,7 +80,7 @@ export function useBankDeposits() {
 
   const currentMonthTotal = computed(() => {
     const { year, month } = calendarMonth.value
-    return deposits.value
+    return displayDeposits.value
       .filter((deposit) => isBookedInMonth(deposit, year, month))
       .reduce((sum, deposit) => sum + deposit.amount, 0)
   })
@@ -130,7 +133,7 @@ export function useBankDeposits() {
 
   const editingDeposit = computed(() => {
     if (!editingDepositId.value) return null
-    return deposits.value.find((deposit) => deposit.id === editingDepositId.value) ?? null
+    return displayDeposits.value.find((deposit) => deposit.id === editingDepositId.value) ?? null
   })
 
   function startEditingDeposit(id: string) {
@@ -163,7 +166,7 @@ export function useBankDeposits() {
   }
 
   return {
-    deposits: readonly(deposits),
+    deposits: displayDeposits,
     depositsInViewMonth,
     viewMonth,
     calendarMonth,

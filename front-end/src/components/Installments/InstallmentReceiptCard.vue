@@ -5,7 +5,7 @@ import InstallmentStatusBadge from '@/components/shared/InstallmentStatusBadge.v
 import ReceiptBillIdentity from '@/components/shared/ReceiptBillIdentity.vue'
 import ReceiptPaperHeader from '@/components/shared/ReceiptPaperHeader.vue'
 import type { Installment } from '@/types/installment'
-import { formatToman } from '@/utils/formatToman'
+import { formatMoney } from '@/utils/formatMoney'
 import { formatJalaliDate } from '@/utils/jalali'
 import { getInstallmentStatus } from '@/utils/installmentStatus'
 
@@ -17,7 +17,7 @@ const status = computed(() => getInstallmentStatus(props.installment))
 const dueDate = computed(() =>
   formatJalaliDate(props.installment.dueYear, props.installment.dueMonth, props.installment.dueDay),
 )
-const amount = computed(() => formatToman(props.installment.amount))
+const amount = computed(() => formatMoney(props.installment.amount))
 const refCode = computed(() => props.installment.billId.slice(0, 8).toUpperCase())
 </script>
 

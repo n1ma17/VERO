@@ -7,7 +7,7 @@
       Money Management
     </p>
     <p class="col-span-4 text-right text-xs uppercase tracking-[0.18em] sm:col-span-6">
-      Toman<span class="hidden sm:inline"> · Jalali months</span>
+      USD · EUR · GBP · IRR<span class="hidden sm:inline"> · Jalali months</span>
     </p>
   </header>
 </template>

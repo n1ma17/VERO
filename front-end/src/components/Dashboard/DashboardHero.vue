@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { displayCurrency, roundMoney } from '@/composables/useCurrency'
 import { useDashboard } from '@/composables/useDashboard'
 import { JALALI_WEEKDAY_NAMES, formatJalaliDate, jalaliWeekdayIndex } from '@/utils/jalali'
 import { smoothPath } from '@/utils/chart'
-import { formatToman } from '@/utils/formatToman'
+import { formatMoney } from '@/utils/formatMoney'
 
 const { today, monthLength, balance, monthNet, savingsRate, balanceTrend } = useDashboard()
 
@@ -42,12 +43,14 @@ const balanceClasses = {
   negative: 'text-danger',
 } as const
 
-const balanceTone = computed(() => (balance.value < 0 ? 'negative' : 'positive'))
+const balanceTone = computed(() =>
+  roundMoney(balance.value, displayCurrency()) < 0 ? 'negative' : 'positive',
+)
 
 const netLabel = computed(() => {
-  const value = monthNet.value
+  const value = roundMoney(monthNet.value, displayCurrency())
   const arrow = value < 0 ? '▼' : '▲'
-  return `${arrow} ${value > 0 ? '+' : ''}${formatToman(value)}`
+  return `${arrow} ${value > 0 ? '+' : ''}${formatMoney(value)}`
 })
 
 const sparkPoints = computed(() => {
@@ -93,7 +96,7 @@ const actions = [
           class="mt-2 break-words font-display text-4xl font-extrabold leading-none tracking-[-0.03em] tabular-nums sm:text-5xl md:text-6xl"
           :class="balanceClasses[balanceTone]"
         >
-          {{ formatToman(balance) }}
+          {{ formatMoney(balance) }}
         </p>
 
         <div class="mt-3 flex flex-wrap items-center gap-2 text-sm">

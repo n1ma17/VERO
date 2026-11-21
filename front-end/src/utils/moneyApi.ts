@@ -1,5 +1,6 @@
 import type { BankDeposit, NewBankDeposit } from '@/types/bankDeposit'
 import type { Bill, NewBill } from '@/types/bill'
+import type { Currency } from '@/types/currency'
 import type { Expense, NewExpense } from '@/types/expense'
 import type { Installment } from '@/types/installment'
 import type { LedgerEntry, LedgerMonth, LedgerMonthPoint } from '@/types/ledger'
@@ -11,10 +12,12 @@ import {
   jalaliToIsoDate,
 } from '@/utils/jalali'
 
+/** Row APIs return `amount` in the row's own `currency`. */
 export interface BillApi {
   id: string
   title: string
   amount: number
+  currency: Currency
   startOn: string
   endOn: string
   dueDay: number
@@ -26,6 +29,7 @@ export interface ExpenseApi {
   id: string
   title: string
   amount: number
+  currency: Currency
   category: Expense['category']
   occurredOn: string
   note: string | null
@@ -35,6 +39,7 @@ export interface ExpenseApi {
 export interface DepositApi {
   id: string
   amount: number
+  currency: Currency
   arrivedOn: string
   bookedOn: string
   note: string | null
@@ -46,6 +51,7 @@ export interface InstallmentApi {
   billId: string
   title: string
   amount: number
+  currency: Currency
   dueDate: string
   paidAt: string | null
   logoKey: string | null
@@ -57,6 +63,8 @@ export interface LedgerEntryApi {
   title: string
   detail: string | null
   amount: number
+  originalAmount: number
+  originalCurrency: Currency
   date: string
   balance: number
   status: LedgerEntry['status']
@@ -67,6 +75,7 @@ export interface LedgerEntryApi {
 
 export interface LedgerMonthApi {
   date: string
+  currency: Currency
   monthIncome: number
   monthBills: number
   monthExpenses: number
@@ -90,12 +99,15 @@ export interface LedgerMonthApi {
   }>
 }
 
+/** Row stores convert `amount` for display; these mappers keep it as entered. */
 export function billFromApi(row: BillApi): Bill {
   const start = isoToJalali(row.startOn)
   return {
     id: row.id,
     title: row.title,
     amount: row.amount,
+    originalAmount: row.amount,
+    currency: row.currency,
     startYear: start.year,
     startMonth: start.month,
     dueDay: row.dueDay,
@@ -109,6 +121,7 @@ export function billToApi(input: NewBill & { durationMonths: number }) {
   return {
     title: input.title,
     amount: input.amount,
+    currency: input.currency,
     startOn: jalaliToIsoDate(input.startYear, input.startMonth, input.dueDay),
     endOn: billEndIso(input.startYear, input.startMonth, input.dueDay, input.durationMonths),
     dueDay: input.dueDay,
@@ -122,6 +135,8 @@ export function expenseFromApi(row: ExpenseApi): Expense {
     id: row.id,
     title: row.title,
     amount: row.amount,
+    originalAmount: row.amount,
+    currency: row.currency,
     category: row.category,
     jalaliYear: date.year,
     jalaliMonth: date.month,
@@ -135,6 +150,7 @@ export function expenseToApi(input: NewExpense) {
   return {
     title: input.title,
     amount: input.amount,
+    currency: input.currency,
     category: input.category,
     occurredOn: jalaliToIsoDate(input.jalaliYear, input.jalaliMonth, input.jalaliDay),
     note: input.note,
@@ -147,6 +163,8 @@ export function depositFromApi(row: DepositApi): BankDeposit {
   return {
     id: row.id,
     amount: row.amount,
+    originalAmount: row.amount,
+    currency: row.currency,
     jalaliYear: arrived.year,
     jalaliMonth: arrived.month,
     jalaliDay: arrived.day,
@@ -160,6 +178,7 @@ export function depositFromApi(row: DepositApi): BankDeposit {
 export function depositToApi(input: NewBankDeposit) {
   return {
     amount: input.amount,
+    currency: input.currency,
     arrivedOn: jalaliToIsoDate(input.jalaliYear, input.jalaliMonth, input.jalaliDay),
     bookedOn: jalaliMonthFirstIso(input.bookedYear, input.bookedMonth),
     note: input.note,
@@ -173,6 +192,8 @@ export function installmentFromApi(row: InstallmentApi): Installment {
     billId: row.billId,
     title: row.title,
     amount: row.amount,
+    originalAmount: row.amount,
+    currency: row.currency,
     dueYear: due.year,
     dueMonth: due.month,
     dueDay: due.day,
@@ -200,6 +221,7 @@ export function ledgerFromApi(row: LedgerMonthApi): LedgerMonth {
   return {
     year: jalali.year,
     month: jalali.month,
+    currency: row.currency,
     monthIncome: row.monthIncome,
     monthBills: row.monthBills,
     monthExpenses: row.monthExpenses,
@@ -215,6 +237,8 @@ export function ledgerFromApi(row: LedgerMonthApi): LedgerMonth {
         title: entry.title,
         detail: entry.detail,
         amount: entry.amount,
+        originalAmount: entry.originalAmount,
+        originalCurrency: entry.originalCurrency,
         year: date.year,
         month: date.month,
         day: date.day,

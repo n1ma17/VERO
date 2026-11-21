@@ -1,3 +1,5 @@
+import type { Currency, FxRates } from './currency.js';
+
 /** Default slugs shipped with the app; the API accepts any `[a-z][a-z0-9-]{0,47}` slug. */
 export const EXPENSE_CATEGORY_DEFAULTS = [
   'food',
@@ -17,10 +19,12 @@ export type ExpenseCategory = string;
 
 export type InstallmentStatus = 'paid' | 'unpaid' | 'overdue';
 
+/** Row DTOs return `amount` in the row's own `currency` (as entered). */
 export interface BillDto {
   id: string;
   title: string;
   amount: number;
+  currency: Currency;
   /** Gregorian ISO date of the first due. */
   startOn: string;
   /** Gregorian ISO date of the last due. */
@@ -33,6 +37,7 @@ export interface BillDto {
 export interface BankDepositDto {
   id: string;
   amount: number;
+  currency: Currency;
   /** Gregorian ISO date the transfer arrived. */
   arrivedOn: string;
   /** Gregorian ISO date of Jalali day 1 of the counted month. */
@@ -45,6 +50,7 @@ export interface ExpenseDto {
   id: string;
   title: string;
   amount: number;
+  currency: Currency;
   category: ExpenseCategory;
   /** Gregorian ISO purchase date. */
   occurredOn: string;
@@ -57,6 +63,7 @@ export interface InstallmentDto {
   billId: string;
   title: string;
   amount: number;
+  currency: Currency;
   /** Gregorian ISO due date. */
   dueDate: string;
   paidAt: string | null;
@@ -64,12 +71,15 @@ export interface InstallmentDto {
   status: InstallmentStatus;
 }
 
+/** Ledger money fields are in the user's display currency (`LedgerMonthDto.currency`). */
 export interface LedgerEntryDto {
   id: string;
   kind: 'deposit' | 'bill' | 'expense';
   title: string;
   detail: string | null;
   amount: number;
+  originalAmount: number;
+  originalCurrency: Currency;
   /** Gregorian ISO date of the line. */
   date: string;
   status: InstallmentStatus | null;
@@ -92,6 +102,7 @@ export interface LedgerMonthPointDto {
 export interface LedgerMonthDto {
   /** Gregorian ISO date of Jalali day 1 of the statement month. */
   date: string;
+  currency: Currency;
   monthIncome: number;
   monthBills: number;
   monthExpenses: number;
@@ -108,3 +119,13 @@ export interface LedgerMonthDto {
   chartSeries: LedgerMonthPointDto[];
 }
 
+export interface CurrencySettingsDto {
+  currency: Currency;
+  /** Effective units per USD for this user (manual IRR applied). */
+  rates: FxRates;
+  /** Official API units per USD. */
+  marketRates: FxRates;
+  irrPerUsd: number | null;
+  source: string;
+  fetchedAt: string | null;
+}

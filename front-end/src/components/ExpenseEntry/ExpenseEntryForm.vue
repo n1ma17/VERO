@@ -5,23 +5,26 @@ import BaseButton from '@/components/shared/BaseButton.vue'
 import JalaliDatePicker from '@/components/shared/JalaliDatePicker.vue'
 import ReceiptDivider from '@/components/shared/ReceiptDivider.vue'
 import ReceiptEdge from '@/components/shared/ReceiptEdge.vue'
-import TomanAmountInput from '@/components/shared/TomanAmountInput.vue'
+import MoneyAmountInput from '@/components/shared/MoneyAmountInput.vue'
+import { useCurrency } from '@/composables/useCurrency'
 import { useExpenseEntryFlow } from '@/composables/useExpenseEntryFlow'
 import { useExpenses } from '@/composables/useExpenses'
 import { useToast } from '@/composables/useToast'
 import ExpenseCategoryManage from '@/components/ExpenseEntry/ExpenseCategoryManage.vue'
 import ExpenseCategoryPicker from '@/components/ExpenseEntry/ExpenseCategoryPicker.vue'
 import { useExpenseCategoryCatalog } from '@/composables/useExpenseCategoryCatalog'
+import type { Currency } from '@/types/currency'
 import type { ExpenseCategory } from '@/types/expense'
 import { categoryMeta } from '@/utils/expenseCategories'
 import { clampDueDay, currentJalaliDate, formatJalaliDate, formatJalaliMonth } from '@/utils/jalali'
-import { formatToman } from '@/utils/formatToman'
+import { formatMoney } from '@/utils/formatMoney'
 
 const route = useRoute()
 const router = useRouter()
 const { getExpenseById, addExpense, updateExpense, removeExpense, viewMonth } = useExpenses()
 const { stage, startIssue, formResetTick } = useExpenseEntryFlow()
 const { showSuccess } = useToast()
+const { currency: displayCurrency } = useCurrency()
 
 const { visibleCategories, orderedIds } = useExpenseCategoryCatalog()
 
@@ -39,6 +42,8 @@ function defaultEntryDate() {
 const form = reactive({
   title: '',
   amount: null as number | null,
+  /** Set while editing so the row keeps the currency it was entered in. */
+  currency: null as Currency | null,
   category: 'food' as ExpenseCategory,
   year: defaultEntryDate().year,
   month: defaultEntryDate().month,
@@ -52,11 +57,13 @@ const editId = computed(() => {
 })
 const isEditing = computed(() => editId.value !== null)
 const isPrinterBusy = computed(() => stage.value !== 'idle')
+const amountCurrency = computed(() => form.currency ?? displayCurrency.value)
 
 function resetForm() {
   const date = defaultEntryDate()
   form.title = ''
   form.amount = null
+  form.currency = null
   form.category = 'food'
   form.year = date.year
   form.month = date.month
@@ -80,7 +87,8 @@ watch(
       return
     }
     form.title = expense.title
-    form.amount = expense.amount
+    form.amount = expense.originalAmount
+    form.currency = expense.currency
     form.category = expense.category
     form.year = expense.jalaliYear
     form.month = expense.jalaliMonth
@@ -113,7 +121,9 @@ watch(formResetTick, () => {
 
 const isValid = computed(() => form.title.trim() !== '' && (form.amount ?? 0) > 0)
 const dateLabel = computed(() => formatJalaliDate(form.year, form.month, form.day))
-const amountLabel = computed(() => (form.amount && form.amount > 0 ? formatToman(form.amount) : '—'))
+const amountLabel = computed(() =>
+  form.amount && form.amount > 0 ? formatMoney(form.amount, amountCurrency.value) : '—',
+)
 
 const inputClasses =
   'w-full rounded-2xl border border-primary/20 bg-surface px-3 py-3 text-base text-text outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-accent/60 disabled:opacity-50'
@@ -124,6 +134,7 @@ async function submit() {
   const payload = {
     title: form.title,
     amount: form.amount!,
+    currency: amountCurrency.value,
     category: form.category,
     jalaliYear: form.year,
     jalaliMonth: form.month,
@@ -144,7 +155,7 @@ async function submit() {
     title: saved.title,
     category: saved.category,
     dateLabel: formatJalaliDate(saved.jalaliYear, saved.jalaliMonth, saved.jalaliDay),
-    amountLabel: formatToman(saved.amount),
+    amountLabel: formatMoney(saved.originalAmount, saved.currency),
     note: saved.note,
     isUpdate: isEditing.value,
   })
@@ -191,7 +202,12 @@ async function deleteExpense() {
         />
       </div>
 
-      <TomanAmountInput v-model="form.amount" :disabled="isPrinterBusy" />
+      <MoneyAmountInput
+        v-model="form.amount"
+        :currency="amountCurrency"
+        :disabled="isPrinterBusy"
+        :hint="isEditing && amountCurrency !== displayCurrency ? 'Kept in the currency it was entered in.' : undefined"
+      />
 
       <fieldset :disabled="isPrinterBusy">
         <div class="mb-1.5 flex items-baseline justify-between gap-2">

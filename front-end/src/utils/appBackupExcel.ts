@@ -9,7 +9,9 @@ import { loadMoneyCollections } from '@/composables/loadMoneyCollections'
 import type { Bill } from '@/types/bill'
 import type { BankDeposit } from '@/types/bankDeposit'
 import type { Expense } from '@/types/expense'
-import { BACKUP_FORMAT_VERSION } from '@/utils/appDataKeys'
+import { roundMoney } from '@/composables/useCurrency'
+import { isCurrency, type Currency } from '@/types/currency'
+import { BACKUP_FORMAT_VERSION, TOMAN_BACKUP_FORMAT_VERSION } from '@/utils/appDataKeys'
 import { installmentPaymentKey } from '@/utils/billInstallments'
 import { isExpenseCategorySlug } from '@/utils/expenseCategories'
 import { billToApi, depositToApi, expenseToApi } from '@/utils/moneyApi'
@@ -152,13 +154,26 @@ function rowsFromSheet<T>(wb: XLSX.WorkBook, name: string): T[] {
   return XLSX.utils.sheet_to_json<T>(sheet, { defval: null })
 }
 
-function parseBills(rows: Record<string, unknown>[]): Bill[] {
+type BackupMoney = { amount: number; originalAmount: number; currency: Currency }
+
+/** Format 1 backups hold integer Toman; they become IRR (x10). */
+function parseMoney(row: Record<string, unknown>, version: number): BackupMoney {
+  const raw = Number(row.amount) || 0
+  if (version <= TOMAN_BACKUP_FORMAT_VERSION || !isCurrency(row.currency)) {
+    const amount = Math.round(raw) * 10
+    return { amount, originalAmount: amount, currency: 'IRR' }
+  }
+  const amount = roundMoney(raw, row.currency)
+  return { amount, originalAmount: amount, currency: row.currency }
+}
+
+function parseBills(rows: Record<string, unknown>[], version: number): Bill[] {
   return rows
     .filter((row) => row.id && row.title)
     .map((row) => ({
       id: String(row.id),
       title: String(row.title),
-      amount: Math.round(Number(row.amount) || 0),
+      ...parseMoney(row, version),
       startYear: Number(row.startYear) || 1400,
       startMonth: Number(row.startMonth) || 1,
       dueDay: Number(row.dueDay) || 1,
@@ -168,12 +183,12 @@ function parseBills(rows: Record<string, unknown>[]): Bill[] {
     }))
 }
 
-function parseDeposits(rows: Record<string, unknown>[]): BankDeposit[] {
+function parseDeposits(rows: Record<string, unknown>[], version: number): BankDeposit[] {
   return rows
     .filter((row) => row.id)
     .map((row) => ({
       id: String(row.id),
-      amount: Math.round(Number(row.amount) || 0),
+      ...parseMoney(row, version),
       jalaliYear: Number(row.jalaliYear) || 1400,
       jalaliMonth: Number(row.jalaliMonth) || 1,
       jalaliDay: Number(row.jalaliDay) || 1,
@@ -184,7 +199,7 @@ function parseDeposits(rows: Record<string, unknown>[]): BankDeposit[] {
     }))
 }
 
-function parseExpenses(rows: Record<string, unknown>[]): Expense[] {
+function parseExpenses(rows: Record<string, unknown>[], version: number): Expense[] {
   return rows
     .filter((row) => row.id && row.title)
     .map((row) => {
@@ -192,7 +207,7 @@ function parseExpenses(rows: Record<string, unknown>[]): Expense[] {
       return {
         id: String(row.id),
         title: String(row.title),
-        amount: Math.round(Number(row.amount) || 0),
+        ...parseMoney(row, version),
         category: isExpenseCategorySlug(category) ? category : 'other',
         jalaliYear: Number(row.jalaliYear) || 1400,
         jalaliMonth: Number(row.jalaliMonth) || 1,
@@ -219,9 +234,9 @@ export function parseAppBackupWorkbook(wb: XLSX.WorkBook): AppBackupSnapshot {
   )
   const version = Number(info.get('formatVersion') ?? BACKUP_FORMAT_VERSION)
 
-  const bills = parseBills(rowsFromSheet(wb, 'Bills'))
-  const deposits = parseDeposits(rowsFromSheet(wb, 'Deposits'))
-  const expenses = parseExpenses(rowsFromSheet(wb, 'Expenses'))
+  const bills = parseBills(rowsFromSheet(wb, 'Bills'), version)
+  const deposits = parseDeposits(rowsFromSheet(wb, 'Deposits'), version)
+  const expenses = parseExpenses(rowsFromSheet(wb, 'Expenses'), version)
   const installmentPayments = parsePayments(rowsFromSheet(wb, 'Payments'))
   const logos = reassembleLogos(rowsFromSheet(wb, 'LogoChunks'))
 
@@ -284,7 +299,8 @@ export async function applyAppBackupSnapshot(snapshot: AppBackupSnapshot): Promi
         id: bill.id,
         ...billToApi({
           title: bill.title,
-          amount: bill.amount,
+          amount: bill.originalAmount,
+          currency: bill.currency,
           startYear: bill.startYear,
           startMonth: bill.startMonth,
           dueDay: bill.dueDay,
@@ -293,11 +309,11 @@ export async function applyAppBackupSnapshot(snapshot: AppBackupSnapshot): Promi
       })),
       deposits: snapshot.deposits.map((deposit) => ({
         id: deposit.id,
-        ...depositToApi(deposit),
+        ...depositToApi({ ...deposit, amount: deposit.originalAmount }),
       })),
       expenses: snapshot.expenses.map((expense) => ({
         id: expense.id,
-        ...expenseToApi(expense),
+        ...expenseToApi({ ...expense, amount: expense.originalAmount }),
       })),
       payments,
       logos: snapshot.logos.map((logo) => ({ billId: logo.key, dataUrl: logo.dataUrl })),

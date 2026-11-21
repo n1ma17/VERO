@@ -1,6 +1,7 @@
-import { computed, readonly, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { api } from '@/api/http'
 import { bumpMoneyData } from '@/composables/moneyGeneration'
+import { roundMoney, withDisplayAmount } from '@/composables/useCurrency'
 import type { JalaliMonth } from '@/types/bill'
 import type { Expense, ExpenseCategory, NewExpense } from '@/types/expense'
 import { useExpenseCategoryCatalog } from '@/composables/useExpenseCategoryCatalog'
@@ -27,7 +28,8 @@ function dateKey(expense: Pick<Expense, 'jalaliYear' | 'jalaliMonth' | 'jalaliDa
 function normalize(input: NewExpense): NewExpense {
   return {
     title: input.title.trim(),
-    amount: Math.round(input.amount),
+    amount: roundMoney(input.amount, input.currency),
+    currency: input.currency,
     category: isExpenseCategorySlug(input.category) ? input.category : 'other',
     jalaliYear: input.jalaliYear,
     jalaliMonth: input.jalaliMonth,
@@ -37,6 +39,7 @@ function normalize(input: NewExpense): NewExpense {
 }
 
 const expenses = ref<Expense[]>([])
+const displayExpenses = computed(() => expenses.value.map(withDisplayAmount))
 const viewMonth = ref<JalaliMonth>(loadViewMonth())
 
 export async function loadExpenses(): Promise<void> {
@@ -62,7 +65,7 @@ export function useExpenses() {
   })
 
   const expensesInViewMonth = computed(() =>
-    expenses.value
+    displayExpenses.value
       .filter(
         (expense) =>
           expense.jalaliYear === viewMonth.value.year &&
@@ -107,7 +110,7 @@ export function useExpenses() {
   }
 
   function getExpenseById(id: string): Expense | undefined {
-    return expenses.value.find((expense) => expense.id === id)
+    return displayExpenses.value.find((expense) => expense.id === id)
   }
 
   async function addExpense(input: NewExpense): Promise<Expense> {
@@ -118,7 +121,7 @@ export function useExpenses() {
     const expense = expenseFromApi(row)
     expenses.value = [expense, ...expenses.value]
     bumpMoneyData()
-    return expense
+    return withDisplayAmount(expense)
   }
 
   async function updateExpense(id: string, input: NewExpense): Promise<Expense | null> {
@@ -129,7 +132,7 @@ export function useExpenses() {
     const updated = expenseFromApi(row)
     expenses.value = expenses.value.map((expense) => (expense.id === id ? updated : expense))
     bumpMoneyData()
-    return updated
+    return withDisplayAmount(updated)
   }
 
   async function removeExpense(id: string) {
@@ -139,7 +142,7 @@ export function useExpenses() {
   }
 
   return {
-    expenses: readonly(expenses),
+    expenses: displayExpenses,
     viewMonth,
     isCurrentMonth,
     expensesInViewMonth,

@@ -5,7 +5,7 @@ import type { InstallmentDto } from '../../common/money/types.js';
 import { PgService } from '../../lib/database/pg.service.js';
 
 const SELECT = `
-  SELECT id, bill_id, title, amount, due_date, paid_at, logo_key, status
+  SELECT id, bill_id, title, amount, currency, due_date, paid_at, logo_key, status
     FROM v_installments
 `;
 

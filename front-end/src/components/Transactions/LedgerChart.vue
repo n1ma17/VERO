@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { useLedger } from '@/composables/useLedger'
 import { niceScale } from '@/utils/chart'
 import { formatJalaliMonth } from '@/utils/jalali'
-import { formatToman, formatTomanCompact } from '@/utils/formatToman'
+import { formatMoney, formatMoneyCompact } from '@/utils/formatMoney'
 
 const { chartSeries, viewMonth, setViewMonth } = useLedger()
 
@@ -64,7 +64,7 @@ const balancePath = computed(() =>
 )
 
 const ticks = computed(() =>
-  scale.value.ticks.map((value) => ({ value, y: y(value), label: formatTomanCompact(value) })),
+  scale.value.ticks.map((value) => ({ value, y: y(value), label: formatMoneyCompact(value) })),
 )
 
 const zeroY = computed(() => y(0))
@@ -116,15 +116,15 @@ function selectMonth(year: number, month: number) {
       </div>
       <div>
         <dt class="text-xs text-text-muted">Deposits</dt>
-        <dd class="font-mono text-xs leading-tight text-success">{{ formatToman(activeGroup.point.income) }}</dd>
+        <dd class="font-mono text-xs leading-tight text-success">{{ formatMoney(activeGroup.point.income) }}</dd>
       </div>
       <div>
         <dt class="text-xs text-text-muted">Bills</dt>
-        <dd class="font-mono text-xs leading-tight text-danger">{{ formatToman(activeGroup.point.bills) }}</dd>
+        <dd class="font-mono text-xs leading-tight text-danger">{{ formatMoney(activeGroup.point.bills) }}</dd>
       </div>
       <div>
         <dt class="text-xs text-text-muted">Expenses</dt>
-        <dd class="font-mono text-xs leading-tight text-warning">{{ formatToman(activeGroup.point.expenses) }}</dd>
+        <dd class="font-mono text-xs leading-tight text-warning">{{ formatMoney(activeGroup.point.expenses) }}</dd>
       </div>
       <div>
         <dt class="text-xs text-text-muted">Balance</dt>
@@ -132,7 +132,7 @@ function selectMonth(year: number, month: number) {
           class="font-mono text-xs font-semibold leading-tight"
           :class="activeGroup.point.balance < 0 ? 'text-danger' : 'text-text'"
         >
-          {{ formatToman(activeGroup.point.balance) }}
+          {{ formatMoney(activeGroup.point.balance) }}
         </dd>
       </div>
     </dl>

@@ -2,7 +2,7 @@
 import AppMoneyMark from '@/components/shared/AppMoneyMark.vue'
 import type { BankDeposit } from '@/types/bankDeposit'
 import { formatJalaliDate, formatJalaliMonth } from '@/utils/jalali'
-import { formatToman } from '@/utils/formatToman'
+import { formatMoney } from '@/utils/formatMoney'
 
 defineProps<{
   deposit: BankDeposit
@@ -32,7 +32,7 @@ const toneClasses = {
     </div>
 
     <p class="flex flex-1 items-center justify-center font-display text-2xl font-bold tabular-nums">
-      {{ formatToman(deposit.amount) }}
+      {{ formatMoney(deposit.amount) }}
     </p>
 
     <div class="flex items-end justify-between gap-3 text-xs opacity-80">

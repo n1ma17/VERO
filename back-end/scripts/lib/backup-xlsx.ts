@@ -1,16 +1,20 @@
 import { readFileSync } from 'node:fs';
 import * as XLSX from 'xlsx';
+import { isCurrency, roundMoney, type Currency } from '../../src/common/money/currency.js';
 import { type ExpenseCategory } from '../../src/common/money/types.js';
 
 const CATEGORY_SLUG = /^[a-z][a-z0-9-]{0,47}$/;
 
 const LOGO_CHUNK_SIZE = 30_000;
-const BACKUP_FORMAT_VERSION = 1;
+const BACKUP_FORMAT_VERSION = 2;
+/** Format 1 stored integer Toman with no currency column. */
+const TOMAN_FORMAT_VERSION = 1;
 
 export type BackupBill = {
   id: string;
   title: string;
   amount: number;
+  currency: Currency;
   startYear: number;
   startMonth: number;
   dueDay: number;
@@ -21,6 +25,7 @@ export type BackupBill = {
 export type BackupDeposit = {
   id: string;
   amount: number;
+  currency: Currency;
   jalaliYear: number;
   jalaliMonth: number;
   jalaliDay: number;
@@ -33,6 +38,7 @@ export type BackupExpense = {
   id: string;
   title: string;
   amount: number;
+  currency: Currency;
   category: ExpenseCategory;
   jalaliYear: number;
   jalaliMonth: number;
@@ -62,6 +68,17 @@ export type BackupSnapshot = {
 
 function isExpenseCategory(value: unknown): value is ExpenseCategory {
   return typeof value === 'string' && CATEGORY_SLUG.test(value);
+}
+
+function parseMoney(
+  row: Record<string, unknown>,
+  version: number,
+): { amount: number; currency: Currency } {
+  const raw = Number(row.amount) || 0;
+  if (version <= TOMAN_FORMAT_VERSION || !isCurrency(row.currency)) {
+    return { amount: Math.round(raw) * 10, currency: 'IRR' };
+  }
+  return { amount: roundMoney(raw, row.currency), currency: row.currency };
 }
 
 function rowsFromSheet<T>(wb: XLSX.WorkBook, name: string): T[] {
@@ -105,14 +122,15 @@ export function parseBackupWorkbook(wb: XLSX.WorkBook): BackupSnapshot {
   const info = new Map(
     infoRows.filter((r) => r.field).map((r) => [String(r.field), r.value]),
   );
-  void Number(info.get('formatVersion') ?? BACKUP_FORMAT_VERSION);
+  const version = Number(info.get('formatVersion') ?? BACKUP_FORMAT_VERSION);
+  const money = (row: Record<string, unknown>) => parseMoney(row, version);
 
   const bills = rowsFromSheet<Record<string, unknown>>(wb, 'Bills')
     .filter((row) => row.id && row.title)
     .map((row) => ({
       id: String(row.id),
       title: String(row.title),
-      amount: Math.round(Number(row.amount) || 0),
+      ...money(row),
       startYear: Number(row.startYear) || 1400,
       startMonth: Number(row.startMonth) || 1,
       dueDay: Number(row.dueDay) || 1,
@@ -127,7 +145,7 @@ export function parseBackupWorkbook(wb: XLSX.WorkBook): BackupSnapshot {
     .filter((row) => row.id)
     .map((row) => ({
       id: String(row.id),
-      amount: Math.round(Number(row.amount) || 0),
+      ...money(row),
       jalaliYear: Number(row.jalaliYear) || 1400,
       jalaliMonth: Number(row.jalaliMonth) || 1,
       jalaliDay: Number(row.jalaliDay) || 1,
@@ -141,7 +159,7 @@ export function parseBackupWorkbook(wb: XLSX.WorkBook): BackupSnapshot {
     .map((row) => ({
       id: String(row.id),
       title: String(row.title),
-      amount: Math.round(Number(row.amount) || 0),
+      ...money(row),
       category: isExpenseCategory(row.category) ? row.category : 'other',
       jalaliYear: Number(row.jalaliYear) || 1400,
       jalaliMonth: Number(row.jalaliMonth) || 1,

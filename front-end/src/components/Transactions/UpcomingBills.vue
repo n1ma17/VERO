@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import BillLogoImage from '@/components/shared/BillLogoImage.vue'
 import { useDashboard, type UpcomingBill } from '@/composables/useDashboard'
-import { formatToman } from '@/utils/formatToman'
+import { formatMoney } from '@/utils/formatMoney'
 
 const { upcomingBills } = useDashboard()
 
@@ -54,7 +54,7 @@ function dueText(bill: UpcomingBill): string {
             <p class="truncate text-xs text-text-muted">{{ bill.dueLabel }}</p>
           </div>
           <div class="shrink-0 max-w-[42%] text-right">
-            <p class="font-mono text-xs font-semibold leading-tight sm:text-sm">{{ formatToman(bill.amount) }}</p>
+            <p class="font-mono text-xs font-semibold leading-tight sm:text-sm">{{ formatMoney(bill.amount) }}</p>
             <span
               class="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold"
               :class="dueClasses[dueTone(bill)]"

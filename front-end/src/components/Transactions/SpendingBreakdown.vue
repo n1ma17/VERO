@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useDashboard, type SpendingSlice } from '@/composables/useDashboard'
 import { categoryMeta } from '@/utils/expenseCategories'
 import { formatJalaliMonth } from '@/utils/jalali'
-import { formatTomanCompact, formatTomanNumber } from '@/utils/formatToman'
+import { currencyUnit, formatMoneyCompact, formatMoneyNumber } from '@/utils/formatMoney'
 
 const { spendingBreakdown, monthSpending, today } = useDashboard()
 
@@ -70,7 +70,7 @@ const monthLabel = formatJalaliMonth(today.year, today.month)
         <div class="absolute inset-0 flex flex-col items-center justify-center px-2 text-center">
           <span class="text-[10px] uppercase tracking-wide text-text-muted">Spent</span>
           <span class="font-mono text-base font-bold leading-tight">
-            {{ formatTomanCompact(monthSpending) }}
+            {{ formatMoneyCompact(monthSpending) }}
           </span>
         </div>
       </div>
@@ -90,8 +90,8 @@ const monthLabel = formatJalaliMonth(today.year, today.month)
               </span>
             </div>
             <p class="truncate text-right font-mono text-xs font-semibold">
-              {{ formatTomanNumber(segment.amount) }}
-              <span class="font-sans font-normal text-text-muted"> Toman</span>
+              {{ formatMoneyNumber(segment.amount) }}
+              <span class="font-sans font-normal text-text-muted"> {{ currencyUnit() }}</span>
             </p>
           </div>
         </li>

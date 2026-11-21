@@ -11,7 +11,7 @@ import ReceiptPrinterStatus from '@/components/shared/ReceiptPrinterStatus.vue'
 import BaseButton from '@/components/shared/BaseButton.vue'
 import { useCurrentInstallment } from '@/composables/useCurrentInstallment'
 import type { ReceiptPrinterStage } from '@/types/receiptPrinter'
-import { formatToman } from '@/utils/formatToman'
+import { formatMoney } from '@/utils/formatMoney'
 import { formatJalaliDate, formatTimestampAsJalali } from '@/utils/jalali'
 import { scrollToReceiptPrinter } from '@/utils/scrollToReceiptPrinter'
 
@@ -72,7 +72,7 @@ function pay() {
     })
 }
 
-const amount = computed(() => (installment.value ? formatToman(installment.value.amount) : ''))
+const amount = computed(() => (installment.value ? formatMoney(installment.value.amount) : ''))
 const dueDate = computed(() =>
   installment.value
     ? formatJalaliDate(

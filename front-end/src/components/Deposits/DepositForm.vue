@@ -1,20 +1,25 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import TomanAmountInput from '@/components/shared/TomanAmountInput.vue'
+import MoneyAmountInput from '@/components/shared/MoneyAmountInput.vue'
 import BaseButton from '@/components/shared/BaseButton.vue'
 import JalaliDatePicker from '@/components/shared/JalaliDatePicker.vue'
 import JalaliMonthPicker from '@/components/shared/JalaliMonthPicker.vue'
 import { useBankDeposits } from '@/composables/useBankDeposits'
+import { useCurrency } from '@/composables/useCurrency'
 import { useToast } from '@/composables/useToast'
+import type { Currency } from '@/types/currency'
 import { clampDueDay, currentJalaliDate, currentJalaliMonth } from '@/utils/jalali'
 
 const { addDeposit, updateDeposit, editingDeposit, cancelEditingDeposit } = useBankDeposits()
+const { currency: displayCurrency } = useCurrency()
 const { showSuccess } = useToast()
 
 const today = currentJalaliDate()
 const defaultBooked = currentJalaliMonth()
 
 const amount = ref<number | null>(null)
+const editCurrency = ref<Currency | null>(null)
+const amountCurrency = computed(() => editCurrency.value ?? displayCurrency.value)
 const note = ref('')
 const depositYear = ref(today.year)
 const depositMonth = ref(today.month)
@@ -33,10 +38,12 @@ watch(
 )
 
 watch(
-  editingDeposit,
-  (deposit) => {
+  () => editingDeposit.value?.id,
+  () => {
+    const deposit = editingDeposit.value
     if (deposit) {
-      amount.value = deposit.amount
+      editCurrency.value = deposit.currency
+      amount.value = deposit.originalAmount
       note.value = deposit.note ?? ''
       depositYear.value = deposit.jalaliYear
       depositMonth.value = deposit.jalaliMonth
@@ -48,6 +55,7 @@ watch(
     }
     resetDateToToday()
     resetBookedToCurrentMonth()
+    editCurrency.value = null
     amount.value = null
     note.value = ''
   },
@@ -75,6 +83,7 @@ const inputClasses =
 function buildPayload() {
   return {
     amount: amount.value!,
+    currency: amountCurrency.value,
     note: note.value.trim() || null,
     jalaliYear: depositYear.value,
     jalaliMonth: depositMonth.value,
@@ -133,7 +142,11 @@ function cancel() {
         label="Count toward month"
       />
 
-      <TomanAmountInput v-model="amount" />
+      <MoneyAmountInput
+        v-model="amount"
+        :currency="amountCurrency"
+        :hint="isEditing && amountCurrency !== displayCurrency ? 'Kept in the currency it was entered in.' : undefined"
+      />
 
       <div>
         <label class="mb-1.5 block text-xs text-text-muted">

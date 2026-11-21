@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { durationFromSpan, isIsoDate } from '../../common/money/calendar.js';
+import { roundMoney } from '../../common/money/currency.js';
 import { upsertBillLogo } from '../../common/money/logo.js';
 import { mapBill, type BillRow } from '../../common/money/mappers.js';
 import type { BillDto } from '../../common/money/types.js';
@@ -11,6 +12,7 @@ const BILL_SELECT = `
     b.id,
     b.title,
     b.amount,
+    b.currency,
     b.start_on,
     b.end_on,
     b.due_day,
@@ -62,10 +64,18 @@ export class BillsService {
     assertBillDates(dto);
     const { rows } = await this.pg.query<{ id: string }>(
       `INSERT INTO bills
-         (user_id, title, amount, start_on, end_on, due_day)
-       VALUES ($1, $2, $3, $4::date, $5::date, $6)
+         (user_id, title, amount, currency, start_on, end_on, due_day)
+       VALUES ($1, $2, $3, $4, $5::date, $6::date, $7)
        RETURNING id`,
-      [userId, dto.title.trim(), dto.amount, dto.startOn, dto.endOn, dto.dueDay],
+      [
+        userId,
+        dto.title.trim(),
+        roundMoney(dto.amount, dto.currency),
+        dto.currency,
+        dto.startOn,
+        dto.endOn,
+        dto.dueDay,
+      ],
     );
     const id = rows[0].id;
     if (dto.logoUrl) {
@@ -80,11 +90,21 @@ export class BillsService {
       `UPDATE bills
           SET title = $3,
               amount = $4,
-              start_on = $5::date,
-              end_on = $6::date,
-              due_day = $7
+              currency = $5,
+              start_on = $6::date,
+              end_on = $7::date,
+              due_day = $8
         WHERE user_id = $1 AND id = $2`,
-      [userId, id, dto.title.trim(), dto.amount, dto.startOn, dto.endOn, dto.dueDay],
+      [
+        userId,
+        id,
+        dto.title.trim(),
+        roundMoney(dto.amount, dto.currency),
+        dto.currency,
+        dto.startOn,
+        dto.endOn,
+        dto.dueDay,
+      ],
     );
     if (!rowCount) throw new NotFoundException('Bill not found');
 

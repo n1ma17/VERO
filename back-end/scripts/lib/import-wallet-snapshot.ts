@@ -49,9 +49,18 @@ export async function importWalletSnapshot(
       );
       await client.query(
         `INSERT INTO bills
-           (id, user_id, title, amount, start_on, end_on, due_day)
-         VALUES ($1, $2, $3, $4, $5::date, $6::date, $7)`,
-        [bill.id, userId, bill.title.trim(), bill.amount, startOn, endOn, bill.dueDay],
+           (id, user_id, title, amount, currency, start_on, end_on, due_day)
+         VALUES ($1, $2, $3, $4, $5, $6::date, $7::date, $8)`,
+        [
+          bill.id,
+          userId,
+          bill.title.trim(),
+          bill.amount,
+          bill.currency,
+          startOn,
+          endOn,
+          bill.dueDay,
+        ],
       );
     }
 
@@ -73,12 +82,13 @@ export async function importWalletSnapshot(
     for (const deposit of snapshot.deposits) {
       await client.query(
         `INSERT INTO bank_deposits
-           (id, user_id, amount, arrived_on, booked_on, note)
-         VALUES ($1, $2, $3, $4::date, $5::date, $6)`,
+           (id, user_id, amount, currency, arrived_on, booked_on, note)
+         VALUES ($1, $2, $3, $4, $5::date, $6::date, $7)`,
         [
           deposit.id,
           userId,
           deposit.amount,
+          deposit.currency,
           jalaliToIso(deposit.jalaliYear, deposit.jalaliMonth, deposit.jalaliDay),
           jalaliMonthFirstIso(deposit.bookedYear, deposit.bookedMonth),
           deposit.note?.trim() || null,
@@ -89,13 +99,14 @@ export async function importWalletSnapshot(
     for (const expense of snapshot.expenses) {
       await client.query(
         `INSERT INTO expenses
-           (id, user_id, title, amount, category, occurred_on, note)
-         VALUES ($1, $2, $3, $4, $5, $6::date, $7)`,
+           (id, user_id, title, amount, currency, category, occurred_on, note)
+         VALUES ($1, $2, $3, $4, $5, $6, $7::date, $8)`,
         [
           expense.id,
           userId,
           expense.title.trim(),
           expense.amount,
+          expense.currency,
           expense.category,
           jalaliToIso(expense.jalaliYear, expense.jalaliMonth, expense.jalaliDay),
           expense.note?.trim() || null,

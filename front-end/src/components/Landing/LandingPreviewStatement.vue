@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { formatTomanNumber } from '@/utils/formatToman'
+import { formatMoneyNumber } from '@/utils/formatMoney'
+
+const formatSample = (value: number) => formatMoneyNumber(value, 'IRR')
 
 type Kind = 'deposit' | 'bill' | 'expense'
 
@@ -52,9 +54,9 @@ const closingBalance = running
           <td class="py-3 pr-3 italic">Carried in</td>
           <td class="hidden py-3 pr-3 sm:table-cell" />
           <td class="py-3 text-right sm:pr-3">
-            <span class="sm:hidden">{{ formatTomanNumber(openingBalance) }}</span>
+            <span class="sm:hidden">{{ formatSample(openingBalance) }}</span>
           </td>
-          <td class="hidden py-3 text-right sm:table-cell">{{ formatTomanNumber(openingBalance) }}</td>
+          <td class="hidden py-3 text-right sm:table-cell">{{ formatSample(openingBalance) }}</td>
         </tr>
         <tr v-for="row in rows" :key="row.date + row.title" class="border-b border-text/20">
           <td class="whitespace-nowrap py-3 pr-3 text-xs">{{ row.date }}</td>
@@ -66,10 +68,10 @@ const closingBalance = running
             {{ kindLabels[row.kind] }}
           </td>
           <td class="whitespace-nowrap py-3 text-right font-medium sm:pr-3">
-            {{ row.kind === 'deposit' ? '+' : '−' }}{{ formatTomanNumber(row.amount) }}
+            {{ row.kind === 'deposit' ? '+' : '−' }}{{ formatSample(row.amount) }}
           </td>
           <td class="hidden whitespace-nowrap py-3 text-right sm:table-cell">
-            {{ formatTomanNumber(row.balance) }}
+            {{ formatSample(row.balance) }}
           </td>
         </tr>
       </tbody>
@@ -79,9 +81,9 @@ const closingBalance = running
           <td class="pt-4 pr-3">Remaining</td>
           <td class="hidden pt-4 pr-3 sm:table-cell" />
           <td class="pt-4 text-right sm:pr-3">
-            <span class="sm:hidden">{{ formatTomanNumber(closingBalance) }}</span>
+            <span class="sm:hidden">{{ formatSample(closingBalance) }}</span>
           </td>
-          <td class="hidden pt-4 text-right sm:table-cell">{{ formatTomanNumber(closingBalance) }}</td>
+          <td class="hidden pt-4 text-right sm:table-cell">{{ formatSample(closingBalance) }}</td>
         </tr>
       </tfoot>
     </table>

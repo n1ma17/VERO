@@ -6,4 +6,6 @@ export const APP_DATA_KEYS = {
   installmentPayments: 'money-managment:installment-payments',
 } as const
 
-export const BACKUP_FORMAT_VERSION = 1
+/** 2 = amounts carry a `currency` column. 1 = integer Toman without currency. */
+export const BACKUP_FORMAT_VERSION = 2
+export const TOMAN_BACKUP_FORMAT_VERSION = 1

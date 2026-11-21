@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { useDashboard } from '@/composables/useDashboard'
 import { areaPath, niceScale, smoothPath } from '@/utils/chart'
 import { formatJalaliMonth } from '@/utils/jalali'
-import { formatToman, formatTomanCompact } from '@/utils/formatToman'
+import { formatMoney, formatMoneyCompact } from '@/utils/formatMoney'
 
 const { cashFlow } = useDashboard()
 
@@ -40,7 +40,7 @@ const expensePoints = computed(() => cashFlow.value.map((p, i) => ({ x: x(i), y:
 const baseline = computed(() => y(0))
 
 const ticks = computed(() =>
-  scale.value.ticks.map((value) => ({ value, y: y(value), label: formatTomanCompact(value) })),
+  scale.value.ticks.map((value) => ({ value, y: y(value), label: formatMoneyCompact(value) })),
 )
 
 const totals = computed(() =>
@@ -90,19 +90,19 @@ const activePoint = computed(() => cashFlow.value[activeIndex.value])
           <p class="flex items-center justify-end gap-1.5 text-xs text-text-muted">
             <span class="size-2 rounded-full bg-success" /> Deposits
           </p>
-          <p class="font-mono text-sm font-semibold">{{ formatToman(totals.income) }}</p>
+          <p class="font-mono text-sm font-semibold">{{ formatMoney(totals.income) }}</p>
         </div>
         <div>
           <p class="flex items-center justify-end gap-1.5 text-xs text-text-muted">
             <span class="size-2 rounded-full bg-danger" /> Bills
           </p>
-          <p class="font-mono text-sm font-semibold">{{ formatToman(totals.bills) }}</p>
+          <p class="font-mono text-sm font-semibold">{{ formatMoney(totals.bills) }}</p>
         </div>
         <div>
           <p class="flex items-center justify-end gap-1.5 text-xs text-text-muted">
             <span class="size-2 rounded-full bg-warning" /> Expenses
           </p>
-          <p class="font-mono text-sm font-semibold">{{ formatToman(totals.expenses) }}</p>
+          <p class="font-mono text-sm font-semibold">{{ formatMoney(totals.expenses) }}</p>
         </div>
       </div>
     </div>
@@ -113,9 +113,9 @@ const activePoint = computed(() => cashFlow.value[activeIndex.value])
         class="mb-3 rounded-2xl border border-primary/20 bg-surface px-3 py-2 text-xs shadow-md sm:absolute sm:right-0 sm:top-0 sm:z-10 sm:mb-0 sm:bg-surface/95"
       >
         <p class="font-semibold">{{ formatJalaliMonth(activePoint.year, activePoint.month) }}</p>
-        <p class="mt-1 font-mono text-success">+{{ formatToman(activePoint.income) }}</p>
-        <p class="font-mono text-danger">−{{ formatToman(activePoint.bills) }}</p>
-        <p class="font-mono text-warning">−{{ formatToman(activePoint.expenses) }}</p>
+        <p class="mt-1 font-mono text-success">+{{ formatMoney(activePoint.income) }}</p>
+        <p class="font-mono text-danger">−{{ formatMoney(activePoint.bills) }}</p>
+        <p class="font-mono text-warning">−{{ formatMoney(activePoint.expenses) }}</p>
       </div>
 
       <svg
@@ -232,20 +232,20 @@ const activePoint = computed(() => cashFlow.value[activeIndex.value])
       <div class="rounded-2xl bg-success/15/50 px-4 py-3">
         <dt class="text-xs text-text-muted">Avg. monthly deposits</dt>
         <dd class="mt-1 font-mono text-sm font-semibold text-success">
-          {{ formatToman(Math.round(averages.income)) }}
+          {{ formatMoney(averages.income) }}
         </dd>
       </div>
       <div class="rounded-2xl bg-danger/15/50 px-4 py-3">
         <dt class="text-xs text-text-muted">Avg. monthly spending</dt>
         <dd class="mt-1 font-mono text-sm font-semibold text-danger">
-          {{ formatToman(Math.round(averages.spending)) }}
+          {{ formatMoney(averages.spending) }}
         </dd>
       </div>
       <div class="rounded-2xl bg-primary/10 px-4 py-3">
         <dt class="text-xs text-text-muted">Best month</dt>
         <dd v-if="bestMonth" class="mt-1 text-sm font-semibold">
           {{ bestMonth.label }}
-          <span class="font-mono text-xs text-success">+{{ formatToman(bestMonth.net) }}</span>
+          <span class="font-mono text-xs text-success">+{{ formatMoney(bestMonth.net) }}</span>
         </dd>
         <dd v-else class="mt-1 text-sm text-text-muted">No surplus yet</dd>
       </div>

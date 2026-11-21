@@ -5,7 +5,7 @@ import DepositCard from '@/components/Deposits/DepositCard.vue'
 import { useBankDeposits } from '@/composables/useBankDeposits'
 import { useToast } from '@/composables/useToast'
 import type { BankDeposit } from '@/types/bankDeposit'
-import { formatTomanNumber } from '@/utils/formatToman'
+import { formatMoney } from '@/utils/formatMoney'
 
 const {
   depositsInViewMonth,
@@ -145,7 +145,7 @@ async function remove(id: string) {
 
         <div class="relative flex flex-col items-center pt-11 text-center">
           <p class="font-display text-3xl leading-none font-bold text-on-paper tabular-nums">
-            {{ balanceHidden ? '••••••••' : formatTomanNumber(monthTotal) }}
+            {{ balanceHidden ? '••••••••' : formatMoney(monthTotal) }}
           </p>
           <p class="mt-2.5 text-sm text-on-paper/70">Total Balance</p>
           <button

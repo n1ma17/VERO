@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { formatTomanCompact, formatTomanNumber } from '@/utils/formatToman'
+import { formatMoneyCompact, formatMoneyNumber } from '@/utils/formatMoney'
+
+const formatSample = (value: number) => formatMoneyNumber(value, 'IRR')
 
 const CHART_HEIGHT = 120
 const SLOT_WIDTH = 50
@@ -52,17 +54,17 @@ const dueClasses = {
     <p
       class="mt-3 font-display text-5xl font-extrabold leading-none tracking-[-0.03em] tabular-nums sm:text-6xl"
     >
-      {{ formatTomanNumber(28_420_000) }}
+      {{ formatSample(28_420_000) }}
     </p>
     <p class="mt-3 text-sm">
-      Toman <span class="mx-1" aria-hidden="true">·</span> +{{ formatTomanNumber(13_150_000) }} net
+      IRR <span class="mx-1" aria-hidden="true">·</span> +{{ formatSample(13_150_000) }} net
       this month
     </p>
 
     <div class="mt-10">
       <div class="flex items-baseline justify-between text-xs uppercase tracking-[0.18em]">
         <span>Balance trend</span>
-        <span>{{ formatTomanCompact(maxBalance) }}</span>
+        <span>{{ formatMoneyCompact(maxBalance) }}</span>
       </div>
       <svg
         :viewBox="`0 0 ${chartWidth} ${CHART_HEIGHT}`"
@@ -102,7 +104,7 @@ const dueClasses = {
         >
           <span class="font-medium">{{ bill.name }}</span>
           <span class="flex items-baseline gap-4 tabular-nums">
-            {{ formatTomanNumber(bill.amount) }}
+            {{ formatSample(bill.amount) }}
             <span
               class="w-16 text-right text-xs uppercase tracking-wide"
               :class="bill.overdue ? dueClasses.overdue : dueClasses.upcoming"

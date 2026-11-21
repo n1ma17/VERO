@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import BillIssuedReceiptBody from '@/components/Bills/BillIssuedReceiptBody.vue'
 import type { Bill } from '@/types/bill'
 import { formatJalaliDate, formatJalaliMonthRange } from '@/utils/jalali'
-import { formatToman } from '@/utils/formatToman'
+import { formatMoney } from '@/utils/formatMoney'
 
 const props = defineProps<{
   bill: Bill
@@ -15,7 +15,7 @@ const meta = computed(() =>
 const periodLabel = computed(() =>
   formatJalaliMonthRange(props.bill.startYear, props.bill.startMonth, props.bill.durationMonths),
 )
-const amountLabel = computed(() => formatToman(props.bill.amount))
+const amountLabel = computed(() => formatMoney(props.bill.amount))
 const refCode = computed(() => props.bill.id.slice(0, 8).toUpperCase())
 </script>
 

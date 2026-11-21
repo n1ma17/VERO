@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { api } from '@/api/http'
 import { bumpMoneyData } from '@/composables/moneyGeneration'
+import { withDisplayAmount } from '@/composables/useCurrency'
 import type { JalaliMonth } from '@/types/bill'
 import type { Installment } from '@/types/installment'
 import { currentJalaliMonth, monthToIndex } from '@/utils/jalali'
@@ -50,7 +51,9 @@ export async function refreshInstallments(): Promise<void> {
 
 export function useInstallments() {
   const allInstallments = computed<Installment[]>(() =>
-    [...installments.value].sort((a, b) => a.dueDate.localeCompare(b.dueDate)),
+    installments.value
+      .map(withDisplayAmount)
+      .sort((a, b) => a.dueDate.localeCompare(b.dueDate)),
   )
 
   const installmentsInViewMonth = computed(() => {

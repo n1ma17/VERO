@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useDashboard, type ActivityItem } from '@/composables/useDashboard'
 import { categoryMeta } from '@/utils/expenseCategories'
-import { formatToman } from '@/utils/formatToman'
+import { formatMoney } from '@/utils/formatMoney'
 
 const { recentActivity } = useDashboard()
 
@@ -51,7 +51,7 @@ function subtitle(item: ActivityItem) {
             class="shrink-0 max-w-[46%] text-end font-mono text-xs font-semibold leading-tight sm:text-sm"
             :class="item.kind === 'deposit' ? 'text-success' : 'text-warning'"
           >
-            {{ item.kind === 'deposit' ? '+' : '−' }}{{ formatToman(item.amount) }}
+            {{ item.kind === 'deposit' ? '+' : '−' }}{{ formatMoney(item.amount) }}
           </p>
         </div>
       </li>

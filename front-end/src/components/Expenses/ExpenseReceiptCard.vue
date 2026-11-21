@@ -5,7 +5,7 @@ import ReceiptEdge from '@/components/shared/ReceiptEdge.vue'
 import type { Expense } from '@/types/expense'
 import { categoryMeta } from '@/utils/expenseCategories'
 import { formatJalaliDate } from '@/utils/jalali'
-import { formatToman } from '@/utils/formatToman'
+import { formatMoney } from '@/utils/formatMoney'
 
 const props = defineProps<{
   expense: Expense
@@ -55,7 +55,7 @@ const date = computed(() =>
       </div>
       <div class="flex items-baseline justify-between pt-2">
         <dt class="text-text-muted">Amount</dt>
-        <dd class="text-xl font-bold">{{ formatToman(expense.amount) }}</dd>
+        <dd class="text-xl font-bold">{{ formatMoney(expense.amount) }}</dd>
       </div>
     </dl>
 

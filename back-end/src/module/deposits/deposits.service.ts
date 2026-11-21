@@ -1,12 +1,15 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { isIsoDate } from '../../common/money/calendar.js';
+import { roundMoney } from '../../common/money/currency.js';
 import { mapDeposit, type DepositRow } from '../../common/money/mappers.js';
 import type { BankDepositDto } from '../../common/money/types.js';
 import { PgService } from '../../lib/database/pg.service.js';
 import type { SaveDepositDto } from './dto/save-deposit.dto.js';
 
+const COLUMNS = 'id, amount, currency, arrived_on, booked_on, note, created_at';
+
 const SELECT = `
-  SELECT id, amount, arrived_on, booked_on, note, created_at
+  SELECT ${COLUMNS}
     FROM bank_deposits
 `;
 
@@ -32,10 +35,17 @@ export class DepositsService {
     assertDates(dto);
     const { rows } = await this.pg.query<DepositRow>(
       `INSERT INTO bank_deposits
-         (user_id, amount, arrived_on, booked_on, note)
-       VALUES ($1, $2, $3::date, $4::date, $5)
-       RETURNING id, amount, arrived_on, booked_on, note, created_at`,
-      [userId, dto.amount, dto.arrivedOn, dto.bookedOn, dto.note?.trim() || null],
+         (user_id, amount, currency, arrived_on, booked_on, note)
+       VALUES ($1, $2, $3, $4::date, $5::date, $6)
+       RETURNING ${COLUMNS}`,
+      [
+        userId,
+        roundMoney(dto.amount, dto.currency),
+        dto.currency,
+        dto.arrivedOn,
+        dto.bookedOn,
+        dto.note?.trim() || null,
+      ],
     );
     return mapDeposit(rows[0]);
   }
@@ -45,12 +55,21 @@ export class DepositsService {
     const { rows } = await this.pg.query<DepositRow>(
       `UPDATE bank_deposits
           SET amount = $3,
-              arrived_on = $4::date,
-              booked_on = $5::date,
-              note = $6
+              currency = $4,
+              arrived_on = $5::date,
+              booked_on = $6::date,
+              note = $7
         WHERE user_id = $1 AND id = $2
-    RETURNING id, amount, arrived_on, booked_on, note, created_at`,
-      [userId, id, dto.amount, dto.arrivedOn, dto.bookedOn, dto.note?.trim() || null],
+    RETURNING ${COLUMNS}`,
+      [
+        userId,
+        id,
+        roundMoney(dto.amount, dto.currency),
+        dto.currency,
+        dto.arrivedOn,
+        dto.bookedOn,
+        dto.note?.trim() || null,
+      ],
     );
     const row = rows[0];
     if (!row) throw new NotFoundException('Deposit not found');

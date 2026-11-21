@@ -1,11 +1,24 @@
-import { IsInt, IsOptional, IsString, Matches, MaxLength, Min, MinLength } from 'class-validator';
+import {
+  IsIn,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+  Min,
+  MinLength,
+} from 'class-validator';
+import { CURRENCIES, type Currency } from '../../../common/money/currency.js';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export class SaveDepositDto {
-  @IsInt()
-  @Min(1)
+  @IsNumber({ maxDecimalPlaces: 2, allowNaN: false, allowInfinity: false })
+  @Min(0.01)
   amount!: number;
+
+  @IsIn(CURRENCIES)
+  currency!: Currency;
 
   @IsString()
   @Matches(ISO_DATE)
