@@ -5,7 +5,12 @@ import { withDisplayAmount } from '@/composables/useCurrency'
 import type { JalaliMonth } from '@/types/bill'
 import type { Installment } from '@/types/installment'
 import { sanitizeViewMonth } from '@/composables/viewMonthSync'
-import { currentCalendarMonth, monthToIndex } from '@/utils/calendar'
+import {
+  currentCalendarMonth,
+  indexToMonth,
+  isBeforeCurrentCalendarMonth,
+  monthToIndex,
+} from '@/utils/calendar'
 import { installmentFromApi, type InstallmentApi } from '@/utils/moneyApi'
 
 const VIEW_KEY = 'money-managment:installments-view-month'
@@ -13,13 +18,7 @@ const VIEW_KEY = 'money-managment:installments-view-month'
 function loadViewMonth(): JalaliMonth {
   try {
     const raw = localStorage.getItem(VIEW_KEY)
-    if (raw) {
-      const parsed = sanitizeViewMonth(JSON.parse(raw) as JalaliMonth)
-      const now = currentCalendarMonth()
-      if (monthToIndex(parsed.year, parsed.month) >= monthToIndex(now.year, now.month)) {
-        return parsed
-      }
-    }
+    if (raw) return sanitizeViewMonth(JSON.parse(raw) as JalaliMonth)
   } catch {
     /* ignore */
   }
@@ -68,22 +67,33 @@ export function useInstallments() {
       .sort((a, b) => a.dueDate.localeCompare(b.dueDate)),
   )
 
+  const viewIndex = computed(() => monthToIndex(viewMonth.value.year, viewMonth.value.month))
+
+  const isCurrentMonth = computed(() => {
+    const now = currentCalendarMonth()
+    return viewIndex.value === monthToIndex(now.year, now.month)
+  })
+
+  const isPastViewMonth = computed(() => isBeforeCurrentCalendarMonth(viewMonth.value.year, viewMonth.value.month))
+
   const installmentsInViewMonth = computed(() => {
     const { year, month } = viewMonth.value
     return allInstallments.value.filter((item) => isInViewMonth(item, year, month))
   })
 
-  const canViewPreviousMonth = computed(() => {
-    const now = currentCalendarMonth()
-    return (
-      monthToIndex(viewMonth.value.year, viewMonth.value.month) >
-      monthToIndex(now.year, now.month)
-    )
-  })
-
   function setViewMonth(year: number, month: number) {
     viewMonth.value = { year, month }
     localStorage.setItem(VIEW_KEY, JSON.stringify(viewMonth.value))
+  }
+
+  function shiftViewMonth(delta: number) {
+    const next = indexToMonth(viewIndex.value + delta)
+    setViewMonth(next.year, next.month)
+  }
+
+  function goToCurrentMonth() {
+    const now = currentCalendarMonth()
+    setViewMonth(now.year, now.month)
   }
 
   async function setPaid(id: string, paid: boolean) {
@@ -101,8 +111,11 @@ export function useInstallments() {
     allInstallments,
     installments: installmentsInViewMonth,
     viewMonth,
-    canViewPreviousMonth,
+    isCurrentMonth,
+    isPastViewMonth,
     setViewMonth,
+    shiftViewMonth,
+    goToCurrentMonth,
     setPaid,
   }
 }

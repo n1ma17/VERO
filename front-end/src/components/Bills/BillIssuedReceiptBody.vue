@@ -12,9 +12,10 @@ withDefaults(
     amountLabel: string
     refCode: string
     logoKey?: string | null
+    companyName?: string | null
     showBillIdentity?: boolean
   }>(),
-  { logoKey: null, showBillIdentity: false },
+  { logoKey: null, companyName: null, showBillIdentity: false },
 )
 </script>
 
@@ -24,6 +25,7 @@ withDefaults(
   <ReceiptBillIdentity
     v-if="showBillIdentity"
     :title="title"
+    :company-name="companyName ?? null"
     :logo-key="logoKey ?? null"
   />
 

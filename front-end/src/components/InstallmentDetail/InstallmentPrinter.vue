@@ -27,7 +27,7 @@ const statusLabels: Record<ReceiptPrinterStage, string> = {
   complete: 'Payment complete',
 }
 
-const { installment, setPaid } = useCurrentInstallment()
+const { installment, readOnly, setPaid } = useCurrentInstallment()
 
 const stage = ref<ReceiptPrinterStage>('idle')
 let timer: ReturnType<typeof setTimeout> | undefined
@@ -133,7 +133,7 @@ const payLabel = computed(() => {
       </ReceiptPrinterPaper>
     </ReceiptPrinterOutput>
 
-    <div class="relative z-10 mt-6 flex w-full justify-center px-2">
+    <div v-if="!readOnly" class="relative z-10 mt-6 flex w-full justify-center px-2">
       <BaseButton class="w-full max-w-sm" :disabled="stage !== 'idle'" @click="pay">{{ payLabel }}</BaseButton>
     </div>
   </ReceiptPrinterRoot>

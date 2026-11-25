@@ -86,7 +86,7 @@ const actionClasses = {
 const actions = [
   { to: '/deposits', label: 'Add deposit', tone: 'primary' },
   { to: '/expenses/entry', label: 'Add expense', tone: 'secondary' },
-  { to: '/bills', label: 'New bill', tone: 'secondary' },
+  { to: '/bills/entry', label: 'New bill', tone: 'secondary' },
   { to: '/transactions', label: 'Statement', tone: 'secondary' },
 ] as const
 </script>

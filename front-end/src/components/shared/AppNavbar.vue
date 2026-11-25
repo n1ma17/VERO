@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import CurrencySwitcher from '@/components/shared/CurrencySwitcher.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useCurrency } from '@/composables/useCurrency'
 import {
@@ -40,7 +39,7 @@ async function signOut() {
         class="flex min-w-0 items-baseline gap-2 truncate font-display text-base font-extrabold tracking-tight text-text sm:text-lg"
       >
         <span class="size-2 shrink-0 bg-accent" aria-hidden="true" />
-        Money Management
+        OUVINA
       </RouterLink>
       <div class="flex min-w-0 items-center gap-3">
         <p class="hidden truncate text-xs text-text sm:block sm:text-sm">{{ todayLabel }}</p>

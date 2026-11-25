@@ -2,7 +2,8 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import ReceiptBarcode from '@/components/shared/ReceiptBarcode.vue'
 import ApprovedStamp from '@/components/shared/ApprovedStamp.vue'
-import BillLogoImage from '@/components/shared/BillLogoImage.vue'
+import CompanyLogoImage from '@/components/shared/CompanyLogoImage.vue'
+import { OTHERS_COMPANY_LABEL } from '@/types/company'
 import InstallmentStatusBadge from '@/components/shared/InstallmentStatusBadge.vue'
 import ReceiptDivider from '@/components/shared/ReceiptDivider.vue'
 import ReceiptEdge from '@/components/shared/ReceiptEdge.vue'
@@ -74,10 +75,21 @@ const isPaid = computed(() => status.value === 'paid')
 
     <header class="px-5 pb-5 pt-6 text-center sm:px-8 sm:pb-6 sm:pt-7">
       <div class="mb-3 flex justify-center">
-        <BillLogoImage :logo-key="installment.logoKey" size="md" />
+        <CompanyLogoImage
+          :company-id="installment.logoKey"
+          :has-logo="Boolean(installment.logoKey)"
+          :label="installment.companyName || OTHERS_COMPANY_LABEL"
+          size="md"
+        />
       </div>
       <p class="text-xs font-medium uppercase tracking-widest text-text-muted">
         Payment receipt
+      </p>
+      <p
+        v-if="installment.companyName"
+        class="mt-2 text-[10px] font-medium uppercase tracking-[0.14em] text-text-muted"
+      >
+        {{ installment.companyName }}
       </p>
       <h2 class="mt-2 text-2xl font-bold">{{ installment.title }}</h2>
       <div class="mt-3 flex justify-center">

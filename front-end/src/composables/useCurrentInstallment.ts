@@ -1,6 +1,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useInstallments } from '@/composables/useInstallments'
+import { isBeforeCurrentCalendarMonth } from '@/utils/calendar'
 import { getInstallmentStatus } from '@/utils/installmentStatus'
 
 /** The installment addressed by the `:id` route param. */
@@ -13,5 +14,11 @@ export function useCurrentInstallment() {
   )
   const status = computed(() => (installment.value ? getInstallmentStatus(installment.value) : null))
 
-  return { installment, status, setPaid }
+  const readOnly = computed(
+    () =>
+      installment.value !== undefined &&
+      isBeforeCurrentCalendarMonth(installment.value.dueYear, installment.value.dueMonth),
+  )
+
+  return { installment, status, readOnly, setPaid }
 }

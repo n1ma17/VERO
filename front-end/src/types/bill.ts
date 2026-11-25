@@ -18,14 +18,15 @@ export interface Bill {
   /** Day of month (1–31) when the bill is due in each active Jalali month. */
   dueDay: number
   durationMonths: number
-  /** IndexedDB key for optional logo (`bill-logos` store). */
+  /** Null = Others. */
+  companyId: string | null
+  companyName: string | null
+  /** Company id when that company has a logo. */
   logoKey: string | null
-  /** @deprecated Migrated to IndexedDB; not persisted after load. */
-  logoUrl?: string | null
   createdAt: string
 }
 
-/** `amount` is in `currency`. */
-export type NewBill = Omit<Bill, 'id' | 'createdAt' | 'logoKey' | 'logoUrl' | 'originalAmount'> & {
-  logoUrl?: string | null
-}
+export type NewBill = Omit<
+  Bill,
+  'id' | 'createdAt' | 'logoKey' | 'originalAmount' | 'companyName'
+>

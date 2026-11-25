@@ -54,6 +54,8 @@ export function buildInstallmentsFromBills(
         dueDay: due.day,
         dueDate: jalaliToIsoDate(due.year, due.month, due.day),
         paidAt: payments[payKey] ?? null,
+        companyId: bill.companyId,
+        companyName: bill.companyName,
         logoKey: bill.logoKey,
       })
     }

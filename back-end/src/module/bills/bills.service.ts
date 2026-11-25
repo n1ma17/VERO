@@ -1,7 +1,10 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { durationFromSpan, isIsoDate } from '../../common/money/calendar.js';
 import { roundMoney } from '../../common/money/currency.js';
-import { upsertBillLogo } from '../../common/money/logo.js';
 import { mapBill, type BillRow } from '../../common/money/mappers.js';
 import type { BillDto } from '../../common/money/types.js';
 import { PgService } from '../../lib/database/pg.service.js';
@@ -17,9 +20,12 @@ const BILL_SELECT = `
     b.end_on,
     b.due_day,
     b.created_at,
-    (l.bill_id IS NOT NULL) AS has_logo
+    b.company_id,
+    c.name AS company_name,
+    (cl.company_id IS NOT NULL) AS has_logo
   FROM bills AS b
-  LEFT JOIN bill_logos AS l ON l.bill_id = b.id
+  LEFT JOIN companies AS c ON c.id = b.company_id
+  LEFT JOIN company_logos AS cl ON cl.company_id = c.id
 `;
 
 function assertBillDates(dto: SaveBillDto): void {
@@ -62,10 +68,11 @@ export class BillsService {
 
   async create(userId: string, dto: SaveBillDto): Promise<BillDto> {
     assertBillDates(dto);
+    const companyId = await this.resolveCompanyId(userId, dto.companyId);
     const { rows } = await this.pg.query<{ id: string }>(
       `INSERT INTO bills
-         (user_id, title, amount, currency, start_on, end_on, due_day)
-       VALUES ($1, $2, $3, $4, $5::date, $6::date, $7)
+         (user_id, title, amount, currency, start_on, end_on, due_day, company_id)
+       VALUES ($1, $2, $3, $4, $5::date, $6::date, $7, $8)
        RETURNING id`,
       [
         userId,
@@ -75,17 +82,15 @@ export class BillsService {
         dto.startOn,
         dto.endOn,
         dto.dueDay,
+        companyId,
       ],
     );
-    const id = rows[0].id;
-    if (dto.logoUrl) {
-      await upsertBillLogo(this.pg.query.bind(this.pg), id, dto.logoUrl);
-    }
-    return this.getById(userId, id);
+    return this.getById(userId, rows[0].id);
   }
 
   async update(userId: string, id: string, dto: SaveBillDto): Promise<BillDto> {
     assertBillDates(dto);
+    const companyId = await this.resolveCompanyId(userId, dto.companyId);
     const { rowCount } = await this.pg.query(
       `UPDATE bills
           SET title = $3,
@@ -93,7 +98,8 @@ export class BillsService {
               currency = $5,
               start_on = $6::date,
               end_on = $7::date,
-              due_day = $8
+              due_day = $8,
+              company_id = $9
         WHERE user_id = $1 AND id = $2`,
       [
         userId,
@@ -104,16 +110,10 @@ export class BillsService {
         dto.startOn,
         dto.endOn,
         dto.dueDay,
+        companyId,
       ],
     );
     if (!rowCount) throw new NotFoundException('Bill not found');
-
-    if (dto.logoUrl) {
-      await upsertBillLogo(this.pg.query.bind(this.pg), id, dto.logoUrl);
-    } else if (dto.logoUrl === null) {
-      await this.pg.query('DELETE FROM bill_logos WHERE bill_id = $1', [id]);
-    }
-
     return this.getById(userId, id);
   }
 
@@ -125,19 +125,19 @@ export class BillsService {
     if (!rowCount) throw new NotFoundException('Bill not found');
   }
 
-  async getLogo(
+  /** `null` / omitted → Others. Otherwise must belong to this user. */
+  private async resolveCompanyId(
     userId: string,
-    id: string,
-  ): Promise<{ mediaType: string; bytes: Buffer }> {
-    const { rows } = await this.pg.query<{ media_type: string; bytes: Buffer }>(
-      `SELECT l.media_type, l.bytes
-         FROM bill_logos AS l
-         JOIN bills AS b ON b.id = l.bill_id
-        WHERE b.user_id = $1 AND b.id = $2`,
-      [userId, id],
+    companyId: string | null | undefined,
+  ): Promise<string | null> {
+    if (companyId === undefined || companyId === null || companyId === '') {
+      return null;
+    }
+    const { rowCount } = await this.pg.query(
+      'SELECT 1 FROM companies WHERE user_id = $1 AND id = $2',
+      [userId, companyId],
     );
-    const logo = rows[0];
-    if (!logo) throw new NotFoundException('Logo not found');
-    return { mediaType: logo.media_type, bytes: logo.bytes };
+    if (!rowCount) throw new BadRequestException('Company not found');
+    return companyId;
   }
 }

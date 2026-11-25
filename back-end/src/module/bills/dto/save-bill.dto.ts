@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   Matches,
   Max,
   MaxLength,
@@ -41,8 +42,9 @@ export class SaveBillDto {
   @Max(31)
   dueDay!: number;
 
+  /** Null / omitted = Others. */
   @IsOptional()
-  @ValidateIf((_, value) => value !== null)
-  @IsString()
-  logoUrl?: string | null;
+  @ValidateIf((_, value) => value !== null && value !== undefined)
+  @IsUUID()
+  companyId?: string | null;
 }

@@ -1,0 +1,45 @@
+/*
+ * Runtime theme colors are also set on <html> via applyAppTheme() so the choice
+ * applies before paint. These blocks keep SSR/devtools and no-JS fallback aligned.
+ */
+html[data-theme='black-box'] {
+  --color-background: #19191b;
+  --color-text: #8c8e92;
+  --color-accent: #ff5410;
+  --color-on-accent: #19191b;
+}
+
+html[data-theme='cherry-noir'] {
+  --color-background: #f6eedb;
+  --color-text: #35151a;
+  --color-accent: #b4182d;
+  --color-on-accent: #f6eedb;
+}
+
+html[data-theme='nature-perfume'] {
+  --color-background: #0b2b2a;
+  --color-text: #e6e5c8;
+  --color-accent: #ef4923;
+  --color-on-accent: #0b2b2a;
+}
+
+html[data-theme='desert'] {
+  --color-background: #eaddc5;
+  --color-text: #563a2e;
+  --color-accent: #d8682f;
+  --color-on-accent: #eaddc5;
+}
+
+html[data-theme='ocean'] {
+  --color-background: #090e1b;
+  --color-text: #2b73a9;
+  --color-accent: #8eb69b;
+  --color-on-accent: #090e1b;
+}
+
+html[data-theme='light'] {
+  --color-background: #f1ece3;
+  --color-text: #14213d;
+  --color-accent: #ffb020;
+  --color-on-accent: #14213d;
+}

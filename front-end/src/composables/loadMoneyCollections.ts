@@ -1,11 +1,11 @@
 import { bumpMoneyData } from '@/composables/moneyGeneration'
-import { clearBillLogos } from '@/composables/useBillLogos'
 import {
   alignBillsViewMonth,
   clearBills,
   loadBills,
   resetBillsViewMonth,
 } from '@/composables/useBills'
+import { clearCompanies, loadCompanies } from '@/composables/useCompanies'
 import {
   alignDepositsViewMonth,
   clearDeposits,
@@ -43,6 +43,7 @@ export async function loadMoneyCollections(): Promise<void> {
   alignInstallmentsViewMonth()
   alignLedgerViewMonth()
   await Promise.all([
+    loadCompanies(),
     loadBills(),
     loadDeposits(),
     loadExpenses(),
@@ -61,6 +62,7 @@ export async function reloadMoneyCollectionsForCalendar(): Promise<void> {
   resetInstallmentsViewMonth()
   resetLedgerViewMonth()
   await Promise.all([
+    loadCompanies(),
     loadBills(),
     loadDeposits(),
     loadExpenses(),
@@ -73,9 +75,9 @@ export async function reloadMoneyCollectionsForCalendar(): Promise<void> {
 export function clearMoneyCollections(): void {
   clearLedger()
   clearBills()
+  clearCompanies()
   clearDeposits()
   clearExpenses()
   clearInstallments()
-  clearBillLogos()
   clearCurrency()
 }

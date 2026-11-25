@@ -16,7 +16,6 @@ import {
   formatIsoAsJalali,
   formatTimestampAsJalali,
   indexToMonth,
-  isBillActiveInMonth,
   isJalaliDateBeforeToday,
   jalaliMonthFirstIso,
   jalaliMonthLength,
@@ -83,6 +82,11 @@ export function currentCalendarMonth(): CalendarMonth {
   const now = new Date()
   return { year: now.getFullYear(), month: now.getMonth() + 1 }
 }
+export function isBeforeCurrentCalendarMonth(year: number, month: number): boolean {
+  const now = currentCalendarMonth()
+  return monthToIndex(year, month) < monthToIndex(now.year, now.month)
+}
+
 
 export function currentCalendarDate(): CalendarDate {
   if (usesJalaliCalendar()) return currentJalaliDate()
@@ -210,7 +214,19 @@ export function billDueInCalendarMonth(
   return { year, month, day: clampCalendarDay(bill.dueDay, year, month) }
 }
 
-export { isBillActiveInMonth }
+export function isBillActiveInCalendarMonth(
+  bill: Pick<Bill, 'startYear' | 'startMonth' | 'durationMonths'>,
+  year: number,
+  month: number,
+): boolean {
+  const view = monthToIndex(year, month)
+  const start = monthToIndex(bill.startYear, bill.startMonth)
+  const end = start + bill.durationMonths - 1
+  return view >= start && view <= end
+}
+
+/** @deprecated Use isBillActiveInCalendarMonth */
+export { isBillActiveInMonth } from '@/utils/jalali'
 
 /** Alias so call sites can keep a short name while respecting calendar mode. */
 export const clampDueDay = clampCalendarDay

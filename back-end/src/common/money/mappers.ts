@@ -36,6 +36,8 @@ export type BillRow = {
   end_on: Date | string;
   due_day: number;
   created_at: Date | string;
+  company_id: string | null;
+  company_name: string | null;
   has_logo: boolean;
 };
 
@@ -68,6 +70,8 @@ export type InstallmentRow = {
   currency: Currency;
   due_date: Date | string;
   paid_at: Date | string | null;
+  company_id: string | null;
+  company_name: string | null;
   logo_key: string | null;
   status: InstallmentStatus;
 };
@@ -100,7 +104,9 @@ export function mapBill(row: BillRow): BillDto {
     startOn: toDateOnly(row.start_on),
     endOn: toDateOnly(row.end_on),
     dueDay: row.due_day,
-    logoKey: row.has_logo ? row.id : null,
+    companyId: row.company_id,
+    companyName: row.company_name,
+    logoKey: row.has_logo && row.company_id ? row.company_id : null,
     createdAt: toIso(row.created_at) ?? new Date().toISOString(),
   };
 }
@@ -139,6 +145,8 @@ export function mapInstallment(row: InstallmentRow): InstallmentDto {
     currency: row.currency,
     dueDate: toDateOnly(row.due_date),
     paidAt: toIso(row.paid_at),
+    companyId: row.company_id,
+    companyName: row.company_name,
     logoKey: row.logo_key,
     status: row.status,
   };

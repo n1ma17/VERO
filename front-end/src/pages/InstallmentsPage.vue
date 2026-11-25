@@ -1,23 +1,15 @@
 <script setup lang="ts">
+import InstallmentCompanyBreakdown from '@/components/Installments/InstallmentCompanyBreakdown.vue'
 import InstallmentList from '@/components/Installments/InstallmentList.vue'
-import InstallmentsDefineBillAction from '@/components/Installments/InstallmentsDefineBillAction.vue'
+import InstallmentsPageHeader from '@/components/Installments/InstallmentsPageHeader.vue'
 import ViewMonthNavigator from '@/components/shared/ViewMonthNavigator.vue'
-import InstallmentSummary from '@/components/Installments/InstallmentSummary.vue'
-import PageHeader from '@/components/shared/PageHeader.vue'
 </script>
 
 <template>
-  <PageHeader
-    title="Installments"
-    subtitle="Browse this month and upcoming months — tap a receipt for details and payment"
-  >
-    <template #actions>
-      <InstallmentsDefineBillAction />
-    </template>
-  </PageHeader>
+  <InstallmentsPageHeader />
   <div class="min-w-0 space-y-8">
     <ViewMonthNavigator context="installments" />
-    <InstallmentSummary />
+    <InstallmentCompanyBreakdown />
     <InstallmentList />
   </div>
 </template>

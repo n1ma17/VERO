@@ -4,7 +4,7 @@ import InstallmentReceiptCard from '@/components/Installments/InstallmentReceipt
 import { useInstallments } from '@/composables/useInstallments'
 import { formatCalendarMonth } from '@/utils/calendar'
 
-const { installments, viewMonth } = useInstallments()
+const { installments, viewMonth, isPastViewMonth } = useInstallments()
 
 const monthLabel = computed(() =>
   formatCalendarMonth(viewMonth.value.year, viewMonth.value.month),
@@ -17,13 +17,18 @@ const monthLabel = computed(() =>
 
     <ul v-if="installments.length" class="grid gap-x-6 gap-y-10 overflow-visible sm:grid-cols-2 lg:grid-cols-3">
       <li v-for="installment in installments" :key="installment.id" class="overflow-visible pb-2">
-        <InstallmentReceiptCard :installment="installment" />
+        <InstallmentReceiptCard :installment="installment" :read-only="isPastViewMonth" />
       </li>
     </ul>
     <p v-else class="rounded-3xl border border-dashed border-primary/20 p-8 text-center text-sm text-text-muted">
       No bills due in {{ monthLabel }}.
-      <RouterLink to="/bills" class="font-medium text-primary hover:underline">Add bills</RouterLink>
-      or choose another month.
+      <template v-if="!isPastViewMonth">
+        <RouterLink :to="{ name: 'bill-entry' }" class="font-medium text-primary hover:underline">
+          Define a bill
+        </RouterLink>
+        or choose another month.
+      </template>
+      <template v-else> Choose another month. </template>
     </p>
   </section>
 </template>

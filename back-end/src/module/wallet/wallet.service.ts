@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { roundMoney } from '../../common/money/currency.js';
-import { upsertBillLogo } from '../../common/money/logo.js';
+import { parseLogoDataUrl } from '../../common/money/logo.js';
 import { PgService } from '../../lib/database/pg.service.js';
 import type { ImportWalletDto } from './dto/import-wallet.dto.js';
 
@@ -13,12 +13,75 @@ export class WalletService {
       await client.query('DELETE FROM expenses WHERE user_id = $1', [userId]);
       await client.query('DELETE FROM bank_deposits WHERE user_id = $1', [userId]);
       await client.query('DELETE FROM bills WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM companies WHERE user_id = $1', [userId]);
+
+      const knownCompanyIds = new Set<string>();
+
+      for (const company of dto.companies ?? []) {
+        await client.query(
+          `INSERT INTO companies (id, user_id, name)
+           VALUES ($1, $2, $3)`,
+          [company.id, userId, company.name.trim()],
+        );
+        knownCompanyIds.add(company.id);
+        if (company.logoUrl) {
+          const logo = parseLogoDataUrl(company.logoUrl);
+          await client.query(
+            `INSERT INTO company_logos (company_id, media_type, bytes)
+             VALUES ($1, $2, $3)`,
+            [company.id, logo.mediaType, logo.bytes],
+          );
+        }
+      }
+
+      const logosByBill = new Map<string, string>();
+      for (const logo of dto.logos ?? []) {
+        logosByBill.set(logo.billId, logo.dataUrl);
+      }
 
       for (const bill of dto.bills) {
+        let companyId: string | null = bill.companyId ?? null;
+        if (companyId && !knownCompanyIds.has(companyId)) {
+          companyId = null;
+        }
+
+        const logoUrl = logosByBill.get(bill.id) ?? bill.logoUrl ?? null;
+
+        if (!companyId && logoUrl) {
+          const legacyName = bill.title.trim().slice(0, 80);
+          const { rows: existing } = await client.query<{ id: string }>(
+            `SELECT id FROM companies
+              WHERE user_id = $1 AND lower(btrim(name)) = lower(btrim($2))
+              LIMIT 1`,
+            [userId, legacyName],
+          );
+          if (existing[0]) {
+            companyId = existing[0].id;
+          } else {
+            const { rows } = await client.query<{ id: string }>(
+              `INSERT INTO companies (user_id, name)
+               VALUES ($1, $2)
+               RETURNING id`,
+              [userId, legacyName],
+            );
+            companyId = rows[0].id;
+          }
+          knownCompanyIds.add(companyId);
+          const logo = parseLogoDataUrl(logoUrl);
+          await client.query(
+            `INSERT INTO company_logos (company_id, media_type, bytes)
+             VALUES ($1, $2, $3)
+             ON CONFLICT (company_id) DO UPDATE
+                SET media_type = EXCLUDED.media_type,
+                    bytes = EXCLUDED.bytes`,
+            [companyId, logo.mediaType, logo.bytes],
+          );
+        }
+
         await client.query(
           `INSERT INTO bills
-             (id, user_id, title, amount, currency, start_on, end_on, due_day)
-           VALUES ($1, $2, $3, $4, $5, $6::date, $7::date, $8)`,
+             (id, user_id, title, amount, currency, start_on, end_on, due_day, company_id)
+           VALUES ($1, $2, $3, $4, $5, $6::date, $7::date, $8, $9)`,
           [
             bill.id,
             userId,
@@ -28,15 +91,9 @@ export class WalletService {
             bill.startOn,
             bill.endOn,
             bill.dueDay,
+            companyId,
           ],
         );
-        if (bill.logoUrl) {
-          await upsertBillLogo(client.query.bind(client), bill.id, bill.logoUrl);
-        }
-      }
-
-      for (const logo of dto.logos ?? []) {
-        await upsertBillLogo(client.query.bind(client), logo.billId, logo.dataUrl);
       }
 
       for (const payment of dto.payments) {

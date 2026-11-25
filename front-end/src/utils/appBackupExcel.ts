@@ -1,13 +1,15 @@
 import * as XLSX from 'xlsx'
 import { api } from '@/api/http'
-import { logoToDataUrl } from '@/composables/useBillLogos'
 import { getBillsSnapshot } from '@/composables/useBills'
 import { getDepositsSnapshot } from '@/composables/useBankDeposits'
+import { getCompaniesSnapshot } from '@/composables/useCompanies'
+import { companyLogoToDataUrl } from '@/composables/useCompanyLogos'
 import { getExpensesSnapshot } from '@/composables/useExpenses'
 import { getInstallmentsSnapshot } from '@/composables/useInstallments'
 import { loadMoneyCollections } from '@/composables/loadMoneyCollections'
 import type { Bill } from '@/types/bill'
 import type { BankDeposit } from '@/types/bankDeposit'
+import type { Company } from '@/types/company'
 import type { Expense } from '@/types/expense'
 import { roundMoney } from '@/composables/useCurrency'
 import { isCurrency, type Currency } from '@/types/currency'
@@ -22,14 +24,17 @@ const LOGO_CHUNK_SIZE = 30_000
 export interface AppBackupSnapshot {
   version: number
   exportedAt: string
+  companies: Company[]
   bills: Bill[]
   deposits: BankDeposit[]
   expenses: Expense[]
   installmentPayments: Record<string, string>
+  /** Company id → data URL (legacy backups used bill id). */
   logos: { key: string; dataUrl: string }[]
 }
 
 export interface BackupCounts {
+  companies: number
   bills: number
   deposits: number
   expenses: number
@@ -38,9 +43,12 @@ export interface BackupCounts {
 }
 
 export async function collectAppBackupSnapshot(): Promise<AppBackupSnapshot> {
+  const companies = getCompaniesSnapshot()
   const bills = getBillsSnapshot().map((bill) => ({
     ...bill,
     dueDay: bill.dueDay ?? 1,
+    companyId: bill.companyId ?? null,
+    companyName: bill.companyName ?? null,
     logoKey: bill.logoKey ?? null,
   }))
   const deposits = getDepositsSnapshot()
@@ -56,15 +64,18 @@ export async function collectAppBackupSnapshot(): Promise<AppBackupSnapshot> {
     ] = installment.paidAt
   }
   const logos: { key: string; dataUrl: string }[] = []
-  for (const bill of bills) {
-    if (!bill.logoKey) continue
-    const dataUrl = await logoToDataUrl(bill.logoKey)
-    if (dataUrl) logos.push({ key: bill.logoKey, dataUrl })
+  const seen = new Set<string>()
+  for (const company of companies) {
+    if (!company.hasLogo || seen.has(company.id)) continue
+    seen.add(company.id)
+    const dataUrl = await companyLogoToDataUrl(company.id)
+    if (dataUrl) logos.push({ key: company.id, dataUrl })
   }
 
   return {
     version: BACKUP_FORMAT_VERSION,
     exportedAt: new Date().toISOString(),
+    companies,
     bills,
     deposits,
     expenses,
@@ -126,6 +137,18 @@ export function snapshotToWorkbook(snapshot: AppBackupSnapshot): XLSX.WorkBook {
     'Info',
   )
 
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.json_to_sheet(
+      snapshot.companies.map((row) => ({
+        id: row.id,
+        name: row.name,
+        hasLogo: row.hasLogo,
+        createdAt: row.createdAt,
+      })),
+    ),
+    'Companies',
+  )
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(snapshot.bills), 'Bills')
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(snapshot.deposits), 'Deposits')
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(snapshot.expenses), 'Expenses')
@@ -167,20 +190,37 @@ function parseMoney(row: Record<string, unknown>, version: number): BackupMoney 
   return { amount, originalAmount: amount, currency: row.currency }
 }
 
+function parseCompanies(rows: Record<string, unknown>[]): Company[] {
+  return rows
+    .filter((row) => row.id && row.name)
+    .map((row) => ({
+      id: String(row.id),
+      name: String(row.name),
+      hasLogo: Boolean(row.hasLogo),
+      createdAt: row.createdAt ? String(row.createdAt) : new Date().toISOString(),
+    }))
+}
+
 function parseBills(rows: Record<string, unknown>[], version: number): Bill[] {
   return rows
     .filter((row) => row.id && row.title)
-    .map((row) => ({
-      id: String(row.id),
-      title: String(row.title),
-      ...parseMoney(row, version),
-      startYear: Number(row.startYear) || 1400,
-      startMonth: Number(row.startMonth) || 1,
-      dueDay: Number(row.dueDay) || 1,
-      durationMonths: Math.min(60, Math.max(1, Math.round(Number(row.durationMonths) || 1))),
-      logoKey: row.logoKey ? String(row.logoKey) : null,
-      createdAt: row.createdAt ? String(row.createdAt) : new Date().toISOString(),
-    }))
+    .map((row) => {
+      const companyId = row.companyId ? String(row.companyId) : null
+      const logoKey = row.logoKey ? String(row.logoKey) : companyId
+      return {
+        id: String(row.id),
+        title: String(row.title),
+        ...parseMoney(row, version),
+        startYear: Number(row.startYear) || 1400,
+        startMonth: Number(row.startMonth) || 1,
+        dueDay: Number(row.dueDay) || 1,
+        durationMonths: Math.min(60, Math.max(1, Math.round(Number(row.durationMonths) || 1))),
+        companyId,
+        companyName: row.companyName ? String(row.companyName) : null,
+        logoKey: logoKey && companyId ? logoKey : null,
+        createdAt: row.createdAt ? String(row.createdAt) : new Date().toISOString(),
+      }
+    })
 }
 
 function parseDeposits(rows: Record<string, unknown>[], version: number): BankDeposit[] {
@@ -234,6 +274,7 @@ export function parseAppBackupWorkbook(wb: XLSX.WorkBook): AppBackupSnapshot {
   )
   const version = Number(info.get('formatVersion') ?? BACKUP_FORMAT_VERSION)
 
+  const companies = parseCompanies(rowsFromSheet(wb, 'Companies'))
   const bills = parseBills(rowsFromSheet(wb, 'Bills'), version)
   const deposits = parseDeposits(rowsFromSheet(wb, 'Deposits'), version)
   const expenses = parseExpenses(rowsFromSheet(wb, 'Expenses'), version)
@@ -247,6 +288,7 @@ export function parseAppBackupWorkbook(wb: XLSX.WorkBook): AppBackupSnapshot {
   return {
     version,
     exportedAt: info.get('exportedAt') ? String(info.get('exportedAt')) : new Date().toISOString(),
+    companies,
     bills,
     deposits,
     expenses,
@@ -257,6 +299,7 @@ export function parseAppBackupWorkbook(wb: XLSX.WorkBook): AppBackupSnapshot {
 
 export function backupCounts(snapshot: AppBackupSnapshot): BackupCounts {
   return {
+    companies: snapshot.companies.length,
     bills: snapshot.bills.length,
     deposits: snapshot.deposits.length,
     expenses: snapshot.expenses.length,
@@ -292,9 +335,17 @@ export async function applyAppBackupSnapshot(snapshot: AppBackupSnapshot): Promi
     ]
   })
 
+  const logosByKey = new Map(snapshot.logos.map((logo) => [logo.key, logo.dataUrl]))
+  const hasCompanies = snapshot.companies.length > 0
+
   await api('/api/wallet', {
     method: 'PUT',
     body: JSON.stringify({
+      companies: snapshot.companies.map((company) => ({
+        id: company.id,
+        name: company.name,
+        logoUrl: logosByKey.get(company.id) ?? undefined,
+      })),
       bills: snapshot.bills.map((bill) => ({
         id: bill.id,
         ...billToApi({
@@ -305,6 +356,7 @@ export async function applyAppBackupSnapshot(snapshot: AppBackupSnapshot): Promi
           startMonth: bill.startMonth,
           dueDay: bill.dueDay,
           durationMonths: bill.durationMonths,
+          companyId: bill.companyId,
         }),
       })),
       deposits: snapshot.deposits.map((deposit) => ({
@@ -316,7 +368,10 @@ export async function applyAppBackupSnapshot(snapshot: AppBackupSnapshot): Promi
         ...expenseToApi({ ...expense, amount: expense.originalAmount }),
       })),
       payments,
-      logos: snapshot.logos.map((logo) => ({ billId: logo.key, dataUrl: logo.dataUrl })),
+      // Legacy backups keyed logos by bill id and had no Companies sheet.
+      logos: hasCompanies
+        ? []
+        : snapshot.logos.map((logo) => ({ billId: logo.key, dataUrl: logo.dataUrl })),
     }),
   })
   await loadMoneyCollections()

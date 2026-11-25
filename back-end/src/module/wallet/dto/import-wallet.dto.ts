@@ -12,9 +12,29 @@ import { SaveBillDto } from '../../bills/dto/save-bill.dto.js';
 import { SaveDepositDto } from '../../deposits/dto/save-deposit.dto.js';
 import { SaveExpenseDto } from '../../expenses/dto/save-expense.dto.js';
 
+class ImportCompanyDto {
+  @IsString()
+  id!: string;
+
+  @IsString()
+  @MinLength(1)
+  @MaxLength(80)
+  name!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200_000)
+  logoUrl?: string | null;
+}
+
 class ImportBillDto extends SaveBillDto {
   @IsString()
   id!: string;
+
+  /** Legacy Excel backup logos — turned into a company on import. */
+  @IsOptional()
+  @IsString()
+  logoUrl?: string | null;
 }
 
 class ImportDepositDto extends SaveDepositDto {
@@ -51,6 +71,12 @@ class ImportLogoDto {
 }
 
 export class ImportWalletDto {
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ImportCompanyDto)
+  companies?: ImportCompanyDto[];
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ImportBillDto)
@@ -71,6 +97,7 @@ export class ImportWalletDto {
   @Type(() => ImportPaymentDto)
   payments!: ImportPaymentDto[];
 
+  /** Legacy: logo keyed by bill id. Prefer `companies[].logoUrl`. */
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

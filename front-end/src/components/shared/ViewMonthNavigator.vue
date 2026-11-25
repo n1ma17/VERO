@@ -59,6 +59,8 @@ const isCurrentMonth = computed(() => {
       return expenses.isCurrentMonth.value
     case 'bills':
       return bills.isCurrentMonth.value
+    case 'installments':
+      return installments.isCurrentMonth.value
     case 'ledger':
       return ledger.isCurrentMonth.value
     case 'deposits':
@@ -68,10 +70,7 @@ const isCurrentMonth = computed(() => {
   }
 })
 
-const disablePrevious = computed(() => {
-  if (props.context === 'installments') return !installments.canViewPreviousMonth.value
-  return false
-})
+const disablePrevious = computed(() => false)
 
 const disableNext = computed(() => {
   if (props.context === 'deposits') return !deposits.canViewNextMonth.value
@@ -79,7 +78,11 @@ const disableNext = computed(() => {
 })
 
 const showBackLink = computed(
-  () => props.context === 'expenses' || props.context === 'ledger' || props.context === 'bills',
+  () =>
+    props.context === 'expenses' ||
+    props.context === 'ledger' ||
+    props.context === 'bills' ||
+    props.context === 'installments',
 )
 
 function onPrevious() {
@@ -94,12 +97,7 @@ function onPrevious() {
       ledger.shiftViewMonth(-1)
       break
     case 'installments':
-      if (!installments.canViewPreviousMonth.value) return
-      const prev = previousCalendarMonth(
-        installments.viewMonth.value.year,
-        installments.viewMonth.value.month,
-      )
-      installments.setViewMonth(prev.year, prev.month)
+      installments.shiftViewMonth(-1)
       break
     case 'deposits': {
       const prevMonth = previousCalendarMonth(
@@ -123,14 +121,9 @@ function onNext() {
     case 'ledger':
       ledger.shiftViewMonth(1)
       break
-    case 'installments': {
-      const next = nextCalendarMonth(
-        installments.viewMonth.value.year,
-        installments.viewMonth.value.month,
-      )
-      installments.setViewMonth(next.year, next.month)
+    case 'installments':
+      installments.shiftViewMonth(1)
       break
-    }
     case 'deposits':
       if (!deposits.canViewNextMonth.value) return
       const nextMonth = nextCalendarMonth(
@@ -145,6 +138,7 @@ function onNext() {
 function onBackToCurrent() {
   if (props.context === 'expenses') expenses.goToCurrentMonth()
   if (props.context === 'bills') bills.goToCurrentMonth()
+  if (props.context === 'installments') installments.goToCurrentMonth()
   if (props.context === 'ledger') ledger.goToCurrentMonth()
 }
 </script>

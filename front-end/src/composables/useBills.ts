@@ -1,7 +1,6 @@
 import { computed, ref } from 'vue'
 import { api } from '@/api/http'
 import { bumpMoneyData } from '@/composables/moneyGeneration'
-import { evictBillLogo, persistBillLogo } from '@/composables/useBillLogos'
 import { withDisplayAmount } from '@/composables/useCurrency'
 import { refreshInstallments } from '@/composables/useInstallments'
 import type { Bill, JalaliMonth, NewBill } from '@/types/bill'
@@ -10,6 +9,7 @@ import { sanitizeViewMonth } from '@/composables/viewMonthSync'
 import {
   currentCalendarMonth,
   indexToMonth,
+  isBeforeCurrentCalendarMonth,
   isBillActiveInMonth,
   monthToIndex,
 } from '@/utils/calendar'
@@ -62,6 +62,10 @@ export function useBills() {
     return viewIndex.value === monthToIndex(now.year, now.month)
   })
 
+  const isPastViewMonth = computed(() =>
+    isBeforeCurrentCalendarMonth(viewMonth.value.year, viewMonth.value.month),
+  )
+
   function getBillById(id: string): Bill | undefined {
     return displayBills.value.find((bill) => bill.id === id)
   }
@@ -88,7 +92,6 @@ export function useBills() {
       body: JSON.stringify(payload),
     })
     const bill = billFromApi(row)
-    if (input.logoUrl) await persistBillLogo(bill.id, input.logoUrl)
     bills.value = [bill, ...bills.value]
     await refreshInstallments()
     bumpMoneyData()
@@ -102,14 +105,9 @@ export function useBills() {
     const payload = billToApi(input)
     const row = await api<BillApi>(`/api/bills/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify({
-        ...payload,
-        logoUrl: input.logoUrl === undefined ? undefined : input.logoUrl,
-      }),
+      body: JSON.stringify(payload),
     })
     const bill = billFromApi(row)
-    if (input.logoUrl) await persistBillLogo(id, input.logoUrl)
-    else if (input.logoUrl === null) await persistBillLogo(id, null)
     bills.value = bills.value.map((item) => (item.id === id ? bill : item))
     await refreshInstallments()
     bumpMoneyData()
@@ -118,7 +116,6 @@ export function useBills() {
 
   async function removeBill(id: string): Promise<void> {
     await api(`/api/bills/${id}`, { method: 'DELETE' })
-    evictBillLogo(id)
     bills.value = bills.value.filter((item) => item.id !== id)
     await refreshInstallments()
     bumpMoneyData()
@@ -134,6 +131,7 @@ export function useBills() {
     billsInViewMonth,
     viewMonth,
     isCurrentMonth,
+    isPastViewMonth,
     getBillById,
     setViewMonth,
     shiftViewMonth,

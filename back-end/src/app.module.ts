@@ -10,6 +10,7 @@ import { validateAuthEnv } from './lib/auth/validate-auth-env.js';
 import { PgModule } from './lib/database/pg.module.js';
 import { FxModule } from './lib/fx/fx.module.js';
 import { BillsModule } from './module/bills/bills.module.js';
+import { CompaniesModule } from './module/companies/companies.module.js';
 import { CurrencyModule } from './module/currency/currency.module.js';
 import { DashboardModule } from './module/dashboard/dashboard.module.js';
 import { DepositsModule } from './module/deposits/deposits.module.js';
@@ -88,6 +89,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule({
     AppAuthModule,
     UsersModule,
     CurrencyModule,
+    CompaniesModule,
     BillsModule,
     DepositsModule,
     ExpensesModule,

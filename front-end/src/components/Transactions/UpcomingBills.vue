@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import BillLogoImage from '@/components/shared/BillLogoImage.vue'
+import CompanyLogoImage from '@/components/shared/CompanyLogoImage.vue'
 import { useDashboard, type UpcomingBill } from '@/composables/useDashboard'
+import { OTHERS_COMPANY_LABEL } from '@/types/company'
 import { formatMoney } from '@/utils/formatMoney'
 
 const { upcomingBills } = useDashboard()
@@ -42,13 +43,11 @@ function dueText(bill: UpcomingBill): string {
           :to="{ name: 'installment-detail', params: { id: bill.id } }"
           class="group flex items-center gap-3 rounded-2xl p-2 transition hover:bg-primary/10"
         >
-          <BillLogoImage v-if="bill.logoKey" :logo-key="bill.logoKey" />
-          <span
-            v-else
-            class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-sm font-bold uppercase text-foreground"
-          >
-            {{ bill.title.slice(0, 1) }}
-          </span>
+          <CompanyLogoImage
+            :company-id="bill.logoKey"
+            :has-logo="Boolean(bill.logoKey)"
+            :label="bill.companyName || OTHERS_COMPANY_LABEL"
+          />
           <div class="min-w-0 flex-1">
             <p class="truncate font-medium group-hover:underline">{{ bill.title }}</p>
             <p class="truncate text-xs text-text-muted">{{ bill.dueLabel }}</p>
@@ -69,7 +68,10 @@ function dueText(bill: UpcomingBill): string {
     <div v-else class="my-auto py-10 text-center">
       <p class="font-medium">Nothing to pay</p>
       <p class="mt-1 text-sm text-text-muted">All installments are settled.</p>
-      <RouterLink to="/bills" class="mt-4 inline-block text-sm font-medium text-primary hover:underline">
+      <RouterLink
+        :to="{ name: 'bill-entry' }"
+        class="mt-4 inline-block text-sm font-medium text-primary hover:underline"
+      >
         Define a bill
       </RouterLink>
     </div>

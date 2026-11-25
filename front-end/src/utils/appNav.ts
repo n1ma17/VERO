@@ -7,6 +7,7 @@ export type AppNavIconName =
   | 'bills'
   | 'installments'
   | 'expenses'
+  | 'settings'
 
 export interface AppNavItem {
   to: string
@@ -58,6 +59,14 @@ export const APP_NAV_ITEMS: AppNavItem[] = [
     shortLabel: 'Spend',
     icon: 'expenses',
     activePrefix: '/expenses',
+  },
+  {
+    to: '/settings',
+    label: 'Settings',
+    shortLabel: 'Settings',
+    icon: 'settings',
+    activePrefix: '/settings',
+    exact: true,
   },
 ]
 

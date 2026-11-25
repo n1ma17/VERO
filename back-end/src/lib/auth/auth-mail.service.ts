@@ -84,7 +84,7 @@ export class AuthMailService {
     const text = [
       `Hi ${input.name || 'there'},`,
       '',
-      'A new password was set for your Money Management account.',
+      'A new password was set for your OUVINA account.',
       '',
       `Email: ${to}`,
       usernameLine.trimEnd(),
@@ -97,7 +97,7 @@ export class AuthMailService {
 
     const html = `
       <p>Hi ${escapeHtml(input.name || 'there')},</p>
-      <p>A new password was set for your Money Management account.</p>
+      <p>A new password was set for your OUVINA account.</p>
       <p>Email: <strong>${escapeHtml(to)}</strong><br/>
       ${input.username ? `Username: <strong>${escapeHtml(input.username)}</strong><br/>` : ''}
       New password: <strong>${escapeHtml(input.password)}</strong></p>
@@ -106,7 +106,7 @@ export class AuthMailService {
 
     await this.send({
       to,
-      subject: 'Your new Money Management password',
+      subject: 'Your new OUVINA password',
       text,
       html,
     });

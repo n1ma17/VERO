@@ -132,6 +132,7 @@ async function confirmImport() {
       <p class="font-semibold">Replace all data for this account?</p>
       <p class="mt-1 text-text-muted">
         This file contains
+        {{ pendingSummary.companies }} company(ies),
         {{ pendingSummary.bills }} bill(s), {{ pendingSummary.deposits }} deposit(s),
         {{ pendingSummary.expenses }} expense(s), {{ pendingSummary.payments }} payment flag(s),
         and {{ pendingSummary.logos }} logo(s).

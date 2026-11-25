@@ -21,6 +21,8 @@ export interface BillApi {
   startOn: string
   endOn: string
   dueDay: number
+  companyId: string | null
+  companyName: string | null
   logoKey: string | null
   createdAt: string
 }
@@ -54,6 +56,8 @@ export interface InstallmentApi {
   currency: Currency
   dueDate: string
   paidAt: string | null
+  companyId: string | null
+  companyName: string | null
   logoKey: string | null
 }
 
@@ -112,6 +116,8 @@ export function billFromApi(row: BillApi): Bill {
     startMonth: start.month,
     dueDay: row.dueDay,
     durationMonths: durationFromIsoSpan(row.startOn, row.endOn),
+    companyId: row.companyId,
+    companyName: row.companyName,
     logoKey: row.logoKey,
     createdAt: row.createdAt,
   }
@@ -125,7 +131,7 @@ export function billToApi(input: NewBill & { durationMonths: number }) {
     startOn: calendarToIsoDate(input.startYear, input.startMonth, input.dueDay),
     endOn: billEndIso(input.startYear, input.startMonth, input.dueDay, input.durationMonths),
     dueDay: input.dueDay,
-    logoUrl: input.logoUrl,
+    companyId: input.companyId,
   }
 }
 
@@ -199,6 +205,8 @@ export function installmentFromApi(row: InstallmentApi): Installment {
     dueDay: due.day,
     dueDate: row.dueDate,
     paidAt: row.paidAt,
+    companyId: row.companyId,
+    companyName: row.companyName,
     logoKey: row.logoKey,
   }
 }

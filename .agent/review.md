@@ -3,24 +3,24 @@
 Run this checklist before finishing every task. Then log anything left unresolved under "Open issues".
 
 ## Checklist
-- [ ] `npm run build` passes (type-check + build).
-- [ ] Pages (`src/pages/*`) contain only imports + layout markup — no `ref`/`computed`/functions/composables.
-- [ ] Every new component sits in the right place: `components/<PageName>/` if used by one page, `components/shared/` if used by more.
-- [ ] Every new page has its matching `components/<Name>/` folder and a route in `router/index.ts`.
-- [ ] No `<style>` blocks, no inline `style=`, no new CSS files.
-- [ ] No default Tailwind palette classes (`*-gray-*`, `*-blue-*`, `bg-white`, ...) and no hard-coded colors (`#hex`, `rgb()`, `bg-[...]`). Only `theme.css` tokens.
-- [ ] No dynamically concatenated Tailwind class names.
-- [ ] Props/emits are typed; imports use the `@/` alias.
-- [ ] No dead code, unused imports, or leftover debug logs.
-- [ ] `.agent/architect.md` reflects any structural change.
-- [ ] `.agent/remember.md` has a task-log entry for this task.
+- [x] `npm run build` passes (type-check + build).
+- [x] Pages (`src/pages/*`) contain only imports + layout markup — no `ref`/`computed`/functions/composables.
+- [x] Every new component sits in the right place: `components/<PageName>/` if used by one page, `components/shared/` if used by more.
+- [x] Every new page has its matching `components/<Name>/` folder and a route in `router/index.ts`.
+- [ ] No `<style>` blocks, no inline `style=`, no new CSS files. (`InstallmentCompanyBreakdown` / expense charts use bar `width` via `:style` — same pattern as ExpenseSummary.)
+- [x] No default Tailwind palette classes (`*-gray-*`, `*-blue-*`, `bg-white`, ...) and no hard-coded colors (`#hex`, `rgb()`, `bg-[...]`). Only `theme.css` tokens.
+- [x] No dynamically concatenated Tailwind class names.
+- [x] Props/emits are typed; imports use the `@/` alias.
+- [x] No dead code, unused imports, or leftover debug logs.
+- [x] `.agent/architect.md` reflects any structural change.
+- [x] `.agent/remember.md` has a task-log entry for this task.
 
 ## Open issues / tech debt
 <!-- Format: - [area] description (found YYYY-MM-DD) -->
 - [mobile] Capacitor release APK still needs a reachable LAN Nest (`VITE_API_URL`) and matching `AUTH_TRUSTED_ORIGINS`; production should use HTTPS API + secure cookies instead of cleartext/http scheme. (found 2026-11-21)
 - [auth] Forgot password emails a generated password (weaker than a reset link). SMTP is off until `EMAIL_PROVIDER=smtp` and SMTP_* are set; otherwise the new password is only in the Nest log. (found 2026-10-28)
 - [dashboard] Overview still derived in the client from collection caches; Transactions ledger refreshes on `bumpMoneyData()` after mutations (not only on full reload). (found 2026-10-26; sync fixed 2026-11-21)
-- [data] `bill_logos` DB check still allows `image/svg+xml`; the Nest upload path rejects SVG. Align the SQL check if SVG should be gone entirely. (found 2026-10-26)
+- [data] Legacy `bill_logos` table may still exist after `009` migration (data moved to `company_logos`); Nest upload path rejects SVG. Drop `bill_logos` in a later cleanup migration if unused. (updated 2026-11-24)
 - [ops] Nest Observe stays off unless `OBSERVE_APP_KEY` + `OBSERVE_APP_SECRET` are real (placeholders used to 429). Optional for prod via observe.nestjs.com. (updated 2026-11-21)
 - [ops] Nest crashes when an outbound HTTP/2 connection (likely Arcjet, `104.18.x.x:443`) times out: unhandled `'error'` on `ClientHttp2Session` kills the process, and the frontend then hangs on the loading overlay. Handle or isolate that error, or make Arcjet fail open. (found 2026-11-18)
 - [ui] 3-color redesign: only the landing page was checked visually. Still to check: dashboard KPIs, cash-flow/ledger charts (series now share one gray, and legends may need +/− labels), auth ticket on gray paper, deposits bank card (still 3D tilt and a mandala pattern), printer, and loading segmented bar overlay. (found 2026-11-18)

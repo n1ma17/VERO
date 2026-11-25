@@ -17,7 +17,7 @@ const isEditing = computed(() => {
 
 <template>
   <div class="min-w-0 space-y-6">
-    <PageBackLink :to="{ name: 'bills' }" label="Back to bills" />
+    <PageBackLink :to="{ name: 'installments' }" label="Back to installments" />
     <PageHeader
       :title="isEditing ? 'Edit bill' : 'Define bill'"
       subtitle="Duration becomes a start and end date — installments appear on the Due tab"

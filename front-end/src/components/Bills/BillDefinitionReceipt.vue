@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import BillLogoUpload from '@/components/Bills/BillLogoUpload.vue'
+import BillCompanyPicker from '@/components/Bills/BillCompanyPicker.vue'
 import MoneyAmountInput from '@/components/shared/MoneyAmountInput.vue'
 import BaseButton from '@/components/shared/BaseButton.vue'
 import JalaliDatePicker from '@/components/shared/JalaliDatePicker.vue'
 import ReceiptDivider from '@/components/shared/ReceiptDivider.vue'
 import ReceiptEdge from '@/components/shared/ReceiptEdge.vue'
 import { useBillDefinitionFlow } from '@/composables/useBillDefinitionFlow'
-import { loadBillLogo } from '@/composables/useBillLogos'
 import { useBills } from '@/composables/useBills'
 import { useCurrency } from '@/composables/useCurrency'
 import { useToast } from '@/composables/useToast'
@@ -23,7 +22,7 @@ import { formatMoney } from '@/utils/formatMoney'
 
 const route = useRoute()
 const router = useRouter()
-const { getBillById, addBill, updateBill, removeBill, viewMonth } = useBills()
+const { getBillById, addBill, updateBill, removeBill, viewMonth, isPastViewMonth } = useBills()
 const { stage, startIssue, formResetTick } = useBillDefinitionFlow()
 const { showSuccess } = useToast()
 const { currency: displayCurrency } = useCurrency()
@@ -41,7 +40,7 @@ const form = reactive({
   startMonth: viewMonth.value.month,
   dueDay: today.day,
   durationMonths: 1,
-  logoUrl: null as string | null,
+  companyId: null as string | null,
 })
 
 const editBillId = computed(() => {
@@ -50,6 +49,7 @@ const editBillId = computed(() => {
 })
 
 const isEditing = computed(() => editBillId.value !== null)
+const readOnly = computed(() => isPastViewMonth.value)
 const amountCurrency = computed(() => form.currency ?? displayCurrency.value)
 
 watch(
@@ -80,7 +80,7 @@ watch(
     form.startMonth = bill.startMonth
     form.dueDay = bill.dueDay
     form.durationMonths = bill.durationMonths
-    form.logoUrl = bill.logoKey ? await loadBillLogo(bill.logoKey) : null
+    form.companyId = bill.companyId
   },
   { immediate: true },
 )
@@ -88,7 +88,7 @@ watch(
 watch(formResetTick, () => {
   resetFormFields()
   if (editBillId.value) {
-    void router.replace({ name: 'bills' })
+    void router.replace({ name: 'installments' })
   }
 })
 
@@ -96,7 +96,7 @@ function resetFormFields() {
   form.title = ''
   form.amount = null
   form.currency = null
-  form.logoUrl = null
+  form.companyId = null
   form.durationMonths = 1
   form.startYear = viewMonth.value.year
   form.startMonth = viewMonth.value.month
@@ -135,7 +135,7 @@ const inputClasses =
   'w-full rounded-2xl border border-primary/20 bg-surface px-3 py-3 text-base text-text outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-accent/60'
 
 async function submit() {
-  if (!isValid.value || isPrinterBusy.value || billNotFound.value) return
+  if (readOnly.value || !isValid.value || isPrinterBusy.value || billNotFound.value) return
 
   const payload = {
     title: form.title.trim(),
@@ -145,7 +145,7 @@ async function submit() {
     startMonth: form.startMonth,
     dueDay: form.dueDay,
     durationMonths: form.durationMonths,
-    logoUrl: form.logoUrl,
+    companyId: form.companyId,
   }
 
   const bill = isEditing.value
@@ -168,14 +168,14 @@ async function submit() {
 }
 
 async function deleteBill() {
-  if (!editBillId.value) return
+  if (readOnly.value || !editBillId.value) return
   if (!confirmingDelete.value) {
     confirmingDelete.value = true
     return
   }
   await removeBill(editBillId.value)
   showSuccess('Bill deleted — all installments removed.')
-  void router.replace({ name: 'bills' })
+  void router.replace({ name: 'installments' })
 }
 </script>
 
@@ -190,14 +190,23 @@ async function deleteBill() {
       <p class="text-xs font-medium uppercase tracking-widest text-text-muted">
         Bill definition
       </p>
-      <h2 class="mt-2 text-xl font-bold">{{ isEditing ? 'Edit bill' : 'New bill' }}</h2>
+      <h2 class="mt-2 text-xl font-bold">
+        {{
+          readOnly ? 'View bill' : isEditing ? 'Edit bill' : 'New bill'
+        }}
+      </h2>
+      <p v-if="readOnly" class="mt-2 text-xs font-medium uppercase tracking-[0.12em] text-text-muted">
+        Past month — view only
+      </p>
       <p class="mt-1 text-xs text-text-muted">First due: {{ firstDueLabel }}</p>
     </header>
 
     <ReceiptDivider />
 
     <form class="space-y-4 px-4 py-5 sm:px-6" @submit.prevent="submit">
-      <BillLogoUpload v-model="form.logoUrl" />
+      <div :class="readOnly ? 'pointer-events-none opacity-60' : undefined">
+        <BillCompanyPicker v-model="form.companyId" />
+      </div>
 
       <div>
         <label class="mb-1.5 block text-xs text-text-muted">Title</label>
@@ -206,14 +215,14 @@ async function deleteBill() {
           type="text"
           placeholder="e.g. Rent, Internet"
           :class="inputClasses"
-          :disabled="isPrinterBusy"
+          :disabled="isPrinterBusy || readOnly"
         />
       </div>
 
       <MoneyAmountInput
         v-model="form.amount"
         :currency="amountCurrency"
-        :disabled="isPrinterBusy"
+        :disabled="isPrinterBusy || readOnly"
         :hint="isEditing && amountCurrency !== displayCurrency ? 'Kept in the currency it was entered in.' : undefined"
       />
 
@@ -222,7 +231,7 @@ async function deleteBill() {
         v-model:month="form.startMonth"
         v-model:day="form.dueDay"
         label="Due date (first month)"
-        :disabled="isPrinterBusy"
+        :disabled="isPrinterBusy || readOnly"
       />
 
       <div>
@@ -235,7 +244,7 @@ async function deleteBill() {
           min="1"
           max="60"
           class="w-full accent-primary"
-          :disabled="isPrinterBusy"
+          :disabled="isPrinterBusy || readOnly"
         />
         <p class="mt-1 text-xs text-text-muted">
           Due on day {{ form.dueDay }} in each active month (adjusted for shorter months).
@@ -259,11 +268,16 @@ async function deleteBill() {
         </div>
       </dl>
 
-      <BaseButton type="submit" class="w-full" :disabled="!isValid || isPrinterBusy">
+      <BaseButton
+        v-if="!readOnly"
+        type="submit"
+        class="w-full"
+        :disabled="!isValid || isPrinterBusy"
+      >
         {{ isEditing ? 'Update bill' : 'Save bill' }}
       </BaseButton>
       <BaseButton
-        v-if="isEditing"
+        v-if="isEditing && !readOnly"
         type="button"
         :variant="confirmingDelete ? 'danger' : 'ghost'"
         class="w-full"
@@ -294,7 +308,7 @@ async function deleteBill() {
       This bill may have been removed from this device.
     </p>
     <RouterLink
-      :to="{ name: 'bills' }"
+      :to="{ name: 'installments' }"
       class="mt-6 inline-block text-sm font-medium text-primary underline-offset-2 hover:underline"
     >
       Create a new bill

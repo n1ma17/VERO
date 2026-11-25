@@ -15,7 +15,7 @@ import LandingPreviewStatement from '@/components/Landing/LandingPreviewStatemen
         class="grid grid-cols-12 items-center gap-x-6 border-b border-text/20 py-3 text-xs sm:text-sm"
       >
         <p class="col-span-6 font-display font-extrabold tracking-tight sm:col-span-4">
-          Money Management
+          OUVINA
         </p>
         <p class="col-span-6 text-right sm:col-span-4 sm:text-left">Wed, 27 Aban 1405</p>
         <div class="hidden sm:col-span-4 sm:flex sm:justify-end">

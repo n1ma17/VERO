@@ -30,6 +30,10 @@ export interface BillDto {
   /** Gregorian ISO date of the last due. */
   endOn: string;
   dueDay: number;
+  /** Null = Others (no company). */
+  companyId: string | null;
+  companyName: string | null;
+  /** Company id when that company has a logo (fetch `/api/companies/:id/logo`). */
   logoKey: string | null;
   createdAt: string;
 }
@@ -67,6 +71,8 @@ export interface InstallmentDto {
   /** Gregorian ISO due date. */
   dueDate: string;
   paidAt: string | null;
+  companyId: string | null;
+  companyName: string | null;
   logoKey: string | null;
   status: InstallmentStatus;
 }

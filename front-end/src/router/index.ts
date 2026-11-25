@@ -66,6 +66,11 @@ const router = createRouter({
       component: () => import('@/pages/InstallmentDetailPage.vue'),
       meta: { skipLoadingOverlay: true },
     },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: () => import('@/pages/SettingsPage.vue'),
+    },
   ],
 })
 

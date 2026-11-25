@@ -57,6 +57,7 @@ export interface UpcomingBill {
   dueLabel: string
   daysLeft: number
   status: InstallmentStatus
+  companyName: string | null
   logoKey: string | null
 }
 
@@ -157,6 +158,7 @@ export function useDashboard() {
         ),
         daysLeft: daysBetween(todayIso, installment.dueDate),
         status: getInstallmentStatus(installment, todayIso),
+        companyName: installment.companyName,
         logoKey: installment.logoKey,
       })),
   )

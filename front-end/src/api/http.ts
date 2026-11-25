@@ -1,8 +1,6 @@
 import { apiBaseUrl } from '@/api/apiBase'
 import { beginLoading, endLoading } from '@/composables/useLoadingOverlay'
 
-const API_URL = apiBaseUrl()
-
 export class ApiError extends Error {
   readonly status: number
 
@@ -21,7 +19,7 @@ export class NetworkError extends Error {
 }
 
 export function apiUrl(path: string): string {
-  return `${API_URL}${path}`
+  return `${apiBaseUrl()}${path}`
 }
 
 export function isNetworkError(error: unknown): boolean {

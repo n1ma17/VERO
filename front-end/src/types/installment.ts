@@ -17,5 +17,7 @@ export interface Installment {
   /** Gregorian `YYYY-MM-DD` for overdue logic. */
   dueDate: string
   paidAt: string | null
+  companyId: string | null
+  companyName: string | null
   logoKey: string | null
 }
