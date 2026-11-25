@@ -10,6 +10,7 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 - Agent must use the `.agent/` memory (architect / remember / review) instead of re-reading everything.
 
 ## Decisions
+- Docker Compose is the supported container path: nginx SPA on `:8080` proxies `/api` to Nest so browser auth cookies stay same-origin (no `VITE_API_URL` in the frontend image). `AUTH_SECURE_COOKIES=false` for local HTTP; set `true` only with HTTPS. Postgres in Compose publishes `5433` on the host by default.
 - Visual direction ("must not look AI-made"): exactly 3 colors, 60% `#19191B` background, 30% `#8C8E92` text, 10% `#FF5410` used only for the one primary button and tiny details (overdue labels, small square marks, an active-tab tick, the current-month chart cap). No gradients, glass, emojis, sparkles, or soft shadows. One bold display font (Archivo, big, tight, left-aligned) plus one plain font (IBM Plex Sans). Lay everything out on a 12-column grid. Separate content with hairline rules (`border-text/20`), not filled cards. Show the real product large. Use opacity of `text` only for hairlines and muted chart bars, never as a fill tint.
 - Tailwind v4 CSS-first config: theme is defined with `@theme` in `theme.css`; there is no `tailwind.config.js`.
 - `--color-*: initial` in `theme.css` removes the default palette so only theme colors can be used.
@@ -42,6 +43,7 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 - GitHub remote is `https://github.com/n1ma17/VERO.git` on `master`. The Vue app used to sit at the VERO root; it now lives under `front-end/` with `back-end/` and `database/` beside it.
 
 ## Gotchas
+- Docker Desktop must be running before `docker compose up --build`. Root `.env` is required for `BETTER_AUTH_SECRET` and `ARCJET_KEY` (copy from `.env.example`). Backend Dockerfile build context is the **repo root** (`-f back-end/Dockerfile .`) so `/database/sql` lands beside `/app` for migrate.
 - Nest feature modules must appear in `AppModule.imports`, not only a top-level `import` line — `CompaniesModule` was imported in `app.module.ts` but omitted from `imports`, so `/api/companies` 404’d and post-login `loadMoneyCollections()` failed.
 - Nest Observe (`@nestjs/observe`) with `YOUR_APP_KEY` / `YOUR_APP_SECRET` hits observe.nestjs.com and logs `Telemetry rate-limited (429)` about every flush; it pauses sends for 60m but does not by itself exit Nest. Leave `OBSERVE_*` unset locally; enable only with real keys from observe.nestjs.com. Separate crash risk: Arcjet HTTP/2 unhandled timeout (see review.md).
 - Bottom nav: never put `env(safe-area-inset-bottom)` as padding/margin on the *dock* outside the bar — on gesture-nav phones that leaves a empty gap above the home indicator. Put the inset as `padding-bottom` *inside* `.app-bottom-nav` so the bar fill reaches the screen edge, and keep the icon row at a fixed `5rem` with `align-items: flex-start` (not `center`, or icons float in the padded height).
@@ -73,6 +75,7 @@ Long-term memory for the agent. Read at the start of every task, update at the e
 - Navbar popovers on mobile (below `sm`, `matchMedia('(max-width: 39.999rem)')`) become bottom sheets: `<Teleport to="body" :disabled="!isMobile">`, `z-[150]` sheet + `z-[140]` backdrop (above bottom nav 50 and loading 100, below datepicker 200 / toasts 300), lock body with `overflow-hidden`, pad `env(safe-area-inset-bottom)`. Inputs inside use `text-base` on mobile so iOS does not zoom.
 
 ## Task log
+- 2026-11-25 — Dockerized stack: root `docker-compose.yml` (Postgres + Nest + nginx SPA), `back-end/Dockerfile` (+ migrate entrypoint), `front-end/Dockerfile` + `nginx.conf` (`/api` proxy), root `.env.example`, `AUTH_SECURE_COOKIES` for HTTP cookies. Front + Nest builds OK; `docker compose build` needs Docker Desktop running.
 - 2026-11-24 — Fix: `CompaniesModule` was imported in `app.module.ts` but missing from `imports` → `/api/companies` 404 broke `loadMoneyCollections` after login.
 - 2026-11-24 — Theme palettes: Cherry Noir / Nature Perfume / Desert / Ocean color refresh.
 - 2026-11-24 — Six UI themes (Black Box + Cherry Noir, Nature Perfume, Desert, Ocean, Light); `useAppTheme` + localStorage. Build OK.

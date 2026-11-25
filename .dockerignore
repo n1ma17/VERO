@@ -1,0 +1,25 @@
+**/node_modules
+**/dist
+**/coverage
+**/.git
+**/.temp
+**/.tmp
+**/*.log
+**/.env
+**/.env.*
+!**/.env.example
+
+# Capacitor / IDE / agent noise
+front-end/android
+front-end/ios
+**/.idea
+**/.vscode
+**/.claude
+**/.cursor
+**/.agent
+**/agent-transcripts
+
+# Local DB tooling and backups (not needed in images)
+database/scripts
+*.xlsx
+*.xls

@@ -15,6 +15,10 @@ export function createAuth(
   const secret = config.getOrThrow<string>('BETTER_AUTH_SECRET');
   const baseURL = config.getOrThrow<string>('BETTER_AUTH_URL');
   const isProduction = config.get<string>('NODE_ENV') === 'production';
+  // Docker/local HTTP: set AUTH_SECURE_COOKIES=false (Secure cookies break on http://).
+  const useSecureCookies =
+    config.get<string>('AUTH_SECURE_COOKIES', isProduction ? 'true' : 'false') ===
+    'true';
 
   const trustedOrigins = config
     .get<string>('AUTH_TRUSTED_ORIGINS', baseURL)
@@ -44,10 +48,10 @@ export function createAuth(
       database: {
         joins: true,
       },
-      useSecureCookies: isProduction,
+      useSecureCookies,
       defaultCookieAttributes: {
         sameSite: 'lax',
-        secure: isProduction,
+        secure: useSecureCookies,
       },
     },
     session: {

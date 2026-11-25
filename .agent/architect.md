@@ -7,6 +7,7 @@ Keep this file in sync with the code. It should let an agent understand the proj
 - `front-end/` — Vue SPA. Talks to Nest over HTTP (`VITE_API_URL`, default `http://localhost:3000`). View-month UI state stays in `localStorage`.
 - `back-end/` — NestJS 12 API (Express). PostgreSQL via `pg` pool, Better Auth, Arcjet.
 - `database/` — PostgreSQL schema (`sql/001_calendar.sql` … `009_companies.sql`, `scripts/apply.sh`). Multi-currency views in `007`; Gregorian ledger in `008`; companies in `009` (recreates `v_installments` + ledger views). Local database `app_money` on PostgreSQL 18 (`127.0.0.1:5432`). Cluster data directory is `F:\database`; do not put project SQL there.
+- Docker (repo root): `docker-compose.yml` runs `db` (Postgres 18), `backend` (Nest), `frontend` (nginx SPA + `/api` reverse proxy). Dockerfiles: `back-end/Dockerfile`, `front-end/Dockerfile` + `front-end/nginx.conf`. Root `.env.example` → copy to `.env`. Default UI `http://localhost:8080`; host Postgres publish `5433` (avoids local 5432 clash). Backend entrypoint runs `scripts/migrate.ts` then `node dist/main.js`. Image build context is the repo root (`.dockerignore`).
 - `.agent/` — agent memory (this file, `remember.md`, `review.md`). Canonical copy at repo root.
 - `AGENTS.md` — mandatory start/end-of-task workflow. Vue rules: `front-end/AGENTS.md`. Nest rules: `back-end/AGENTS.md`.
 
